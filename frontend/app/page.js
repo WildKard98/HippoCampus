@@ -13,6 +13,20 @@ export default function Home() {
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const [isCreatingSet, setIsCreatingSet] = useState(false);
   const [studySets, setStudySets] = useState([]);
+  const [isWingPanelOpen, setIsWingPanelOpen] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(0); // Start with 0 to avoid SSR issues
+
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+      if (window.innerWidth > 770) {
+        setIsWingPanelOpen(false); // Auto-hide WingPanel when screen gets bigger
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -23,16 +37,27 @@ export default function Home() {
           {/* Left: Hamburger & App Name */}
           <div className="flex items-center">
             <button
-              className="text-white text-2xl  focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-white hover:text-[#3B0B24]"
-              onClick={() => setIsMenuCollapsed(!isMenuCollapsed)}
+              className="text-white text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-white hover:text-[#3B0B24]"
+              onClick={() => {
+                if (window.innerWidth <= 770) {
+                  setIsWingPanelOpen(true);  // Open WingPanel if screen width ≤ 770px
+                } else {
+                  setIsMenuCollapsed(!isMenuCollapsed); // Otherwise, toggle side panel
+                }
+              }}
             >
               ☰
             </button>
-            <span className="text-3xl font-bold ml-4" style={{ fontFamily: "'Inknut Antiqua', serif" }}>
+
+            {/* Web Title (Changes based on screen size) */}
+            <span className={`text-3xl font-bold ml-4 ${screenWidth <= 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
+              W
+            </span>
+            <span className={`text-3xl font-bold ml-4 ${screenWidth > 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
               WordCraze
             </span>
-
           </div>
+
 
           {/* Middle: Search Bar */}
           <input
@@ -58,11 +83,16 @@ export default function Home() {
           </div>
         </header>
 
+        {/* WingPanel (Hidden by default, appears when clicking the hamburger) */}
+        {isWingPanelOpen && <WingPanel isOpen={isWingPanelOpen} setIsOpen={setIsWingPanelOpen} />}
+
+
         {/* Main Container with Sidebar & Content */}
         <div className="flex flex-1 relative">
-          <RightPanel />
+
           {/* Side Navigation */}
-          <aside className={`bg-[#3B0B24] p-4 transition-all ${isMenuCollapsed ? "w-16" : "w-48"}`}>
+
+          <aside className={`bg-[#3B0B24] p-4 transition-all ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"}`}>
             <nav className="flex flex-col gap-4">
               <button onClick={() => setIsCreatingSet(false)} className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
                 🏠 {!isMenuCollapsed && "Home"}
@@ -97,6 +127,17 @@ export default function Home() {
               <HomeContent studySets={studySets} />
             )}
           </main>
+
+          {/* Right Panel (Hidden on small screens OR when creating a set) */}
+          {screenWidth > 770 && !isCreatingSet && (
+            <div className="hidden md:block">
+              <aside className="w-55 bg-[#260516] p-4 absolute right-0 top-0 h-full">
+                <h3 className="text-lg font-semibold">Right Panel</h3>
+                <p className="text-sm text-gray-300">Future content goes here...</p>
+              </aside>
+            </div>
+          )}
+
         </div>
       </div>
     </DndProvider>
@@ -290,12 +331,47 @@ function LibraryContent({ studySets }) {
   );
 }
 
-function RightPanel() {
+function WingPanel({ isOpen, setIsOpen }) {
   return (
-    <aside className="w-48 bg-[#3B0B24] p-4 absolute right-0 top-0 h-full">
-      <h3 className="text-lg font-semibold">Right Panel</h3>
-      <p className="text-sm text-gray-300">Future content goes here...</p>
-    </aside>
+    <motion.aside
+      className="fixed top-0 left-0 h-full w-48 bg-[#3B0B24] p-4 shadow-lg z-50"
+      initial={{ x: -200 }}
+      animate={{ x: isOpen ? 0 : -200 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* BigMac Button & Web Title "W" */}
+      <div className="flex items-center gap-1">
+        <button
+          className="text-white text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-white hover:text-[#3B0B24]"
+          onClick={() => setIsOpen(false)}
+        >
+          ☰
+        </button>
+
+        <span className="text-3xl font-bold ml-2" style={{ fontFamily: "'Inknut Antiqua', serif" }}>W</span>
+      </div>
+
+
+      {/* Navigation Items */}
+      <nav className="flex flex-col gap-4 mt-9">
+        <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+          🏠 Home
+        </button>
+        <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+          📂 Your Library
+        </button>
+        <hr className="border-[#FFFFFF]" />
+        <p className="text-sm">Your folders</p>
+        <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+          ➕ New Folder
+        </button>
+        <hr className="border-[#FFFFFF]" />
+        <p className="text-sm">Explore</p>
+        <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+          🧩 CrossWord
+        </button>
+      </nav>
+    </motion.aside>
   );
 }
 
@@ -349,9 +425,10 @@ function FlashcardReview({ studySet, onExit }) {
 
           {/* Navigation Buttons - Now Centered Under the Flashcard */}
           <div className="flex justify-center w-[60%] mt-4">
-            <button onClick={prevCard} className="w-16 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-xl">←</button>
-            <span className="text-xl mx-4">{currentIndex + 1} / {studySet.terms.length}</span>
-            <button onClick={nextCard} className="w-16 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-xl">→</button>
+            <button onClick={prevCard} className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black">←</button>
+            <span className="text-xl mx-4 flex items-center justify-center h-[45px]">{currentIndex + 1} / {studySet.terms.length}</span>
+            <button onClick={nextCard} className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black">→</button>
+
           </div>
 
           {/* White Line Below the Flashcard */}
@@ -359,11 +436,6 @@ function FlashcardReview({ studySet, onExit }) {
         </div>
 
       </div>
-
-      {/* Right Panel Placeholder */}
-      <aside className="w-48 bg-[#3B0B24] p-4">
-        <h3 className="text-lg font-semibold">Right Panel</h3>
-      </aside>
     </div>
   );
 }
