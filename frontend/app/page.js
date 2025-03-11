@@ -1,9 +1,10 @@
+// Shift + Option + F to Format code
 "use client";
-
 import { useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useEffect } from "react";
+import { motion } from "framer-motion"; // 🔹 Import motion at the top of your file
 
 export default function Home() {
   useEffect(() => {
@@ -322,9 +323,29 @@ function FlashcardReview({ studySet, onExit }) {
         {/* Flashcard Wrapper */}
         <div className="flex flex-col items-start w-full">
           {/* Flashcard (Longer & Centered) */}
-          <div className="w-[60%] h-[35vh] flex items-center justify-center p-6 bg-[#522136] rounded-lg text-center text-3xl cursor-pointer select-none">
-            {flipped ? studySet.terms[currentIndex].term : studySet.terms[currentIndex].definition}
-          </div>
+          {/* Flashcard with Flip Animation (Bottom-to-Top) */}
+          <motion.div
+            className="w-[60%] h-[35vh] flex items-center justify-center p-6 bg-[#522136] rounded-lg text-center text-3xl cursor-pointer select-none relative"
+            onClick={() => setFlipped(!flipped)}
+            initial={{ rotateX: 0 }} // Start with 0-degree rotation on X-axis
+            animate={{ rotateX: flipped ? 180 : 0 }} // Flip on the X-axis
+            transition={{ duration: 0.5 }} // Smooth flip animation
+            style={{ transformStyle: "preserve-3d" }} // Keep 3D effect
+          >
+            {/* FRONT SIDE (Definition) */}
+            {!flipped && (
+              <div className="absolute w-full h-full flex items-center justify-center">
+                {studySet.terms[currentIndex].definition}
+              </div>
+            )}
+
+            {/* BACK SIDE (Term) */}
+            {flipped && (
+              <div className="absolute w-full h-full flex items-center justify-center rotate-x-180">
+                {studySet.terms[currentIndex].term}
+              </div>
+            )}
+          </motion.div>
 
           {/* Navigation Buttons - Now Centered Under the Flashcard */}
           <div className="flex justify-center w-[60%] mt-4">
