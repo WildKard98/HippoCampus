@@ -26,7 +26,7 @@ export default function Home() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
+
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -54,7 +54,7 @@ export default function Home() {
               W
             </span>
             <span className={`text-3xl font-bold ml-4 ${screenWidth > 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
-              WordCraze
+              WordNest
             </span>
           </div>
 
@@ -167,6 +167,11 @@ function HomeContent({ studySets }) {
 function CreateSet({ onSave }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [numCards, setNumCards] = useState(1);  // Default to 1 card
+  const [alwaysAddOne, setAlwaysAddOne] = useState(false); // Checkbox state
+  const [showCardDropdown, setShowCardDropdown] = useState(false); // Toggle dropdown
+
+
   const [terms, setTerms] = useState([
     { id: 1, term: "", definition: "" },
     { id: 2, term: "", definition: "" },
@@ -181,8 +186,15 @@ function CreateSet({ onSave }) {
     setTerms(updatedTerms.map((t, i) => ({ ...t, id: i + 1 }))); // Renumber blocks
   };
 
-  const addCard = () => {
-    setTerms([...terms, { id: terms.length + 1, term: "", definition: "" }]);
+  const addCard = (count = 1) => {
+    if (alwaysAddOne) count = 1;
+    const newCards = Array.from({ length: count }, (_, i) => ({
+      id: terms.length + i + 1,
+      term: "",
+      definition: ""
+    }));
+
+    setTerms([...terms, ...newCards]);
   };
 
   const removeCard = (index) => {
@@ -237,9 +249,13 @@ function CreateSet({ onSave }) {
 
       {/* Create Button below Add Description */}
       <div className="flex justify-center mb-6">
-        <button onClick={handleSave} className="bg-yellow-500 px-6 py-2 rounded-lg">
+        <button
+          onClick={handleSave}
+          className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
+        >
           Create
         </button>
+
       </div>
 
       {terms.map((item, index) => (
@@ -260,9 +276,59 @@ function CreateSet({ onSave }) {
         />
       ))}
 
-      <button onClick={addCard} className="bg-[#5A2E44] px-6 py-2 rounded-lg w-full">
-        + Add More Card
-      </button>
+      <div className="flex flex-col items-center gap-2">
+        <div className="relative w-full flex flex-col items-center">
+          {/* Add More Card Button */}
+          <button
+  onClick={() => {
+    if (alwaysAddOne) {
+      addCard(1); // Automatically add 1 card when the checkbox is checked
+    } else {
+      setShowCardDropdown(!showCardDropdown); // Show the dropdown only if not always adding 1 card
+    }
+  }}
+  className="bg-[#5A2E44] px-6 py-2 rounded-lg w-full hover:bg-[#6A2A3B] transition duration-300 flex items-center justify-center relative"
+>
+  <span>+ Add More Card</span>
+
+  {!alwaysAddOne && (
+    <span className="absolute right-4">▼</span> 
+  )}
+</button>
+
+
+
+          {/* Dropdown Appears Inside Button */}
+          {!alwaysAddOne && showCardDropdown && (
+            <div className="absolute top-full mt-1 w-full bg-[#522136] text-white rounded-lg shadow-lg z-10">
+              {[1, 2, 3, 4, 5].map((num) => (
+                <div
+                  key={num}
+                  className="px-4 py-2 hover:bg-[#6A2A3B] cursor-pointer text-center"
+                  onClick={() => {
+                    setNumCards(num);
+                    setShowCardDropdown(false);
+                    addCard(num);
+                  }}
+                >
+                  {num} {num === 1 ? "Card" : "Cards"}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Checkbox for "Always add 1 card" */}
+          <label className="flex items-center text-sm mt-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={alwaysAddOne}
+              onChange={() => setAlwaysAddOne(!alwaysAddOne)}
+              className="mr-2"
+            />
+            Always add 1 card
+          </label>
+        </div>
+      </div>
     </div>
   );
 }
@@ -292,14 +358,23 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
       <div className="flex justify-between border-b border-white pb-2 mb-2">
         <span className="text-lg font-bold">{id}</span>
         <div>
-          <span className="cursor-move mr-2">═</span>
-          <button onClick={onDelete} className="text-white">🗑</button>
+          <span className="cursor-move mr-2 transition duration-300 hover:text-yellow-500 hover:scale-110">═</span>
+          <button
+            onClick={onDelete}
+            className="text-white transition duration-300 hover:text-red-500 hover:scale-110"
+          >
+            🗑
+          </button>
         </div>
       </div>
       <div className="flex items-center">
         <input type="text" placeholder="Enter term" className="w-1/2 px-4 py-2 rounded-lg mr-2 border-r-2 border-white" value={term} onChange={(e) => onTermChange(e.target.value)} />
         <input type="text" placeholder="Enter definition" className="w-1/2 px-4 py-2 rounded-lg mr-2" value={definition} onChange={(e) => onDefinitionChange(e.target.value)} />
-        <button className="bg-[#5A2E44] px-4 py-2 rounded-lg">📷 Add Image</button>
+        <button
+          className="bg-[#5A2E44] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#7A3E54] hover:scale-105"
+        >
+          📷 Add Image
+        </button>
       </div>
     </div>
   );
