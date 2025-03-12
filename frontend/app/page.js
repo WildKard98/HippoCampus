@@ -5,6 +5,7 @@ import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useEffect } from "react";
 import { motion } from "framer-motion"; // 🔹 Import motion at the top of your file
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 export default function Home() {
   useEffect(() => {
@@ -60,11 +61,18 @@ export default function Home() {
 
 
           {/* Middle: Search Bar */}
-          <input
-            type="text"
-            placeholder="Hinted search text"
-            className="bg-[#522136] text-white px-4 py-2 rounded-lg w-1/3"
-          />
+          {screenWidth >= 620 && (
+            <div className="w-2/3 flex justify-center">
+              <div className="relative w-full max-w-lg">
+                <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white"></i>
+                <input
+                  type="text"
+                  placeholder="Study set, puzzle, news"
+                  className="bg-[#522136] text-white px-10 py-2 rounded-lg w-full"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Right: Plus Button, Type/Draw Toggle, User Info */}
           <div className="flex items-center gap-4">
@@ -83,6 +91,20 @@ export default function Home() {
           </div>
         </header>
 
+        {/* Search bar adjusts when screen width < 620px */}
+{screenWidth < 620 && (
+  <div className="w-full px-4 mt-2 flex justify-center">
+    <div className="relative w-full max-w-none">
+      <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white"></i>
+      <input 
+        type="text" 
+        placeholder="Study set, puzzle, news" 
+        className="bg-[#522136] text-white px-10 py-2 rounded-lg w-full"
+      />
+    </div>
+  </div>
+)}
+
         {/* WingPanel (Hidden by default, appears when clicking the hamburger) */}
         {isWingPanelOpen && <WingPanel isOpen={isWingPanelOpen} setIsOpen={setIsWingPanelOpen} />}
 
@@ -91,26 +113,25 @@ export default function Home() {
         <div className="flex flex-1 relative">
 
           {/* Side Navigation */}
-
           <aside className={`bg-[#3B0B24] p-4 transition-all ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"}`}>
             <nav className="flex flex-col gap-4">
               <button onClick={() => setIsCreatingSet(false)} className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
-                🏠 {!isMenuCollapsed && "Home"}
+                <i className="bi bi-house-door"></i> {!isMenuCollapsed && "Home"}
               </button>
               <button onClick={() => setIsCreatingSet("library")} className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
-                📂 {!isMenuCollapsed && "Your Library"}
+                <i className="bi bi-folder2"></i> {!isMenuCollapsed && "Your Library"}
               </button>
               <hr className="border-[#FFFFFF]" />
-              <p className="text-sm">Your folders</p>
+              <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Your folders</p>
               <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
-                ➕ {!isMenuCollapsed && "New Folder"}
+                <i className="bi bi-plus"></i> {!isMenuCollapsed && "New Folder"}
               </button>
               <hr className="border-[#FFFFFF]" />
-              <p className="text-sm">Explore</p>
+              <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Explore</p>
               <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
+                <i className="bi bi-puzzle"></i> {!isMenuCollapsed && "CrossWord"}
+              </button>
 
-                🧩 {!isMenuCollapsed && "CrossWord"}
-              </button>
             </nav>
           </aside>
 
@@ -280,21 +301,21 @@ function CreateSet({ onSave }) {
         <div className="relative w-full flex flex-col items-center">
           {/* Add More Card Button */}
           <button
-  onClick={() => {
-    if (alwaysAddOne) {
-      addCard(1); // Automatically add 1 card when the checkbox is checked
-    } else {
-      setShowCardDropdown(!showCardDropdown); // Show the dropdown only if not always adding 1 card
-    }
-  }}
-  className="bg-[#5A2E44] px-6 py-2 rounded-lg w-full hover:bg-[#6A2A3B] transition duration-300 flex items-center justify-center relative"
->
-  <span>+ Add More Card</span>
+            onClick={() => {
+              if (alwaysAddOne) {
+                addCard(1); // Automatically add 1 card when the checkbox is checked
+              } else {
+                setShowCardDropdown(!showCardDropdown); // Show the dropdown only if not always adding 1 card
+              }
+            }}
+            className="bg-[#5A2E44] px-6 py-2 rounded-lg w-full hover:bg-[#6A2A3B] transition duration-300 flex items-center justify-center relative"
+          >
+            <span>+ Add More Card</span>
 
-  {!alwaysAddOne && (
-    <span className="absolute right-4">▼</span> 
-  )}
-</button>
+            {!alwaysAddOne && (
+              <span className="absolute right-4">▼</span>
+            )}
+          </button>
 
 
 
@@ -363,17 +384,33 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
             onClick={onDelete}
             className="text-white transition duration-300 hover:text-red-500 hover:scale-110"
           >
-            🗑
+            <i className="bi bi-trash"></i>
           </button>
         </div>
       </div>
       <div className="flex items-center">
-        <input type="text" placeholder="Enter term" className="w-1/2 px-4 py-2 rounded-lg mr-2 border-r-2 border-white" value={term} onChange={(e) => onTermChange(e.target.value)} />
-        <input type="text" placeholder="Enter definition" className="w-1/2 px-4 py-2 rounded-lg mr-2" value={definition} onChange={(e) => onDefinitionChange(e.target.value)} />
+        <input
+          type="text"
+          placeholder="Enter term"
+          className="w-1/2 px-4 py-2 rounded-lg text-white bg-[#522136]"
+          value={term}
+          onChange={(e) => onTermChange(e.target.value)}
+        />
+
+        <span className="text-white text-5xl px-1 font-light">|</span> {/* This is the real vertical line */}
+
+        <input
+          type="text"
+          placeholder="Enter definition"
+          className="w-1/2 px-4 py-2 rounded-lg text-white bg-[#522136]"
+          value={definition}
+          onChange={(e) => onDefinitionChange(e.target.value)}
+        />
+
         <button
           className="bg-[#5A2E44] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#7A3E54] hover:scale-105"
         >
-          📷 Add Image
+          <i className="bi bi-image"></i> Add Image
         </button>
       </div>
     </div>
@@ -430,20 +467,20 @@ function WingPanel({ isOpen, setIsOpen }) {
       {/* Navigation Items */}
       <nav className="flex flex-col gap-4 mt-9">
         <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
-          🏠 Home
+          <i className="bi bi-house-door"></i> Home
         </button>
         <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
-          📂 Your Library
+          <i className="bi bi-folder2"></i> Your Library
         </button>
         <hr className="border-[#FFFFFF]" />
         <p className="text-sm">Your folders</p>
         <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
-          ➕ New Folder
+          <i className="bi bi-plus"></i> New Folder
         </button>
         <hr className="border-[#FFFFFF]" />
         <p className="text-sm">Explore</p>
         <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
-          🧩 CrossWord
+          <i className="bi bi-puzzle"></i> CrossWord
         </button>
       </nav>
     </motion.aside>
