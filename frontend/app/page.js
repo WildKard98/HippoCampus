@@ -13,7 +13,20 @@ export default function Home() {
   }, []);
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const [isCreatingSet, setIsCreatingSet] = useState(false);
-  const [studySets, setStudySets] = useState([]);
+  const [studySets, setStudySets] = useState([
+    {
+      title: "Fruits",
+      description: "A study set about different kinds of fruits",
+      terms: [
+        { term: "Apple", definition: "A small, round fruit that is usually red or black with a hard pit inside." },
+        { term: "Grape", definition: "A small, round fruit that grows in bunches and is often used to make wine." },
+        { term: "Lemon", definition: "A sour, yellow citrus fruit used for juice and flavoring." },
+        { term: "Cherry", definition: "A small, juicy fruit that grows in bunches and has a single hard pit." },
+        { term: "Banana", definition: "A long, curved fruit with yellow skin and soft, sweet flesh." }
+      ]
+    }
+  ]);
+
   const [isWingPanelOpen, setIsWingPanelOpen] = useState(false);
   const [screenWidth, setScreenWidth] = useState(0); // Start with 0 to avoid SSR issues
 
@@ -27,7 +40,6 @@ export default function Home() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -49,7 +61,6 @@ export default function Home() {
             >
               ☰
             </button>
-
             {/* Web Title (Changes based on screen size) */}
             <span className={`text-3xl font-bold ml-4 ${screenWidth <= 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
               W
@@ -78,12 +89,14 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsCreatingSet(true)}
-              className="bg-yellow-500 px-4 py-2 rounded-lg"
+              className="bg-yellow-500 px-4 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
             >
               +
             </button>
-            <button className="bg-[#10B981] px-4 py-2 rounded-lg">Type</button>
-            <button className="bg-[#5A2E44] px-4 py-2 rounded-lg">Draw</button>
+
+            {/* <button className="bg-[#10B981] px-4 py-2 rounded-lg">Type</button>
+            <button className="bg-[#5A2E44] px-4 py-2 rounded-lg">Draw</button> */}
+
             <div className="flex items-center gap-2">
               <div className="bg-gray-500 rounded-full w-10 h-10"></div>
               <span>Username</span>
@@ -92,22 +105,21 @@ export default function Home() {
         </header>
 
         {/* Search bar adjusts when screen width < 620px */}
-{screenWidth < 620 && (
-  <div className="w-full px-4 mt-2 flex justify-center">
-    <div className="relative w-full max-w-none">
-      <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white"></i>
-      <input 
-        type="text" 
-        placeholder="Study set, puzzle, news" 
-        className="bg-[#522136] text-white px-10 py-2 rounded-lg w-full"
-      />
-    </div>
-  </div>
-)}
+        {screenWidth < 620 && (
+          <div className="w-full px-4 mt-2 flex justify-center">
+            <div className="relative w-full max-w-none">
+              <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white"></i>
+              <input
+                type="text"
+                placeholder="Study set, puzzle, news"
+                className="bg-[#522136] text-white px-10 py-2 rounded-lg w-full"
+              />
+            </div>
+          </div>
+        )}
 
         {/* WingPanel (Hidden by default, appears when clicking the hamburger) */}
         {isWingPanelOpen && <WingPanel isOpen={isWingPanelOpen} setIsOpen={setIsWingPanelOpen} />}
-
 
         {/* Main Container with Sidebar & Content */}
         <div className="flex flex-1 relative">
@@ -131,14 +143,13 @@ export default function Home() {
               <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
                 <i className="bi bi-puzzle"></i> {!isMenuCollapsed && "CrossWord"}
               </button>
-
             </nav>
           </aside>
 
           {/* Main Content Area */}
           <main className="flex-1 p-6">
             {isCreatingSet === "library" ? (
-              <LibraryContent studySets={studySets} />
+              <LibraryContent studySets={studySets} screenWidth={screenWidth} />
             ) : isCreatingSet ? (
               <CreateSet onSave={(newSet) => {
                 setStudySets([...studySets, newSet]);
@@ -150,7 +161,7 @@ export default function Home() {
           </main>
 
           {/* Right Panel (Hidden on small screens OR when creating a set) */}
-          {screenWidth > 770 && !isCreatingSet && (
+          {screenWidth > 770 && isCreatingSet !== true && (
             <div className="hidden md:block">
               <aside className="w-55 bg-[#260516] p-4 absolute right-0 top-0 h-full">
                 <h3 className="text-lg font-semibold">Right Panel</h3>
@@ -158,11 +169,9 @@ export default function Home() {
               </aside>
             </div>
           )}
-
         </div>
       </div>
     </DndProvider>
-
   );
 }
 
@@ -191,8 +200,6 @@ function CreateSet({ onSave }) {
   const [numCards, setNumCards] = useState(1);  // Default to 1 card
   const [alwaysAddOne, setAlwaysAddOne] = useState(false); // Checkbox state
   const [showCardDropdown, setShowCardDropdown] = useState(false); // Toggle dropdown
-
-
   const [terms, setTerms] = useState([
     { id: 1, term: "", definition: "" },
     { id: 2, term: "", definition: "" },
@@ -214,7 +221,6 @@ function CreateSet({ onSave }) {
       term: "",
       definition: ""
     }));
-
     setTerms([...terms, ...newCards]);
   };
 
@@ -224,29 +230,21 @@ function CreateSet({ onSave }) {
 
   const handleSave = () => {
     const usedTerms = terms.filter((t) => t.term.trim() !== "");
-
     if (usedTerms.length === 0) {
       setErrorMessage("You need at least one term to create a study set.");
       return;
     }
-
     setErrorMessage(""); // Clear error message if valid
     if (title.trim() !== "") {
       onSave({ title, description, terms: usedTerms });
     }
-
-
     if (title.trim() !== "") {
       onSave({ title, description, terms: usedTerms });
     }
-
-
   };
-
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Create a New Learning Set</h1>
-
       <input
         type="text"
         placeholder="Enter a title"
@@ -267,7 +265,6 @@ function CreateSet({ onSave }) {
         </p>
       )}
 
-
       {/* Create Button below Add Description */}
       <div className="flex justify-center mb-6">
         <button
@@ -276,9 +273,7 @@ function CreateSet({ onSave }) {
         >
           Create
         </button>
-
       </div>
-
       {terms.map((item, index) => (
         <DraggableCard
           key={index}
@@ -311,13 +306,10 @@ function CreateSet({ onSave }) {
             className="bg-[#5A2E44] px-6 py-2 rounded-lg w-full hover:bg-[#6A2A3B] transition duration-300 flex items-center justify-center relative"
           >
             <span>+ Add More Card</span>
-
             {!alwaysAddOne && (
               <span className="absolute right-4">▼</span>
             )}
           </button>
-
-
 
           {/* Dropdown Appears Inside Button */}
           {!alwaysAddOne && showCardDropdown && (
@@ -416,11 +408,11 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
     </div>
   );
 }
-function LibraryContent({ studySets }) {
+function LibraryContent({ studySets, screenWidth }) {
   const [selectedSet, setSelectedSet] = useState(null);
 
   if (selectedSet) {
-    return <FlashcardReview studySet={selectedSet} onExit={() => setSelectedSet(null)} />;
+    return <FlashcardReview studySet={selectedSet} onExit={() => setSelectedSet(null)} screenWidth={screenWidth} />;
   }
 
   return (
@@ -463,7 +455,6 @@ function WingPanel({ isOpen, setIsOpen }) {
         <span className="text-3xl font-bold ml-2" style={{ fontFamily: "'Inknut Antiqua', serif" }}>W</span>
       </div>
 
-
       {/* Navigation Items */}
       <nav className="flex flex-col gap-4 mt-9">
         <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
@@ -487,8 +478,7 @@ function WingPanel({ isOpen, setIsOpen }) {
   );
 }
 
-
-function FlashcardReview({ studySet, onExit }) {
+function FlashcardReview({ studySet, onExit, screenWidth }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
@@ -509,16 +499,17 @@ function FlashcardReview({ studySet, onExit }) {
         <h2 className="text-3xl font-semibold mb-6 text-left">{studySet.title}</h2>
 
         {/* Flashcard Wrapper */}
-        <div className="flex flex-col items-start w-full">
-          {/* Flashcard (Longer & Centered) */}
-          {/* Flashcard with Flip Animation (Bottom-to-Top) */}
+        <div className={`flex flex-col ${screenWidth > 770 ? "items-start" : "items-center"} w-full`}>
+          {/* Flashcard with Flip Animation */}
           <motion.div
-            className="w-[60%] h-[35vh] flex items-center justify-center p-6 bg-[#522136] rounded-lg text-center text-3xl cursor-pointer select-none relative"
+            className={`h-[35vh] flex items-center justify-center p-6 bg-[#522136] rounded-lg text-center text-3xl cursor-pointer select-none relative transition-all duration-300 
+      ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`
+            }
             onClick={() => setFlipped(!flipped)}
-            initial={{ rotateX: 0 }} // Start with 0-degree rotation on X-axis
-            animate={{ rotateX: flipped ? 180 : 0 }} // Flip on the X-axis
-            transition={{ duration: 0.5 }} // Smooth flip animation
-            style={{ transformStyle: "preserve-3d" }} // Keep 3D effect
+            initial={{ rotateX: 0 }}
+            animate={{ rotateX: flipped ? 180 : 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ transformStyle: "preserve-3d" }}
           >
             {/* FRONT SIDE (Definition) */}
             {!flipped && (
@@ -535,18 +526,45 @@ function FlashcardReview({ studySet, onExit }) {
             )}
           </motion.div>
 
-          {/* Navigation Buttons - Now Centered Under the Flashcard */}
-          <div className="flex justify-center w-[60%] mt-4">
-            <button onClick={prevCard} className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black">←</button>
-            <span className="text-xl mx-4 flex items-center justify-center h-[45px]">{currentIndex + 1} / {studySet.terms.length}</span>
-            <button onClick={nextCard} className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black">→</button>
-
+          {/* Navigation Buttons - Centered Under Flashcard */}
+          <div className="flex w-full mt-4">
+            <div className={`flex items-center gap-4 ${screenWidth > 770 ? "flex justify-center w-[60%]" : "w-full justify-center"}`}>
+              <button
+                onClick={prevCard}
+                className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
+              >
+                ←
+              </button>
+              <span className="text-xl flex items-center justify-center h-[45px]">
+                {currentIndex + 1} / {studySet.terms.length}
+              </span>
+              <button
+                onClick={nextCard}
+                className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
+              >
+                →
+              </button>
+            </div>
           </div>
 
           {/* White Line Below the Flashcard */}
-          <div className="mt-6 w-[60%] h-[2px] bg-white"></div>
-        </div>
+          <div className={`mt-6 h-[2px] bg-white ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}></div>
 
+          {/* Term List Below Flashcard */}
+          <div className={`mt-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
+            <h3 className="text-lg font-semibold mb-2">Term in this set ({studySet.terms.length})</h3>
+
+            <div className="flex flex-col gap-2">
+              {studySet.terms.map((item, index) => (
+                <div key={index} className="bg-[#522136] p-4 rounded-lg flex items-center justify-between w-full">
+                  <span className="font-semibold w-1/3">{item.term}</span>
+                  <span className="text-white text-5xl px-1 font-light">|</span> {/* Vertical Line */}
+                  <span className="text-gray-300 w-2/3">{item.definition}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
