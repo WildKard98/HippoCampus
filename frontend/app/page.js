@@ -26,7 +26,7 @@ export default function Home() {
       ]
     }
   ]);
-
+  const [isEditing, setIsEditing] = useState(false);
   const [isWingPanelOpen, setIsWingPanelOpen] = useState(false);
   const [screenWidth, setScreenWidth] = useState(0); // Start with 0 to avoid SSR issues
 
@@ -149,7 +149,13 @@ export default function Home() {
           {/* Main Content Area */}
           <main className="flex-1 p-6">
             {isCreatingSet === "library" ? (
-              <LibraryContent studySets={studySets} screenWidth={screenWidth} />
+              <LibraryContent
+                studySets={studySets}
+                screenWidth={screenWidth}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing} // 🔹 Pass this down
+              />
+
             ) : isCreatingSet ? (
               <CreateSet onSave={(newSet) => {
                 setStudySets([...studySets, newSet]);
@@ -161,7 +167,7 @@ export default function Home() {
           </main>
 
           {/* Right Panel (Hidden on small screens OR when creating a set) */}
-          {screenWidth > 770 && isCreatingSet !== true && (
+          {screenWidth > 770 && !isCreatingSet && !isEditing && (
             <div className="hidden md:block">
               <aside className="w-55 bg-[#260516] p-4 absolute right-0 top-0 h-full">
                 <h3 className="text-lg font-semibold">Right Panel</h3>
@@ -408,11 +414,31 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
     </div>
   );
 }
-function LibraryContent({ studySets, screenWidth }) {
+function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing }) {
   const [selectedSet, setSelectedSet] = useState(null);
+  const [starredTerms, setStarredTerms] = useState({});
 
+  // Toggle star for terms, syncing with flashcard & list
+  const toggleStar = (term) => {
+    setStarredTerms((prev) => ({
+      ...prev,
+      [term]: !prev[term], // Toggle star state for the term
+    }));
+  };
+
+  // If a set is selected, show flashcard review instead of library
   if (selectedSet) {
-    return <FlashcardReview studySet={selectedSet} onExit={() => setSelectedSet(null)} screenWidth={screenWidth} />;
+    return (
+      <FlashcardReview
+        studySet={selectedSet}
+        onExit={() => setSelectedSet(null)}
+        screenWidth={screenWidth}
+        starredTerms={starredTerms}
+        toggleStar={toggleStar}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing} // 🔹 Pass this down
+      />
+    );
   }
 
   return (
@@ -423,7 +449,7 @@ function LibraryContent({ studySets, screenWidth }) {
           <div
             key={index}
             className="bg-[#522136] p-4 rounded-lg w-1/3 mb-2 cursor-pointer hover:bg-[#6A2A3B]"
-            onClick={() => setSelectedSet(set)}
+            onClick={() => setSelectedSet(set)} // Clicking opens flashcard review
           >
             📂 {set.title} ({set.terms.length} terms)
           </div>
@@ -478,9 +504,15 @@ function WingPanel({ isOpen, setIsOpen }) {
   );
 }
 
-function FlashcardReview({ studySet, onExit, screenWidth }) {
+function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [editTerm, setEditTerm] = useState("");
+  const [editDefinition, setEditDefinition] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null); // Track the item being edited
+
+  // Get the current term
+  const currentTerm = studySet.terms[currentIndex].term;
 
   const nextCard = () => {
     setCurrentIndex((prev) => (prev + 1) % studySet.terms.length);
@@ -492,6 +524,24 @@ function FlashcardReview({ studySet, onExit, screenWidth }) {
     setFlipped(false);
   };
 
+  // Open the edit modal
+  const handleEditClick = (termObj, index) => {
+    setEditTerm(termObj.term);  // Pre-fill term
+    setEditDefinition(termObj.definition);  // Pre-fill definition
+    setEditingIndex(index); // Store the index of the editing item
+    setIsEditing(true);  // Show the modal
+  };
+
+  // Save changes
+  const handleSaveEdit = () => {
+    if (editingIndex !== null) {
+      const updatedTerms = [...studySet.terms]; // Copy the terms array
+      updatedTerms[editingIndex] = { term: editTerm, definition: editDefinition }; // Update the specific term
+      studySet.terms = updatedTerms; // Save changes
+    }
+    setIsEditing(false); // Close modal
+  };
+
   return (
     <div className="flex flex-1">
       {/* Main Flashcard Area */}
@@ -500,11 +550,11 @@ function FlashcardReview({ studySet, onExit, screenWidth }) {
 
         {/* Flashcard Wrapper */}
         <div className={`flex flex-col ${screenWidth > 770 ? "items-start" : "items-center"} w-full`}>
+
           {/* Flashcard with Flip Animation */}
           <motion.div
             className={`h-[35vh] flex items-center justify-center p-6 bg-[#522136] rounded-lg text-center text-3xl cursor-pointer select-none relative transition-all duration-300 
-      ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`
-            }
+            ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`}
             onClick={() => setFlipped(!flipped)}
             initial={{ rotateX: 0 }}
             animate={{ rotateX: flipped ? 180 : 0 }}
@@ -515,6 +565,28 @@ function FlashcardReview({ studySet, onExit, screenWidth }) {
             {!flipped && (
               <div className="absolute w-full h-full flex items-center justify-center">
                 {studySet.terms[currentIndex].definition}
+
+                {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
+                <div className="absolute top-2 right-2 flex gap-2 z-10">
+                  <button
+                    className="absolute top-0 right-7 text-white text-xl z-10"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent flip when clicking the star
+                      toggleStar(studySet.terms[currentIndex].term);
+                    }}
+                  >
+                    {starredTerms[studySet.terms[currentIndex].term] ? (
+                      <i className="bi bi-star-fill text-yellow-400"></i>
+                    ) : (
+                      <i className="bi bi-star"></i>
+                    )}
+                  </button>
+
+                  {/* Pencil Icons */}
+                  <button className="absolute top-0 right-0 text-white text-xl z-10" onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
+                    <i className="bi bi-pencil-fill"></i>
+                  </button>
+                </div>
               </div>
             )}
 
@@ -522,6 +594,29 @@ function FlashcardReview({ studySet, onExit, screenWidth }) {
             {flipped && (
               <div className="absolute w-full h-full flex items-center justify-center rotate-x-180">
                 {studySet.terms[currentIndex].term}
+
+                {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
+                <div className="absolute top-2 right-2 flex gap-2 z-10">
+                  <button
+                    className="absolute top-0 right-7 text-white text-xl z-10"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent flip when clicking the star
+                      toggleStar(studySet.terms[currentIndex].term);
+                    }}
+                  >
+                    {starredTerms[studySet.terms[currentIndex].term] ? (
+                      <i className="bi bi-star-fill text-yellow-400"></i>
+                    ) : (
+                      <i className="bi bi-star"></i>
+                    )}
+                  </button>
+
+                  {/* Pencil Icons */}
+                  <button className="absolute top-0 right-0 text-white text-xl z-10" onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
+                    <i className="bi bi-pencil-fill"></i>
+                  </button>
+                </div>
+
               </div>
             )}
           </motion.div>
@@ -560,11 +655,65 @@ function FlashcardReview({ studySet, onExit, screenWidth }) {
                   <span className="font-semibold w-1/3">{item.term}</span>
                   <span className="text-white text-5xl px-1 font-light">|</span> {/* Vertical Line */}
                   <span className="text-gray-300 w-2/3">{item.definition}</span>
+
+                  {/* ⭐ Star & ✏️ Edit Buttons Container */}
+                  <div className="relative flex items-center pl-8">
+                    {/* Star Button - Positioned at the top-right */}
+                    <button
+                      onClick={() => toggleStar(item.term)}
+                      className="absolute bottom-0 right-0 text-white text-xl"
+                    >
+                      {starredTerms[item.term] ? (
+                        <i className="bi bi-star-fill text-yellow-400"></i>
+                      ) : (
+                        <i className="bi bi-star"></i>
+                      )}
+                    </button>
+
+                    {/* ✏️ Pencil Icon (Edit Button) - Positioned lower right */}
+                    <button
+                      onClick={() => handleEditClick(item, index)}
+                      className="absolute top-0 right-0 text-white text-lg"
+                    >
+                      <i className="bi bi-pencil-fill"></i>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
+        {isEditing && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div
+              className="bg-[#3B0B24] p-6 rounded-lg text-white relative"
+              style={{ width: screenWidth > 450 ? "450px" : "100%" }} // ✅ Set width logic
+            >
+              <button className="absolute top-2 right-2 text-xl" onClick={() => setIsEditing(false)}>✖</button>
+              <h2 className="text-2xl font-bold mb-4">Edit</h2>
+
+              <label className="block mb-2">Term:</label>
+              <input
+                type="text"
+                className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+                value={editTerm}
+                onChange={(e) => setEditTerm(e.target.value)}
+              />
+
+              <label className="block mb-2">Definition:</label>
+              <textarea
+                className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+                value={editDefinition}
+                onChange={(e) => setEditDefinition(e.target.value)}
+              />
+
+              <button onClick={handleSaveEdit} className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105">
+                Done
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
