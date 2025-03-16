@@ -32,6 +32,15 @@ export default function Home() {
       ]
     }
   ]);
+
+  // Main Feature variable 
+  const [showMatchingTest, setShowMatchingTest] = useState(false);
+  const [shuffledDefinitions, setShuffledDefinitions] = useState([]);
+
+  useEffect(() => {
+    setShuffledDefinitions([...studySets[0].terms].sort(() => Math.random() - 0.5));
+  }, [studySets]); // Shuffle definitions only once when studySets change
+
   useEffect(() => {
     const updateWidth = () => setScreenWidth(window.innerWidth);
 
@@ -47,6 +56,7 @@ export default function Home() {
 
         {/* Unified Header */}
         <header className="flex justify-between items-center p-4 bg-[#3B0B24] text-white">
+          
           {/* Left: Hamburger & App Name */}
           <div className="flex items-center">
             <button
@@ -61,9 +71,10 @@ export default function Home() {
             >
               ☰
             </button>
+
             {/* Web Title (Changes based on screen size) */}
             <span className={`text-3xl font-bold ml-4 ${screenWidth <= 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
-              W
+              WN
             </span>
             <span className={`text-3xl font-bold ml-4 ${screenWidth > 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
               WordNest
@@ -151,35 +162,82 @@ export default function Home() {
 
           {/* Main Content Area */}
           <main className="flex-1 p-6">
-            {isCreatingSet === "library" ? (
-              <LibraryContent
-                studySets={studySets}
-                screenWidth={screenWidth}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing} // 🔹 Pass this down
-                setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
-                setIsCreatingSet={setIsCreatingSet}
-              />
+            {showMatchingTest ? (
+              <div className="flex flex-col p-6 text-white">
+                <h2 className="text-3xl font-semibold mb-6">Fruits</h2>
+                {/* Matching Test Title & Back Button on the Same Line */}
+                <div className={`grid grid-cols-2 gap-60 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
+                  <h3 className="text-xl">Matching Test</h3>
+                  <button
+                    className="bg-yellow-500 px-4 py-2 text-sm rounded-lg hover:bg-yellow-400 transition duration-300"
+                    onClick={() => setShowMatchingTest(false)}
+                  >
+                    ← Back
+                  </button>
+                </div>
 
-            ) : isEditingSet ? (
-              <EditSet
-                studySet={isEditingSet}
-                onSave={(updatedSet) => {
-                  setStudySets(studySets.map(set =>
-                    set.title === isEditingSet.title ? updatedSet : set
-                  ));
-                  setIsEditingSet(null); // Exit edit mode
-                }}
-                onCancel={() => setIsEditingSet(null)}
-              />
-            ) : isCreatingSet ? (
-              <CreateSet onSave={(newSet) => {
-                setStudySets([...studySets, newSet]);
-                setIsCreatingSet(false);
-              }} />
+                <div className={`grid grid-cols-2 gap-4 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
+                  {/* Left Column - Terms */}
+                  <div className="flex flex-col gap-4">
+                    {studySets[0].terms.map((item, index) => (
+                      <button
+                        key={index}
+                        className="bg-[#6A2A3B] px-1 py-4 rounded-lg text-left w-[120px]" // Reduced width
+                      >
+                        {index + 1}. {item.term}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Right Column - Definitions (Fixed Shuffle) */}
+                  <div className="flex flex-col gap-4">
+                    {shuffledDefinitions.map((item, index) => (
+
+                      <button
+                        key={index}
+                        className="bg-[#6A2A3B] px-6 py-3 rounded-lg text-left"
+                      >
+                        {item.definition}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             ) : (
-              <HomeContent studySets={studySets} />
+              <>
+                {isCreatingSet === "library" ? (
+                  <LibraryContent
+                    studySets={studySets}
+                    screenWidth={screenWidth}
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing} // 🔹 Pass this down
+                    setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
+                    setIsCreatingSet={setIsCreatingSet}
+                    setShowMatchingTest={setShowMatchingTest}
+                  />
+
+                ) : isEditingSet ? (
+                  <EditSet
+                    studySet={isEditingSet}
+                    onSave={(updatedSet) => {
+                      setStudySets(studySets.map(set =>
+                        set.title === isEditingSet.title ? updatedSet : set
+                      ));
+                      setIsEditingSet(null); // Exit edit mode
+                    }}
+                    onCancel={() => setIsEditingSet(null)}
+                  />
+                ) : isCreatingSet ? (
+                  <CreateSet onSave={(newSet) => {
+                    setStudySets([...studySets, newSet]);
+                    setIsCreatingSet(false);
+                  }} />
+                ) : (
+                  <HomeContent studySets={studySets} />
+                )}
+              </>
             )}
+
           </main>
 
           {/* Right Panel (Hidden on small screens OR when creating a set) */}
@@ -598,7 +656,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
 
 
 
-function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet }) {
+function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setShowMatchingTest }) {
   const [selectedSet, setSelectedSet] = useState(null);
   const [starredTerms, setStarredTerms] = useState({});
 
@@ -623,6 +681,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
         setIsEditing={setIsEditing} // 🔹 Pass this down
         setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
         setIsCreatingSet={setIsCreatingSet}
+        setShowMatchingTest={setShowMatchingTest} // ✅ Add this
       />
     );
   }
@@ -699,7 +758,7 @@ function WingPanel({ isOpen, setIsOpen }) {
 
 
 
-function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet }) {
+function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setShowMatchingTest }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [editTerm, setEditTerm] = useState("");
@@ -745,6 +804,28 @@ function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleSt
 
         {/* Flashcard Wrapper */}
         <div className={`flex flex-col ${screenWidth > 770 ? "items-start" : "items-center"} w-full`}>
+
+          {/* Mode Selection Buttons - Now Inside the Flashcard Layout */}
+          <div className={`flex gap-4 mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"} `}>
+            <button
+              onClick={() => setShowMatchingTest(true)}
+              className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
+              Matching Card
+            </button>
+            <button className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
+              Fill-in-the-blank
+            </button>
+            <button className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
+              Puzzle
+            </button>
+          </div>
+
+          {/* Loop Test Button - Also Inside for Consistent Alignment */}
+          <div className={`mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
+            <button className="w-full px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B] flex items-center justify-center gap-2">
+              <i className="bi bi-arrow-repeat"></i> Loop Test
+            </button>
+          </div>
 
           {/* Flashcard with Flip Animation */}
           <motion.div
