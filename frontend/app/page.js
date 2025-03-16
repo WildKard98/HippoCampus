@@ -7,12 +7,18 @@ import { useEffect } from "react";
 import { motion } from "framer-motion"; // 🔹 Import motion at the top of your file
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
+
+
 export default function Home() {
   useEffect(() => {
     document.body.style.fontFamily = "Itim, sans-serif";
   }, []);
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const [isCreatingSet, setIsCreatingSet] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isWingPanelOpen, setIsWingPanelOpen] = useState(false);
+  const [isEditingSet, setIsEditingSet] = useState(null); // Holds the set being edited
+  const [screenWidth, setScreenWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024); // Default to 1024px to prevent small width issues
   const [studySets, setStudySets] = useState([
     {
       title: "Fruits",
@@ -26,19 +32,13 @@ export default function Home() {
       ]
     }
   ]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isWingPanelOpen, setIsWingPanelOpen] = useState(false);
-  const [screenWidth, setScreenWidth] = useState(0); // Start with 0 to avoid SSR issues
-
   useEffect(() => {
-    const handleResize = () => {
-      setScreenWidth(window.innerWidth);
-      if (window.innerWidth > 770) {
-        setIsWingPanelOpen(false); // Auto-hide WingPanel when screen gets bigger
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const updateWidth = () => setScreenWidth(window.innerWidth);
+
+    updateWidth(); // Set initial width on mount
+    window.addEventListener("resize", updateWidth);
+
+    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
   return (
@@ -88,7 +88,10 @@ export default function Home() {
           {/* Right: Plus Button, Type/Draw Toggle, User Info */}
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setIsCreatingSet(true)}
+              onClick={() => {
+                setIsCreatingSet(true);   // ✅ Open Create Set
+                setIsEditingSet(null);    // ✅ Reset Edit mode
+              }}
               className="bg-yellow-500 px-4 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
             >
               +
@@ -154,8 +157,21 @@ export default function Home() {
                 screenWidth={screenWidth}
                 isEditing={isEditing}
                 setIsEditing={setIsEditing} // 🔹 Pass this down
+                setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
+                setIsCreatingSet={setIsCreatingSet}
               />
 
+            ) : isEditingSet ? (
+              <EditSet
+                studySet={isEditingSet}
+                onSave={(updatedSet) => {
+                  setStudySets(studySets.map(set =>
+                    set.title === isEditingSet.title ? updatedSet : set
+                  ));
+                  setIsEditingSet(null); // Exit edit mode
+                }}
+                onCancel={() => setIsEditingSet(null)}
+              />
             ) : isCreatingSet ? (
               <CreateSet onSave={(newSet) => {
                 setStudySets([...studySets, newSet]);
@@ -167,7 +183,7 @@ export default function Home() {
           </main>
 
           {/* Right Panel (Hidden on small screens OR when creating a set) */}
-          {screenWidth > 770 && !isCreatingSet && !isEditing && (
+          {screenWidth > 770 && !isCreatingSet && !isEditing && !setIsCreatingSet && (
             <div className="hidden md:block">
               <aside className="w-55 bg-[#260516] p-4 absolute right-0 top-0 h-full">
                 <h3 className="text-lg font-semibold">Right Panel</h3>
@@ -180,6 +196,10 @@ export default function Home() {
     </DndProvider>
   );
 }
+
+
+
+
 
 /* Component: Home Content */
 function HomeContent({ studySets }) {
@@ -198,6 +218,11 @@ function HomeContent({ studySets }) {
     </section>
   );
 }
+
+
+
+
+
 
 /* Component: Create a New Learning Set */
 function CreateSet({ onSave }) {
@@ -352,6 +377,160 @@ function CreateSet({ onSave }) {
   );
 }
 
+
+
+
+function EditSet({ studySet, onSave, onCancel }) {
+  const [title, setTitle] = useState(studySet.title);
+  const [description, setDescription] = useState(studySet.description);
+  const [terms, setTerms] = useState([...studySet.terms]);
+  const [numCards, setNumCards] = useState(1);  // Default to 1 card
+  const [errorMessage, setErrorMessage] = useState("");
+  const [alwaysAddOne, setAlwaysAddOne] = useState(false); // Checkbox state
+  const [showCardDropdown, setShowCardDropdown] = useState(false); // Toggle dropdown
+  const moveCard = (dragIndex, hoverIndex) => {
+    const updatedTerms = [...terms];
+    const [removed] = updatedTerms.splice(dragIndex, 1);
+    updatedTerms.splice(hoverIndex, 0, removed);
+    setTerms(updatedTerms.map((t, i) => ({ ...t, id: i + 1 }))); // Renumber blocks
+  };
+
+  const addCard = (count = 1) => {
+    if (alwaysAddOne) count = 1;
+    const newCards = Array.from({ length: count }, (_, i) => ({
+      id: terms.length + i + 1,
+      term: "",
+      definition: ""
+    }));
+    setTerms([...terms, ...newCards]);
+  };
+
+  const removeCard = (index) => {
+    setTerms(terms.filter((_, i) => i !== index).map((t, i) => ({ ...t, id: i + 1 })));
+  };
+
+  const handleSave = () => {
+    const usedTerms = terms.filter((t) => t.term.trim() !== "");
+    if (usedTerms.length === 0) {
+      setErrorMessage("You need at least one term to update this set.");
+      return;
+    }
+    setErrorMessage("");
+    onSave({ title, description, terms: usedTerms });
+  };
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Edit Your Learning Set</h1>
+      <input
+        type="text"
+        placeholder="Enter a title"
+        className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+
+      <textarea
+        placeholder="Add a description"
+        className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+
+      {errorMessage && (
+        <p className="text-red-500 text-lg font-semibold text-center mb-4">
+          {errorMessage}
+        </p>
+      )}
+
+      {terms.map((item, index) => (
+        <DraggableCard
+          key={index}
+          index={index}
+          id={item.id}
+          term={item.term}
+          definition={item.definition}
+          moveCard={moveCard}
+          onDelete={() => removeCard(index)}
+          onTermChange={(value) =>
+            setTerms(terms.map((t, i) => (i === index ? { ...t, term: value } : t)))
+          }
+          onDefinitionChange={(value) =>
+            setTerms(terms.map((t, i) => (i === index ? { ...t, definition: value } : t)))
+          }
+        />
+      ))}
+
+      <div className="flex flex-col items-center gap-2">
+        <div className="relative w-full flex flex-col items-center">
+          {/* Add More Card Button */}
+          <button
+            onClick={() => {
+              if (alwaysAddOne) {
+                addCard(1); // Automatically add 1 card when the checkbox is checked
+              } else {
+                setShowCardDropdown(!showCardDropdown); // Show the dropdown only if not always adding 1 card
+              }
+            }}
+            className="bg-[#5A2E44] px-6 py-2 rounded-lg w-full hover:bg-[#6A2A3B] transition duration-300 flex items-center justify-center relative"
+          >
+            <span>+ Add More Card</span>
+            {!alwaysAddOne && (
+              <span className="absolute right-4">▼</span>
+            )}
+          </button>
+
+          {/* Dropdown Appears Inside Button */}
+          {!alwaysAddOne && showCardDropdown && (
+            <div className="absolute top-full mt-1 w-full bg-[#522136] text-white rounded-lg shadow-lg z-10">
+              {[1, 2, 3, 4, 5].map((num) => (
+                <div
+                  key={num}
+                  className="px-4 py-2 hover:bg-[#6A2A3B] cursor-pointer text-center"
+                  onClick={() => {
+                    setNumCards(num);
+                    setShowCardDropdown(false);
+                    addCard(num);
+                  }}
+                >
+                  {num} {num === 1 ? "Card" : "Cards"}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Checkbox for "Always add 1 card" */}
+          <label className="flex items-center text-sm mt-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={alwaysAddOne}
+              onChange={() => setAlwaysAddOne(!alwaysAddOne)}
+              className="mr-2"
+            />
+            Always add 1 card
+          </label>
+        </div>
+      </div>
+
+      {/* Done Button */}
+      <div className="flex justify-center mt-6">
+        <button
+          onClick={handleSave}
+          className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
+        >
+          Done
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
 /* Draggable Card Component */
 function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTermChange, onDefinitionChange }) {
   const [{ isDragging }, ref] = useDrag({
@@ -406,7 +585,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
         />
 
         <button
-          className="bg-[#5A2E44] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#7A3E54] hover:scale-105"
+          className="bg-[#5A2E44] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#7A3E54] hover:scale-105 ml-4"
         >
           <i className="bi bi-image"></i> Add Image
         </button>
@@ -414,7 +593,12 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
     </div>
   );
 }
-function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing }) {
+
+
+
+
+
+function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet }) {
   const [selectedSet, setSelectedSet] = useState(null);
   const [starredTerms, setStarredTerms] = useState({});
 
@@ -437,6 +621,8 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing }) {
         toggleStar={toggleStar}
         isEditing={isEditing}
         setIsEditing={setIsEditing} // 🔹 Pass this down
+        setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
+        setIsCreatingSet={setIsCreatingSet}
       />
     );
   }
@@ -445,21 +631,26 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing }) {
     <section>
       <h2 className="text-lg font-semibold mb-4">Your Library</h2>
       {studySets.length > 0 ? (
-        studySets.map((set, index) => (
+        studySets.map((studySet, index) => (
           <div
             key={index}
             className="bg-[#522136] p-4 rounded-lg w-1/3 mb-2 cursor-pointer hover:bg-[#6A2A3B]"
-            onClick={() => setSelectedSet(set)} // Clicking opens flashcard review
+            onClick={() => setSelectedSet(studySet)} // ✅ Clicking opens Flashcard Review
           >
-            📂 {set.title} ({set.terms.length} terms)
+            📂 {studySet.title} ({studySet.terms.length} terms)
           </div>
         ))
+
       ) : (
         <p>No study sets available.</p>
       )}
     </section>
   );
 }
+
+
+
+
 
 function WingPanel({ isOpen, setIsOpen }) {
   return (
@@ -504,7 +695,11 @@ function WingPanel({ isOpen, setIsOpen }) {
   );
 }
 
-function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing }) {
+
+
+
+
+function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [editTerm, setEditTerm] = useState("");
@@ -583,7 +778,8 @@ function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleSt
                   </button>
 
                   {/* Pencil Icons */}
-                  <button className="absolute top-0 right-0 text-white text-xl z-10" onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
+                  <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-yellow-400 hover:scale-110"
+                    onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
                     <i className="bi bi-pencil-fill"></i>
                   </button>
                 </div>
@@ -612,7 +808,8 @@ function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleSt
                   </button>
 
                   {/* Pencil Icons */}
-                  <button className="absolute top-0 right-0 text-white text-xl z-10" onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
+                  <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-yellow-400 hover:scale-110"
+                    onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
                     <i className="bi bi-pencil-fill"></i>
                   </button>
                 </div>
@@ -673,7 +870,7 @@ function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleSt
                     {/* ✏️ Pencil Icon (Edit Button) - Positioned lower right */}
                     <button
                       onClick={() => handleEditClick(item, index)}
-                      className="absolute top-0 right-0 text-white text-lg"
+                      className="absolute top-0 right-0 text-white text-lg transition duration-300 hover:text-yellow-400 hover:scale-110"
                     >
                       <i className="bi bi-pencil-fill"></i>
                     </button>
@@ -681,6 +878,21 @@ function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleSt
                 </div>
               ))}
             </div>
+
+            {/* Add or Remove Term Button */}
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={() => {
+                  setIsEditingSet(studySet);  // ✅ Set the correct study set
+                  setIsCreatingSet(false);    // ✅ Prevent conflict with Create Set mode
+                }}
+                className="bg-[#6A2E3B] text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-[#8A3E4B] hover:scale-105"
+              >
+                Add or remove term
+              </button>
+            </div>
+
+
           </div>
         </div>
         {isEditing && (
