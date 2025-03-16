@@ -6,6 +6,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { useEffect } from "react";
 import { motion } from "framer-motion"; // 🔹 Import motion at the top of your file
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import MatchingCard from "./matchingcard";
 
 
 
@@ -56,7 +57,7 @@ export default function Home() {
 
         {/* Unified Header */}
         <header className="flex justify-between items-center p-4 bg-[#3B0B24] text-white">
-          
+
           {/* Left: Hamburger & App Name */}
           <div className="flex items-center">
             <button
@@ -163,81 +164,40 @@ export default function Home() {
           {/* Main Content Area */}
           <main className="flex-1 p-6">
             {showMatchingTest ? (
-              <div className="flex flex-col p-6 text-white">
-                <h2 className="text-3xl font-semibold mb-6">Fruits</h2>
-                {/* Matching Test Title & Back Button on the Same Line */}
-                <div className={`grid grid-cols-2 gap-60 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                  <h3 className="text-xl">Matching Test</h3>
-                  <button
-                    className="bg-yellow-500 px-4 py-2 text-sm rounded-lg hover:bg-yellow-400 transition duration-300"
-                    onClick={() => setShowMatchingTest(false)}
-                  >
-                    ← Back
-                  </button>
-                </div>
-
-                <div className={`grid grid-cols-2 gap-4 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                  {/* Left Column - Terms */}
-                  <div className="flex flex-col gap-4">
-                    {studySets[0].terms.map((item, index) => (
-                      <button
-                        key={index}
-                        className="bg-[#6A2A3B] px-1 py-4 rounded-lg text-left w-[120px]" // Reduced width
-                      >
-                        {index + 1}. {item.term}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Right Column - Definitions (Fixed Shuffle) */}
-                  <div className="flex flex-col gap-4">
-                    {shuffledDefinitions.map((item, index) => (
-
-                      <button
-                        key={index}
-                        className="bg-[#6A2A3B] px-6 py-3 rounded-lg text-left"
-                      >
-                        {item.definition}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <MatchingCard studySets={studySets} setShowMatchingTest={setShowMatchingTest} />
+            ) : isCreatingSet === "library" ? (
+              <LibraryContent
+                studySets={studySets}
+                screenWidth={screenWidth}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing} // 🔹 Pass this down
+                setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
+                setIsCreatingSet={setIsCreatingSet}
+                setShowMatchingTest={setShowMatchingTest}
+              />
+            ) : isEditingSet ? (
+              <EditSet
+                studySet={isEditingSet}
+                onSave={(updatedSet) => {
+                  setStudySets(
+                    studySets.map((set) =>
+                      set.title === isEditingSet.title ? updatedSet : set
+                    )
+                  );
+                  setIsEditingSet(null); // Exit edit mode
+                }}
+                onCancel={() => setIsEditingSet(null)}
+              />
+            ) : isCreatingSet ? (
+              <CreateSet
+                onSave={(newSet) => {
+                  setStudySets([...studySets, newSet]);
+                  setIsCreatingSet(false);
+                }}
+              />
             ) : (
-              <>
-                {isCreatingSet === "library" ? (
-                  <LibraryContent
-                    studySets={studySets}
-                    screenWidth={screenWidth}
-                    isEditing={isEditing}
-                    setIsEditing={setIsEditing} // 🔹 Pass this down
-                    setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
-                    setIsCreatingSet={setIsCreatingSet}
-                    setShowMatchingTest={setShowMatchingTest}
-                  />
-
-                ) : isEditingSet ? (
-                  <EditSet
-                    studySet={isEditingSet}
-                    onSave={(updatedSet) => {
-                      setStudySets(studySets.map(set =>
-                        set.title === isEditingSet.title ? updatedSet : set
-                      ));
-                      setIsEditingSet(null); // Exit edit mode
-                    }}
-                    onCancel={() => setIsEditingSet(null)}
-                  />
-                ) : isCreatingSet ? (
-                  <CreateSet onSave={(newSet) => {
-                    setStudySets([...studySets, newSet]);
-                    setIsCreatingSet(false);
-                  }} />
-                ) : (
-                  <HomeContent studySets={studySets} />
-                )}
-              </>
+              <HomeContent studySets={studySets} />
             )}
-
           </main>
 
           {/* Right Panel (Hidden on small screens OR when creating a set) */}
