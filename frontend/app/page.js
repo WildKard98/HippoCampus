@@ -164,7 +164,11 @@ export default function Home() {
           {/* Main Content Area */}
           <main className="flex-1 p-6">
             {showMatchingTest ? (
-              <MatchingCard studySets={studySets} setShowMatchingTest={setShowMatchingTest} />
+              <MatchingCard 
+              studySets={studySets} 
+              setShowMatchingTest={setShowMatchingTest} 
+              screenWidth={screenWidth} 
+          />          
             ) : isCreatingSet === "library" ? (
               <LibraryContent
                 studySets={studySets}
