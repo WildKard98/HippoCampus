@@ -35,14 +35,22 @@ export default function Home() {
   ]);
 
   // Main Feature variable 
-  const [showMatchingTest, setShowMatchingTest] = useState(false);
   const [shuffledDefinitions, setShuffledDefinitions] = useState([]);
+  const [selectedSet, setSelectedSet] = useState(null);
 
   useEffect(() => {
     setShuffledDefinitions([...studySets[0].terms].sort(() => Math.random() - 0.5));
   }, [studySets]); // Shuffle definitions only once when studySets change
 
   useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+      if (window.innerWidth > 770) {
+        setIsWingPanelOpen(false); // Auto-hide WingPanel when screen gets bigger
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
     const updateWidth = () => setScreenWidth(window.innerWidth);
 
     updateWidth(); // Set initial width on mount
@@ -145,9 +153,17 @@ export default function Home() {
               <button onClick={() => setIsCreatingSet(false)} className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
                 <i className="bi bi-house-door"></i> {!isMenuCollapsed && "Home"}
               </button>
-              <button onClick={() => setIsCreatingSet("library")} className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
+              <button
+                onClick={() => {
+                  console.log("Resetting to Library View"); // Debugging log
+                  setSelectedSet(null);  // ✅ Reset selected study set
+                  setIsCreatingSet("library");
+                }}
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]"
+              >
                 <i className="bi bi-folder2"></i> {!isMenuCollapsed && "Your Library"}
               </button>
+
               <hr className="border-[#FFFFFF]" />
               <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Your folders</p>
               <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
@@ -163,13 +179,7 @@ export default function Home() {
 
           {/* Main Content Area */}
           <main className="flex-1 p-6">
-            {showMatchingTest ? (
-              <MatchingCard 
-              studySets={studySets} 
-              setShowMatchingTest={setShowMatchingTest} 
-              screenWidth={screenWidth} 
-          />          
-            ) : isCreatingSet === "library" ? (
+            {isCreatingSet === "library" ? (
               <LibraryContent
                 studySets={studySets}
                 screenWidth={screenWidth}
@@ -177,7 +187,6 @@ export default function Home() {
                 setIsEditing={setIsEditing} // 🔹 Pass this down
                 setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
                 setIsCreatingSet={setIsCreatingSet}
-                setShowMatchingTest={setShowMatchingTest}
               />
             ) : isEditingSet ? (
               <EditSet
@@ -205,7 +214,7 @@ export default function Home() {
           </main>
 
           {/* Right Panel (Hidden on small screens OR when creating a set) */}
-          {screenWidth > 770 && !isCreatingSet && !isEditing && !setIsCreatingSet && (
+          {screenWidth > 770 && !isCreatingSet && !isEditing && (
             <div className="hidden md:block">
               <aside className="w-55 bg-[#260516] p-4 absolute right-0 top-0 h-full">
                 <h3 className="text-lg font-semibold">Right Panel</h3>
@@ -291,9 +300,7 @@ function CreateSet({ onSave }) {
     if (title.trim() !== "") {
       onSave({ title, description, terms: usedTerms });
     }
-    if (title.trim() !== "") {
-      onSave({ title, description, terms: usedTerms });
-    }
+    
   };
   return (
     <div>
@@ -620,7 +627,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
 
 
 
-function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setShowMatchingTest }) {
+function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet }) {
   const [selectedSet, setSelectedSet] = useState(null);
   const [starredTerms, setStarredTerms] = useState({});
 
@@ -636,6 +643,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
   if (selectedSet) {
     return (
       <FlashcardReview
+        studySets={studySets}
         studySet={selectedSet}
         onExit={() => setSelectedSet(null)}
         screenWidth={screenWidth}
@@ -645,7 +653,6 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
         setIsEditing={setIsEditing} // 🔹 Pass this down
         setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
         setIsCreatingSet={setIsCreatingSet}
-        setShowMatchingTest={setShowMatchingTest} // ✅ Add this
       />
     );
   }
@@ -722,12 +729,13 @@ function WingPanel({ isOpen, setIsOpen }) {
 
 
 
-function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setShowMatchingTest }) {
+function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setSelectedSet }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [editTerm, setEditTerm] = useState("");
   const [editDefinition, setEditDefinition] = useState("");
   const [editingIndex, setEditingIndex] = useState(null); // Track the item being edited
+  const [showMatchingTest, setShowMatchingTest] = useState(false);
 
   // Get the current term
   const currentTerm = studySet.terms[currentIndex].term;
@@ -765,181 +773,188 @@ function FlashcardReview({ studySet, onExit, screenWidth, starredTerms, toggleSt
       {/* Main Flashcard Area */}
       <div className="flex-1 p-6">
         <h2 className="text-3xl font-semibold mb-6 text-left">{studySet.title}</h2>
+        {showMatchingTest ? (
+          <MatchingCard
+            setShowMatchingTest={setShowMatchingTest}
+            screenWidth={screenWidth}
+            setSelectedSet={setSelectedSet}
+            studySet={studySet} // ✅ Corrected to `studySet`
+          />
+        ) : (
+          <div className={`flex flex-col ${screenWidth > 770 ? "items-start" : "items-center"} w-full`}>
 
-        {/* Flashcard Wrapper */}
-        <div className={`flex flex-col ${screenWidth > 770 ? "items-start" : "items-center"} w-full`}>
-
-          {/* Mode Selection Buttons - Now Inside the Flashcard Layout */}
-          <div className={`flex gap-4 mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"} `}>
-            <button
-              onClick={() => setShowMatchingTest(true)}
-              className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
-              Matching Card
-            </button>
-            <button className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
-              Fill-in-the-blank
-            </button>
-            <button className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
-              Puzzle
-            </button>
-          </div>
-
-          {/* Loop Test Button - Also Inside for Consistent Alignment */}
-          <div className={`mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
-            <button className="w-full px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B] flex items-center justify-center gap-2">
-              <i className="bi bi-arrow-repeat"></i> Loop Test
-            </button>
-          </div>
-
-          {/* Flashcard with Flip Animation */}
-          <motion.div
-            className={`h-[35vh] flex items-center justify-center p-6 bg-[#522136] rounded-lg text-center text-3xl cursor-pointer select-none relative transition-all duration-300 
-            ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`}
-            onClick={() => setFlipped(!flipped)}
-            initial={{ rotateX: 0 }}
-            animate={{ rotateX: flipped ? 180 : 0 }}
-            transition={{ duration: 0.5 }}
-            style={{ transformStyle: "preserve-3d" }}
-          >
-            {/* FRONT SIDE (Definition) */}
-            {!flipped && (
-              <div className="absolute w-full h-full flex items-center justify-center">
-                {studySet.terms[currentIndex].definition}
-
-                {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
-                <div className="absolute top-2 right-2 flex gap-2 z-10">
-                  <button
-                    className="absolute top-0 right-7 text-white text-xl z-10"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent flip when clicking the star
-                      toggleStar(studySet.terms[currentIndex].term);
-                    }}
-                  >
-                    {starredTerms[studySet.terms[currentIndex].term] ? (
-                      <i className="bi bi-star-fill text-yellow-400"></i>
-                    ) : (
-                      <i className="bi bi-star"></i>
-                    )}
-                  </button>
-
-                  {/* Pencil Icons */}
-                  <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-yellow-400 hover:scale-110"
-                    onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
-                    <i className="bi bi-pencil-fill"></i>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* BACK SIDE (Term) */}
-            {flipped && (
-              <div className="absolute w-full h-full flex items-center justify-center rotate-x-180">
-                {studySet.terms[currentIndex].term}
-
-                {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
-                <div className="absolute top-2 right-2 flex gap-2 z-10">
-                  <button
-                    className="absolute top-0 right-7 text-white text-xl z-10"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent flip when clicking the star
-                      toggleStar(studySet.terms[currentIndex].term);
-                    }}
-                  >
-                    {starredTerms[studySet.terms[currentIndex].term] ? (
-                      <i className="bi bi-star-fill text-yellow-400"></i>
-                    ) : (
-                      <i className="bi bi-star"></i>
-                    )}
-                  </button>
-
-                  {/* Pencil Icons */}
-                  <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-yellow-400 hover:scale-110"
-                    onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
-                    <i className="bi bi-pencil-fill"></i>
-                  </button>
-                </div>
-
-              </div>
-            )}
-          </motion.div>
-
-          {/* Navigation Buttons - Centered Under Flashcard */}
-          <div className="flex w-full mt-4">
-            <div className={`flex items-center gap-4 ${screenWidth > 770 ? "flex justify-center w-[60%]" : "w-full justify-center"}`}>
+            {/* Mode Selection Buttons - Now Inside the Flashcard Layout */}
+            <div className={`flex gap-4 mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"} `}>
               <button
-                onClick={prevCard}
-                className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
-              >
-                ←
+                onClick={() => setShowMatchingTest(true)}
+                className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
+                Matching Card
               </button>
-              <span className="text-xl flex items-center justify-center h-[45px]">
-                {currentIndex + 1} / {studySet.terms.length}
-              </span>
-              <button
-                onClick={nextCard}
-                className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
-              >
-                →
+              <button className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
+                Fill-in-the-blank
+              </button>
+              <button className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
+                Puzzle
               </button>
             </div>
-          </div>
 
-          {/* White Line Below the Flashcard */}
-          <div className={`mt-6 h-[2px] bg-white ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}></div>
+            {/* Loop Test Button - Also Inside for Consistent Alignment */}
+            <div className={`mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
+              <button className="w-full px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B] flex items-center justify-center gap-2">
+                <i className="bi bi-arrow-repeat"></i> Loop Test
+              </button>
+            </div>
 
-          {/* Term List Below Flashcard */}
-          <div className={`mt-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
-            <h3 className="text-lg font-semibold mb-2">Term in this set ({studySet.terms.length})</h3>
+            {/* Flashcard with Flip Animation */}
+            <motion.div
+              className={`h-[35vh] flex items-center justify-center p-6 bg-[#522136] rounded-lg text-center text-3xl cursor-pointer select-none relative transition-all duration-300 
+            ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`}
+              onClick={() => setFlipped(!flipped)}
+              initial={{ rotateX: 0 }}
+              animate={{ rotateX: flipped ? 180 : 0 }}
+              transition={{ duration: 0.5 }}
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              {/* FRONT SIDE (Definition) */}
+              {!flipped && (
+                <div className="absolute w-full h-full flex items-center justify-center">
+                  {studySet.terms[currentIndex].definition}
 
-            <div className="flex flex-col gap-2">
-              {studySet.terms.map((item, index) => (
-                <div key={index} className="bg-[#522136] p-4 rounded-lg flex items-center justify-between w-full">
-                  <span className="font-semibold w-1/3">{item.term}</span>
-                  <span className="text-white text-5xl px-1 font-light">|</span> {/* Vertical Line */}
-                  <span className="text-gray-300 w-2/3">{item.definition}</span>
-
-                  {/* ⭐ Star & ✏️ Edit Buttons Container */}
-                  <div className="relative flex items-center pl-8">
-                    {/* Star Button - Positioned at the top-right */}
+                  {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
+                  <div className="absolute top-2 right-2 flex gap-2 z-10">
                     <button
-                      onClick={() => toggleStar(item.term)}
-                      className="absolute bottom-0 right-0 text-white text-xl"
+                      className="absolute top-0 right-7 text-white text-xl z-10"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent flip when clicking the star
+                        toggleStar(studySet.terms[currentIndex].term);
+                      }}
                     >
-                      {starredTerms[item.term] ? (
+                      {starredTerms[studySet.terms[currentIndex].term] ? (
                         <i className="bi bi-star-fill text-yellow-400"></i>
                       ) : (
                         <i className="bi bi-star"></i>
                       )}
                     </button>
 
-                    {/* ✏️ Pencil Icon (Edit Button) - Positioned lower right */}
-                    <button
-                      onClick={() => handleEditClick(item, index)}
-                      className="absolute top-0 right-0 text-white text-lg transition duration-300 hover:text-yellow-400 hover:scale-110"
-                    >
+                    {/* Pencil Icons */}
+                    <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-yellow-400 hover:scale-110"
+                      onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
                       <i className="bi bi-pencil-fill"></i>
                     </button>
                   </div>
                 </div>
-              ))}
+              )}
+
+              {/* BACK SIDE (Term) */}
+              {flipped && (
+                <div className="absolute w-full h-full flex items-center justify-center rotate-x-180">
+                  {studySet.terms[currentIndex].term}
+
+                  {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
+                  <div className="absolute top-2 right-2 flex gap-2 z-10">
+                    <button
+                      className="absolute top-0 right-7 text-white text-xl z-10"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent flip when clicking the star
+                        toggleStar(studySet.terms[currentIndex].term);
+                      }}
+                    >
+                      {starredTerms[studySet.terms[currentIndex].term] ? (
+                        <i className="bi bi-star-fill text-yellow-400"></i>
+                      ) : (
+                        <i className="bi bi-star"></i>
+                      )}
+                    </button>
+
+                    {/* Pencil Icons */}
+                    <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-yellow-400 hover:scale-110"
+                      onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
+                      <i className="bi bi-pencil-fill"></i>
+                    </button>
+                  </div>
+
+                </div>
+              )}
+            </motion.div>
+
+            {/* Navigation Buttons - Centered Under Flashcard */}
+            <div className="flex w-full mt-4">
+              <div className={`flex items-center gap-4 ${screenWidth > 770 ? "flex justify-center w-[60%]" : "w-full justify-center"}`}>
+                <button
+                  onClick={prevCard}
+                  className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
+                >
+                  ←
+                </button>
+                <span className="text-xl flex items-center justify-center h-[45px]">
+                  {currentIndex + 1} / {studySet.terms.length}
+                </span>
+                <button
+                  onClick={nextCard}
+                  className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
+                >
+                  →
+                </button>
+              </div>
             </div>
 
-            {/* Add or Remove Term Button */}
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={() => {
-                  setIsEditingSet(studySet);  // ✅ Set the correct study set
-                  setIsCreatingSet(false);    // ✅ Prevent conflict with Create Set mode
-                }}
-                className="bg-[#6A2E3B] text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-[#8A3E4B] hover:scale-105"
-              >
-                Add or remove term
-              </button>
+            {/* White Line Below the Flashcard */}
+            <div className={`mt-6 h-[2px] bg-white ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}></div>
+
+            {/* Term List Below Flashcard */}
+            <div className={`mt-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
+              <h3 className="text-lg font-semibold mb-2">Term in this set ({studySet.terms.length})</h3>
+
+              <div className="flex flex-col gap-2">
+                {studySet.terms.map((item, index) => (
+                  <div key={index} className="bg-[#522136] p-4 rounded-lg flex items-center justify-between w-full">
+                    <span className="font-semibold w-1/3">{item.term}</span>
+                    <span className="text-white text-5xl px-1 font-light">|</span> {/* Vertical Line */}
+                    <span className="text-gray-300 w-2/3">{item.definition}</span>
+
+                    {/* ⭐ Star & ✏️ Edit Buttons Container */}
+                    <div className="relative flex items-center pl-8">
+                      {/* Star Button - Positioned at the top-right */}
+                      <button
+                        onClick={() => toggleStar(item.term)}
+                        className="absolute bottom-0 right-0 text-white text-xl"
+                      >
+                        {starredTerms[item.term] ? (
+                          <i className="bi bi-star-fill text-yellow-400"></i>
+                        ) : (
+                          <i className="bi bi-star"></i>
+                        )}
+                      </button>
+
+                      {/* ✏️ Pencil Icon (Edit Button) - Positioned lower right */}
+                      <button
+                        onClick={() => handleEditClick(item, index)}
+                        className="absolute top-0 right-0 text-white text-lg transition duration-300 hover:text-yellow-400 hover:scale-110"
+                      >
+                        <i className="bi bi-pencil-fill"></i>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add or Remove Term Button */}
+              <div className="flex justify-center mt-4">
+                <button
+                  onClick={() => {
+                    setIsEditingSet(studySet);  // ✅ Set the correct study set
+                    setIsCreatingSet(false);    // ✅ Prevent conflict with Create Set mode
+                  }}
+                  className="bg-[#6A2E3B] text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-[#8A3E4B] hover:scale-105"
+                >
+                  Add or remove term
+                </button>
+              </div>
+
+
             </div>
-
-
           </div>
-        </div>
+        )}
         {isEditing && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div
