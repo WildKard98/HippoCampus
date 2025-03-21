@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion"; // 🔹 Import motion at the top of your file
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import MatchingCard from "./matchingcard";
+import Findterm from "./findterm";
 
 
 
@@ -49,14 +50,11 @@ export default function Home() {
         setIsWingPanelOpen(false); // Auto-hide WingPanel when screen gets bigger
       }
     };
+
+    handleResize(); // Set initial width on mount
     window.addEventListener("resize", handleResize);
+
     return () => window.removeEventListener("resize", handleResize);
-    const updateWidth = () => setScreenWidth(window.innerWidth);
-
-    updateWidth(); // Set initial width on mount
-    window.addEventListener("resize", updateWidth);
-
-    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
   return (
@@ -259,7 +257,6 @@ function HomeContent({ studySets }) {
 function CreateSet({ onSave }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [numCards, setNumCards] = useState(1);  // Default to 1 card
   const [alwaysAddOne, setAlwaysAddOne] = useState(false); // Checkbox state
   const [showCardDropdown, setShowCardDropdown] = useState(false); // Toggle dropdown
   const [terms, setTerms] = useState([
@@ -300,7 +297,7 @@ function CreateSet({ onSave }) {
     if (title.trim() !== "") {
       onSave({ title, description, terms: usedTerms });
     }
-    
+
   };
   return (
     <div>
@@ -413,7 +410,6 @@ function EditSet({ studySet, onSave, onCancel }) {
   const [title, setTitle] = useState(studySet.title);
   const [description, setDescription] = useState(studySet.description);
   const [terms, setTerms] = useState([...studySet.terms]);
-  const [numCards, setNumCards] = useState(1);  // Default to 1 card
   const [errorMessage, setErrorMessage] = useState("");
   const [alwaysAddOne, setAlwaysAddOne] = useState(false); // Checkbox state
   const [showCardDropdown, setShowCardDropdown] = useState(false); // Toggle dropdown
@@ -736,6 +732,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
   const [editDefinition, setEditDefinition] = useState("");
   const [editingIndex, setEditingIndex] = useState(null); // Track the item being edited
   const [showMatchingTest, setShowMatchingTest] = useState(false);
+  const [showFillTest, setShowFillTest] = useState(false);
 
   // Get the current term
   const currentTerm = studySet.terms[currentIndex].term;
@@ -771,7 +768,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
   return (
     <div className="flex flex-1">
       {/* Main Flashcard Area */}
-      <div className="flex-1 p-6">
+      <div className="flex-1">
         <h2 className="text-3xl font-semibold mb-6 text-left">{studySet.title}</h2>
         {showMatchingTest ? (
           <MatchingCard
@@ -779,6 +776,13 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
             screenWidth={screenWidth}
             setSelectedSet={setSelectedSet}
             studySet={studySet} // ✅ Corrected to `studySet`
+          />
+        ) : showFillTest ? (
+          <Findterm
+            screenWidth={screenWidth}
+            setSelectedSet={setSelectedSet}
+            studySet={studySet} // ✅ Corrected to `studySet`
+            setShowFillTest={setShowFillTest}
           />
         ) : (
           <div className={`flex flex-col ${screenWidth > 770 ? "items-start" : "items-center"} w-full`}>
@@ -790,8 +794,11 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                 className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
                 Matching Card
               </button>
-              <button className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
-                Fill-in-the-blank
+              <button
+                className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]"
+                onClick={() => setShowFillTest(true)} // ✅ Change state
+              >
+                Find the Term
               </button>
               <button className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
                 Puzzle

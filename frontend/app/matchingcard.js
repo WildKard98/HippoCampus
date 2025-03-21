@@ -1,20 +1,20 @@
 import { useState, useEffect } from "react";
 
-export default function MatchingCard({ studySet, setShowMatchingTest, screenWidth,setSelectedSet }) {
+export default function MatchingCard({ studySet, setShowMatchingTest, screenWidth, setSelectedSet }) {
     const [selectedItem, setSelectedItem] = useState(null); // Stores first selection (term/definition)
     const [matchedPairs, setMatchedPairs] = useState([]); // Stores correct matches
     const [shuffledDefinitions, setShuffledDefinitions] = useState([]);
     const [isComplete, setIsComplete] = useState(false); // ✅ Track completion
     const [incorrectPair, setIncorrectPair] = useState(null);
     const [disableHover, setDisableHover] = useState(false);
-    
+
     useEffect(() => {
         setShuffledDefinitions([...studySet.terms].sort(() => Math.random() - 0.5));
     }, [studySet]); // Shuffle definitions when studySet change
 
     const handleSelection = (type, item) => {
-        if (!selectedItem) {
-            setSelectedItem({ ...item, type });
+        if (!selectedItem || selectedItem.type === type) {
+            setSelectedItem({ ...item, type });        
         } else {
             if (selectedItem.type !== type) {
                 if (
@@ -60,16 +60,16 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
     };
 
     return (
-        <div className="flex flex-col p-6 text-white">
+        <div className="flex flex-col text-white">
 
             {/* Matching Test Title & Back Button */}
-            <div className={`grid grid-cols-2 gap-40 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
+            <div className={`grid grid-cols-2 gap-30 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
                 <h3 className="text-xl">Matching Test</h3>
                 <button
                     className="bg-yellow-500 px-4 py-2 text-sm rounded-lg hover:bg-yellow-400 transition duration-300"
                     onClick={() => {
                         setShowMatchingTest(false);
-                      }}                      
+                    }}
                 >
                     ← Back
                 </button>
@@ -98,9 +98,9 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
 
 
             {/* Matching Test Layout */}
-            <div className={`grid ${screenWidth <= 770 ? "grid-cols-[30%_70%] w-full gap-1 px-2" : "grid-cols-[43%_57%] w-[60%] gap-0 ml-0"}`}>
+            <div className={`grid ${screenWidth <= 770 ? "grid-cols-[30%_70%] w-full" : "grid-cols-[45%_55%] w-[60%]"}`}>
                 {/* Left Column - Terms */}
-                <div className={`flex flex-col ${screenWidth <= 770 ? "gap-2 w-full" : "gap-4"}`}>
+                <div className={`flex flex-col ${screenWidth <= 770 ? "gap-2 w-full px-1" : "gap-4"}`}>
                     {studySet.terms
                         .filter(item => !matchedPairs.some(pair => pair.term === item.term))
                         .map((item, index) => (
@@ -121,7 +121,7 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
                 </div>
 
                 {/* Right Column - Definitions */}
-                <div className={`flex flex-col gap-3 ${screenWidth <= 770 ? "w-full" : "w-full"}`}>
+                <div className={`flex flex-col gap-3 ${screenWidth <= 770 ? "w-full px-1" : "w-full"}`}>
                     {shuffledDefinitions
                         .filter(item => !matchedPairs.some(pair => pair.definition === item.definition))
                         .map((item, index) => (
