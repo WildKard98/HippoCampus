@@ -9,7 +9,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import MatchingCard from "./matchingcard";
 import Findterm from "./findterm";
 import CrosswordPuzzle from "./crossword";
-
+import GeneratePuzzle from "./generatepuzzle";
 
 export default function Home() {
   useEffect(() => {
@@ -21,6 +21,8 @@ export default function Home() {
   const [isWingPanelOpen, setIsWingPanelOpen] = useState(false);
   const [isEditingSet, setIsEditingSet] = useState(null); // Holds the set being edited
   const [screenWidth, setScreenWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024); // Default to 1024px to prevent small width issues
+  const [isCreatePuzzle, setIsCreatePuzzle] = useState(false);
+  const [isHome, setIsHome] = useState(false);
   const [studySets, setStudySets] = useState([
     {
       title: "Fruits",
@@ -140,7 +142,7 @@ export default function Home() {
         )}
 
         {/* WingPanel (Hidden by default, appears when clicking the hamburger) */}
-        {isWingPanelOpen && <WingPanel isOpen={isWingPanelOpen} setIsOpen={setIsWingPanelOpen} />}
+        {isWingPanelOpen && <WingPanel isOpen={isWingPanelOpen} setIsOpen={setIsWingPanelOpen} setIsCreatePuzzle={setIsCreatePuzzle} />}
 
         {/* Main Container with Sidebar & Content */}
         <div className="flex flex-1 relative">
@@ -148,12 +150,17 @@ export default function Home() {
           {/* Side Navigation */}
           <aside className={`bg-[#3B0B24] p-4 transition-all ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"}`}>
             <nav className="flex flex-col gap-4">
-              <button onClick={() => setIsCreatingSet(false)} className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
+              <button
+                onClick={() => {
+                  setIsCreatingSet(false);
+                  setIsHome(true);
+                  setIsCreatePuzzle(false);
+                }}
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
                 <i className="bi bi-house-door"></i> {!isMenuCollapsed && "Home"}
               </button>
               <button
                 onClick={() => {
-                  console.log("Resetting to Library View"); // Debugging log
                   setSelectedSet(null);  // ✅ Reset selected study set
                   setIsCreatingSet("library");
                 }}
@@ -169,7 +176,13 @@ export default function Home() {
               </button>
               <hr className="border-[#FFFFFF]" />
               <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Explore</p>
-              <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
+              <button
+                onClick={() => {
+                  setIsCreatePuzzle(true);
+                  setIsCreatingSet(false);
+                  setSelectedSet(null);
+                }}
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
                 <i className="bi bi-puzzle"></i> {!isMenuCollapsed && "CrossWord"}
               </button>
             </nav>
@@ -206,13 +219,19 @@ export default function Home() {
                   setIsCreatingSet(false);
                 }}
               />
+            ) : isCreatePuzzle ? (
+              <GeneratePuzzle
+                screenWidth={screenWidth}
+              />
             ) : (
-              <HomeContent studySets={studySets} />
+              <HomeContent
+                studySets={studySets}
+              />
             )}
           </main>
 
           {/* Right Panel (Hidden on small screens OR when creating a set) */}
-          {screenWidth > 770 && !isCreatingSet && !isEditing && (
+          {screenWidth > 770 && !isCreatingSet && !isEditing && !isCreatePuzzle && (
             <div className="hidden md:block">
               <aside className="w-55 bg-[#260516] p-4 absolute right-0 top-0 h-full">
                 <h3 className="text-lg font-semibold">Right Panel</h3>
@@ -678,7 +697,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
 
 
 
-function WingPanel({ isOpen, setIsOpen }) {
+function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle }) {
   return (
     <motion.aside
       className="fixed top-0 left-0 h-full w-48 bg-[#3B0B24] p-4 shadow-lg z-50"
@@ -713,7 +732,12 @@ function WingPanel({ isOpen, setIsOpen }) {
         </button>
         <hr className="border-[#FFFFFF]" />
         <p className="text-sm">Explore</p>
-        <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+        <button
+          onClick={() => {
+            setIsCreatePuzzle(true);
+            setIsOpen(false);
+          }}
+          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
           <i className="bi bi-puzzle"></i> CrossWord
         </button>
       </nav>
@@ -804,7 +828,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               </button>
               <button
                 className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]"
-                onClick={() => setShowFillTest(true)} 
+                onClick={() => setShowFillTest(true)}
               >
                 Find the Term
               </button>

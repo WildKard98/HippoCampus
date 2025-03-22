@@ -7,7 +7,6 @@ const getDynamicGridSize = (words) => {
     return Math.max(longestWord + 4, 10); // Ensure at least a 10x10 grid
 };
 
-
 const emptyCell = "."; // Placeholder for empty cells
 
 const extractWords = (studySet) => {
@@ -15,8 +14,7 @@ const extractWords = (studySet) => {
     return studySet.terms.map(item => item.term.toUpperCase());
 };
 
-
-// ✅ Function to check if a word can be placed in the grid
+// Function to check if a word can be placed in the grid
 const canPlaceWord = (grid, word, row, col, direction, gridSize) => {
     const length = word.length;
 
@@ -36,7 +34,7 @@ const canPlaceWord = (grid, word, row, col, direction, gridSize) => {
     return true;
 };
 
-// ✅ Function to place a word in the grid
+// Function to place a word in the grid
 const placeWord = (grid, word, row, col, direction) => {
     for (let i = 0; i < word.length; i++) {
         if (direction === "H") {
@@ -47,9 +45,8 @@ const placeWord = (grid, word, row, col, direction) => {
     }
 };
 
-// ✅ Function to generate crossword grid
-const generateCrossword = (words, gridSize = 15) => { // ✅ Accepts grid size as a parameter
-
+// Function to generate crossword grid
+const generateCrossword = (words, gridSize = 15) => {
     if (!words || words.length === 0) {
         console.warn("No words provided for the crossword puzzle.");
         return { grid: [], placedWords: [] }; // Return an empty crossword if words are missing
@@ -102,31 +99,43 @@ const generateCrossword = (words, gridSize = 15) => { // ✅ Accepts grid size a
         // If no intersection is found, try placing in open spaces first before random
         if (!placed) {
             let bestSpot = null;
+            let bestScore = -1;
+        
             for (let r = 0; r < gridSize; r++) {
                 for (let c = 0; c < gridSize; c++) {
-                    if (canPlaceWord(grid, word, r, c, "H", gridSize)) {
-                        bestSpot = { row: r, col: c, dir: "H" };
-                    } else if (canPlaceWord(grid, word, r, c, "V", gridSize)) {
-                        bestSpot = { row: r, col: c, dir: "V" };
-                    }
-                    if (bestSpot) break;
+                    ["H", "V"].forEach((dir) => {
+                        if (canPlaceWord(grid, word, r, c, dir, gridSize)) {
+                            let score = 0;
+                            for (let i = 0; i < word.length; i++) {
+                                const row = dir === "H" ? r : r + i;
+                                const col = dir === "H" ? c + i : c;
+                                if (grid[row][col] === word[i]) score += 1;
+                            }
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestSpot = { row: r, col: c, dir };
+                            }
+                        }
+                    });
                 }
-                if (bestSpot) break;
             }
-
+        
             if (bestSpot) {
                 placeWord(grid, word, bestSpot.row, bestSpot.col, bestSpot.dir);
                 placedWords.push({ word, row: bestSpot.row, col: bestSpot.col, dir: bestSpot.dir });
             }
         }
+        
     }
 
     return { grid, placedWords };
 };
 
-// ✅ React Component to Render Crossword Puzzle
-const CrosswordPuzzle = ({ studySet }) => {
+// React Component to Render Crossword Puzzle
+const CrosswordPuzzle = ({ studySet, setShowCrosswordPuzzle }) => {
     const [crossword, setCrossword] = useState({ grid: [], placedWords: [] });
+    const [selectedCell, setSelectedCell] = useState(null);
+    const [inputValue, setInputValue] = useState("");
 
     useEffect(() => {
         if (studySet) {
@@ -134,28 +143,59 @@ const CrosswordPuzzle = ({ studySet }) => {
             const dynamicGridSize = getDynamicGridSize(words); // ✅ Now calculated dynamically
             const newCrossword = generateCrossword(words, dynamicGridSize);
             setCrossword(newCrossword);
-
         }
     }, [studySet]);
+
+    const handleCellClick = (row, col) => {
+        setSelectedCell({ row, col });
+        setInputValue("");
+    };
+
+    const handleInputChange = (e) => {
+        const value = e.target.value.toUpperCase();
+        setInputValue(value);
+        if (value.length === 1 && selectedCell) {
+            const newGrid = [...crossword.grid];
+            newGrid[selectedCell.row][selectedCell.col] = value;
+            setCrossword({ ...crossword, grid: newGrid });
+            setSelectedCell(null);
+        }
+    };
 
     return (
         <div className="flex flex-col items-center p-6 bg-[#3B0B24] min-h-screen text-white">
             <h1 className="text-3xl font-bold mb-4">Crossword Puzzle</h1>
 
             {/* Crossword Grid */}
-            <div className="grid" style={{ gridTemplateColumns: `repeat(${crossword.grid.length}, 1fr)` }}>
+            <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${crossword.grid.length}, 1fr)` }}>
                 {crossword.grid.map((row, rowIndex) =>
                     row.map((cell, colIndex) => (
                         <div
                             key={`${rowIndex}-${colIndex}`}
-                            className={`w-8 h-8 flex items-center justify-center text-lg font-bold rounded-lg ${cell !== emptyCell ? "bg-gray-700" : "bg-transparent"
-                                }`}
+                            className={`w-8 h-8 flex items-center justify-center text-lg font-bold rounded-lg ${
+                                cell !== emptyCell ? "bg-gray-700" : "bg-transparent"
+                            } ${selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex ? "border-2 border-yellow-500" : ""}`}
+                            onClick={() => handleCellClick(rowIndex, colIndex)}
                         >
                             {cell !== emptyCell ? cell : ""}
                         </div>
                     ))
                 )}
             </div>
+
+            {/* Input for Cell */}
+            {selectedCell && (
+                <div className="mt-4">
+                    <input
+                        type="text"
+                        value={inputValue}
+                        onChange={handleInputChange}
+                        className="bg-[#522136] text-white px-4 py-2 rounded-lg"
+                        maxLength={1}
+                        autoFocus
+                    />
+                </div>
+            )}
 
             {/* Crossword Clues */}
             <div className="mt-6">
@@ -183,6 +223,14 @@ const CrosswordPuzzle = ({ studySet }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Back Button */}
+            <button
+                onClick={() => setShowCrosswordPuzzle(false)}
+                className="mt-6 bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
+            >
+                Back
+            </button>
         </div>
     );
 };
