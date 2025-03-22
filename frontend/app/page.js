@@ -8,7 +8,7 @@ import { motion } from "framer-motion"; // 🔹 Import motion at the top of your
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import MatchingCard from "./matchingcard";
 import Findterm from "./findterm";
-
+import CrosswordPuzzle from "./crossword";
 
 
 export default function Home() {
@@ -733,6 +733,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
   const [editingIndex, setEditingIndex] = useState(null); // Track the item being edited
   const [showMatchingTest, setShowMatchingTest] = useState(false);
   const [showFillTest, setShowFillTest] = useState(false);
+  const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
 
   // Get the current term
   const currentTerm = studySet.terms[currentIndex].term;
@@ -784,6 +785,13 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
             studySet={studySet} // ✅ Corrected to `studySet`
             setShowFillTest={setShowFillTest}
           />
+        ) : showCrosswordPuzzle ? (
+          <CrosswordPuzzle
+            screenWidth={screenWidth}
+            setSelectedSet={setSelectedSet}
+            studySet={studySet} // ✅ Corrected to `studySet`
+            setShowCrosswordPuzzle={setShowCrosswordPuzzle}
+          />
         ) : (
           <div className={`flex flex-col ${screenWidth > 770 ? "items-start" : "items-center"} w-full`}>
 
@@ -796,11 +804,14 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               </button>
               <button
                 className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]"
-                onClick={() => setShowFillTest(true)} // ✅ Change state
+                onClick={() => setShowFillTest(true)} 
               >
                 Find the Term
               </button>
-              <button className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
+              <button
+                className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]"
+                onClick={() => setShowCrosswordPuzzle(true)}
+              >
                 Puzzle
               </button>
             </div>
