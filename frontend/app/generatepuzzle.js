@@ -31,6 +31,7 @@ export default function GeneratePuzzle({ screenWidth }) {
         }
         setIsEditing(false);                 // ✅ Close modal
     };
+
     // Get clue number for a specific grid cell
     const getClueNumber = (row, col) => {
         const match = placedWords.find((entry) => {
@@ -40,161 +41,285 @@ export default function GeneratePuzzle({ screenWidth }) {
 
         return match ? match.index + 1 : null;
     };
+    const generateMutations = (arr) => {
+        const result = [];
 
+        const backtrack = (path, remaining) => {
+            if (remaining.length === 0) {
+                result.push(path);
+                return;
+            }
+
+            for (let i = 0; i < remaining.length; i++) {
+                backtrack([...path, remaining[i]], [
+                    ...remaining.slice(0, i),
+                    ...remaining.slice(i + 1),
+                ]);
+            }
+        };
+
+        backtrack([], arr);
+        return result;
+    };
+
+
+
+    // build the puzzle
     const { grid, placedWords } = React.useMemo(() => {
+
+        // find longest word length
         const longestWordLength = Math.max(...qnaList.map(item => item.answer.length), 0);
+
+        // build the grid size base on double the length of the longest word
         const gridSize = Math.max(10, longestWordLength * 2);
+
+        // build empty grid puzzle
         const grid = Array.from({ length: gridSize }, () =>
             Array.from({ length: gridSize }, () => null)
         );
         const placedWords = [];
 
+        // ✅ Skip everything if no input
+        if (qnaList.length === 0) {
+            return { grid, placedWords };
+        }
 
-        // Try to place words
-        const sortedQna = [...qnaList]
-            .map((item, index) => ({ ...item, index }))
-            .sort((a, b) => b.answer.length - a.answer.length);
+        // Sort the word from longest to shorted
+        // 🔢 Step 1: Assign score based on shared letters
+        const sortedQna = qnaList
+            .filter(item => item.answer && typeof item.answer === 'string') // 🛡️ Prevent undefined/null
+            .map((item, index) => {
+                const word = item.answer.toUpperCase();
+                let score = 0;
 
-        sortedQna.forEach((item, index) => {
-            const word = item.answer.toUpperCase();
-            let placed = false;
-
-            if (index === 0) {
-
-                // Place the first word horizontally in the center
-                const centerRow = Math.floor(gridSize / 2);
-                const startCol = Math.floor((gridSize - word.length) / 2);
-                for (let i = 0; i < word.length; i++) {
-                    grid[centerRow][startCol + i] = word[i];
+                for (let other of qnaList) {
+                    if (other === item || !other.answer) continue;
+                    const otherWord = other.answer.toUpperCase();
+                    for (let char of word) {
+                        if (otherWord.includes(char)) score++;
+                    }
                 }
-                placedWords.push({ word, direction: "across", start: { row: centerRow, col: startCol }, index });
-                return;
-            }
 
-            // Try to intersect with placed words
-            outer: for (let pw of placedWords) {
-                let attempts = 0;
-                for (let i = 0; i < word.length; i++) {
-                    const letter = word[i];
-                    for (let j = 0; j < pw.word.length; j++) {
-                        if (placed) break;
-                        attempts++;
-                        if (attempts > 1000000000) break outer; // 🚨 limit to prevent freezing
-                        if (letter !== pw.word[j]) continue;
-                        const r = pw.start.row;
-                        const c = pw.start.col;
-                        let newRow, newCol;
-                        if (pw.direction === "across") {
-                            
-                            // Try placing down intersecting at j
-                            newRow = r - i;
-                            newCol = c + j;
-                            if (
-                                newRow >= 0 &&
-                                newRow + word.length <= gridSize &&
-                                newCol < gridSize
-                            ) {
-                                // 🧠 No snake-combine check: above and below the word
+                return { ...item, index, score };
+            });
+
+
+        // 🧠 Step 2: Safely pick top scorer and sort others
+        const scoredCopy = [...sortedQna]; // Still has score and index, useful for later if needed
+        const permutations = generateMutations(scoredCopy);
+
+        let finalGrid = null;
+        let finalPlacedWords = [];
+        let found = false;
+
+        console.log("🔁 Total permutations to try:", permutations.length);
+
+        // 🔁 Try all permutations to find the best placement order
+        for (let p = 0; p < permutations.length; p++) {
+            console.log(`🔍 Trying permutation #${p + 1}:`, permutations[p].map(w => w.answer.toUpperCase()));
+            let allFit = true;
+            const testPlacedWords = [];
+            const testGrid = Array.from({ length: gridSize }, () =>
+                Array.from({ length: gridSize }, () => null)
+            );
+
+            permutations[p].forEach((item, index) => {
+                const word = item.answer.toUpperCase();
+                let placed = false;
+
+                if (index === 0) {
+
+                    // Place the first word horizontally in the center
+                    const centerRow = Math.floor(gridSize / 2);
+                    const startCol = Math.floor((gridSize - word.length) / 2);
+                    for (let i = 0; i < word.length; i++) {
+                        testGrid[centerRow][startCol + i] = word[i];
+                    }
+                    testPlacedWords.push({ word, direction: "across", start: { row: centerRow, col: startCol }, index: item.index });
+                    return;
+                }
+
+                // Try to intersect with placed words
+                outer: for (let pw of testPlacedWords) {
+                    let attempts = 0;
+                    for (let i = 0; i < word.length; i++) {
+                        const letter = word[i];
+                        for (let j = 0; j < pw.word.length; j++) {
+                            if (placed) break;
+                            attempts++;
+                            if (attempts > 1000000000) break outer; // 🚨 limit to prevent freezing
+                            if (letter !== pw.word[j]) continue;
+                            const r = pw.start.row;
+                            const c = pw.start.col;
+                            let newRow, newCol;
+                            if (pw.direction === "across") {
+
+                                // Try placing down intersecting at j
+                                newRow = r - i;
+                                newCol = c + j;
                                 if (
-                                    (grid[newRow - 1]?.[newCol]) ||
-                                    (grid[newRow + word.length]?.[newCol])
+                                    newRow >= 0 &&
+                                    newRow + word.length <= gridSize &&
+                                    newCol < gridSize
                                 ) {
-                                    continue; // 🛑 Abort placement if touching other word ends
-                                }
+                                    // 🧠 No snake-combine check: above and below the word
+                                    const topCell = testGrid[newRow - 1]?.[newCol];
+                                    const bottomCell = testGrid[newRow + word.length]?.[newCol];
+                                    const isTopBlocked = topCell && !testPlacedWords.some(w =>
+                                        w.direction === "across" &&
+                                        w.start.row === newRow - 1 &&
+                                        w.start.col <= newCol &&
+                                        newCol < w.start.col + w.word.length
+                                    );
+                                    const isBottomBlocked = bottomCell && !testPlacedWords.some(w =>
+                                        w.direction === "across" &&
+                                        w.start.row === newRow + word.length &&
+                                        w.start.col <= newCol &&
+                                        newCol < w.start.col + w.word.length
+                                    );
+                                    if (isTopBlocked || isBottomBlocked) continue;
 
-                                let fits = true;
-                                for (let k = 0; k < word.length; k++) {
-                                    const row = newRow + k;
-                                    const cell = grid[row][newCol];
-                                    if (cell && cell !== word[k]) {
-                                        fits = false;
-                                        break;
-                                    }
 
-                                    // 🛑 check surrounding horizontal neighbors
-                                    if (
-                                        (grid[row][newCol - 1] || grid[row][newCol + 1]) &&
-                                        grid[row][newCol] === null
-                                    ) {
-                                        fits = false;
-                                        break;
-                                    }
-                                }
-                                if (fits) {
+                                    let fits = true;
                                     for (let k = 0; k < word.length; k++) {
-                                        grid[newRow + k][newCol] = word[k];
+                                        const row = newRow + k;
+                                        const cell = testGrid[row][newCol];
+                                        if (cell && cell !== word[k]) {
+                                            fits = false;
+                                            break;
+                                        }
+
+                                        // 🛑 check surrounding horizontal neighbors
+                                        if (
+                                            (testGrid[row][newCol - 1] || testGrid[row][newCol + 1]) &&
+                                            testGrid[row][newCol] === null
+                                        ) {
+                                            fits = false;
+                                            break;
+                                        }
                                     }
-                                    placedWords.push({
-                                        word,
-                                        row: newRow,
-                                        col: newCol,
-                                        direction: "down",
-                                        start: { row: newRow, col: newCol },
-                                        index: item.index,
-                                    });
-                                    placed = true;
-                                    break;
+                                    if (fits) {
+                                        for (let k = 0; k < word.length; k++) {
+                                            testGrid[newRow + k][newCol] = word[k];
+                                        }
+                                        testPlacedWords.push({
+                                            word,
+                                            row: newRow,
+                                            col: newCol,
+                                            direction: "down",
+                                            start: { row: newRow, col: newCol },
+                                            index: item.index,
+                                        });
+                                        placed = true;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        else {
-                            // Try placing across intersecting at j
-                            newRow = r + j;
-                            newCol = c - i;
-                            if (
-                                newCol >= 0 &&
-                                newCol + word.length <= gridSize &&
-                                newRow < gridSize
-                            ) {
-
-                                // 🧠 No snake-combine check: left and right of the word
+                            else {
+                                // Try placing across intersecting at j
+                                newRow = r + j;
+                                newCol = c - i;
                                 if (
-                                    (grid[newRow]?.[newCol - 1]) ||
-                                    (grid[newRow]?.[newCol + word.length])
+                                    newCol >= 0 &&
+                                    newCol + word.length <= gridSize &&
+                                    newRow < gridSize
                                 ) {
-                                    continue; // 🛑 Abort placement if touching other word ends
-                                }
 
-                                let fits = true;
-                                for (let k = 0; k < word.length; k++) {
-                                    const col = newCol + k;
-                                    const cell = grid[newRow][col];
-                                    if (cell && cell !== word[k]) {
-                                        fits = false;
-                                        break;
-                                    }
-                                    // 🛑 check surrounding vertical neighbors
-                                    if (
-                                        (grid[newRow - 1]?.[col] || grid[newRow + 1]?.[col]) &&
-                                        grid[newRow][col] === null
-                                    ) {
-                                        fits = false;
-                                        break;
-                                    }
-                                }
-                                if (fits) {
+                                    // 🧠 No snake-combine check: left and right of the word
+                                    const leftCell = testGrid[newRow]?.[newCol - 1];
+                                    const rightCell = testGrid[newRow]?.[newCol + word.length];
+                                    const isLeftBlocked = leftCell && !testPlacedWords.some(w =>
+                                        w.direction === "down" &&
+                                        w.start.col === newCol - 1 &&
+                                        w.start.row <= newRow &&
+                                        newRow < w.start.row + w.word.length
+                                    );
+                                    const isRightBlocked = rightCell && !testPlacedWords.some(w =>
+                                        w.direction === "down" &&
+                                        w.start.col === newCol + word.length &&
+                                        w.start.row <= newRow &&
+                                        newRow < w.start.row + w.word.length
+                                    );
+                                    if (isLeftBlocked || isRightBlocked) continue;
+
+                                    let fits = true;
                                     for (let k = 0; k < word.length; k++) {
-                                        grid[newRow][newCol + k] = word[k];
+                                        const col = newCol + k;
+                                        const cell = testGrid[newRow][col];
+                                        if (cell && cell !== word[k]) {
+                                            fits = false;
+                                            break;
+                                        }
+                                        // 🛑 check surrounding vertical neighbors
+                                        if (
+                                            (testGrid[newRow - 1]?.[col] || testGrid[newRow + 1]?.[col]) &&
+                                            testGrid[newRow][col] === null
+                                        ) {
+                                            fits = false;
+                                            break;
+                                        }
                                     }
-                                    placedWords.push({
-                                        word,
-                                        row: newRow,
-                                        col: newCol,
-                                        direction: "across",
-                                        start: { row: newRow, col: newCol },
-                                        index: item.index,
-                                    });
-                                    placed = true;
-                                    break;
+                                    if (fits) {
+                                        for (let k = 0; k < word.length; k++) {
+                                            testGrid[newRow][newCol + k] = word[k];
+                                        }
+                                        testPlacedWords.push({
+                                            word,
+                                            row: newRow,
+                                            col: newCol,
+                                            direction: "across",
+                                            start: { row: newRow, col: newCol },
+                                            index: item.index,
+                                        });
+                                        placed = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
+                    if (!placed) {
+                        allFit = false;
+                        break; // break current permutation
+                    }
                 }
+            });
+            // If all words fit, save the result to finalGrid and finalPlacedWords
+            if (allFit) {
+                found = true;
+                finalGrid = testGrid;
+                finalPlacedWords = testPlacedWords;
+                break; // Stop at first successful permutation
             }
+        }
+        if (found && finalGrid && finalPlacedWords.length > 0) {
+            console.log("✅ Found a permutation that fits all words!");
+            return { grid: finalGrid, placedWords: finalPlacedWords };
+        }
+        else {
+            console.log("❌ No valid permutation found. Falling back to default placement.");
 
             // Fallback: spaced-out placement
-            if (!placed) {
+            scoredCopy.forEach((item, index) => {
+                const word = item.answer.toUpperCase();
+                let placed = false;
+
+                if (index === 0) {
+                    const centerRow = Math.floor(gridSize / 2);
+                    const startCol = Math.floor((gridSize - word.length) / 2);
+                    for (let i = 0; i < word.length; i++) {
+                        grid[centerRow][startCol + i] = word[i];
+                    }
+                    placedWords.push({
+                        word,
+                        direction: "across",
+                        start: { row: centerRow, col: startCol },
+                        index: item.index,
+                    });
+                    return;
+                }
+
+                // Fallback placement logic
                 let newRow = Math.floor(gridSize / 2);
                 let newCol = Math.floor((gridSize - word.length) / 2);
 
@@ -243,69 +368,74 @@ export default function GeneratePuzzle({ screenWidth }) {
                             index: item.index,
                         });
                     }
-                }
-            }
-            if (!placed) {
-                // Try one last time ignoring the 1-block distance rule
-                for (let row = 0; row < gridSize; row++) {
-                    for (let col = 0; col < gridSize; col++) {
-                        // Try placing across
-                        if (col + word.length <= gridSize) {
-                            let fits = true;
-                            for (let i = 0; i < word.length; i++) {
-                                const ch = grid[row][col + i];
-                                if (ch && ch !== word[i]) {
+                } if (!placed) {
+                    // Try one last time ignoring the 1-block distance rule
+                    for (let row = 0; row < gridSize; row++) {
+                        for (let col = 0; col < gridSize; col++) {
+                            // Try placing across
+                            if (col + word.length <= gridSize) {
+                                let fits = true;
+                                for (let i = 0; i < word.length; i++) {
+                                    const cell = grid[row][col + i];
+                                    if (cell && cell !== word[i]) {
+                                        fits = false;
+                                        break;
+                                    }
+
+                                    // 🚫 Block if adjacent top or bottom cell is filled and this cell is empty
+                                    if (
+                                        !grid[row][col + i] && (
+                                            grid[row - 1]?.[col + i] ||
+                                            grid[row + 1]?.[col + i]
+                                        )
+                                    ) {
+                                        fits = false;
+                                        break;
+                                    }
+                                }
+
+                                // 🚫 Block if cell to the left or right is filled
+                                if (
+                                    grid[row]?.[col - 1] ||
+                                    grid[row]?.[col + word.length]
+                                ) {
                                     fits = false;
+                                }
+
+                            }
+                            // Try placing down
+                            if (placed) break;
+                            if (row + word.length <= gridSize) {
+                                let fits = true;
+                                for (let i = 0; i < word.length; i++) {
+                                    const ch = grid[row + i][col];
+                                    if (ch && ch !== word[i]) {
+                                        fits = false;
+                                        break;
+                                    }
+                                }
+                                if (fits) {
+                                    for (let i = 0; i < word.length; i++) {
+                                        grid[row + i][col] = word[i];
+                                    }
+                                    placedWords.push({
+                                        word,
+                                        direction: "down",
+                                        start: { row, col },
+                                        index: item.index,
+                                    });
+                                    placed = true;
                                     break;
                                 }
                             }
-                            if (fits) {
-                                for (let i = 0; i < word.length; i++) {
-                                    grid[row][col + i] = word[i];
-                                }
-                                placedWords.push({
-                                    word,
-                                    direction: "across",
-                                    start: { row, col },
-                                    index: item.index,
-                                });
-                                placed = true;
-                                break;
-                            }
                         }
-
-                        // Try placing down
                         if (placed) break;
-                        if (row + word.length <= gridSize) {
-                            let fits = true;
-                            for (let i = 0; i < word.length; i++) {
-                                const ch = grid[row + i][col];
-                                if (ch && ch !== word[i]) {
-                                    fits = false;
-                                    break;
-                                }
-                            }
-                            if (fits) {
-                                for (let i = 0; i < word.length; i++) {
-                                    grid[row + i][col] = word[i];
-                                }
-                                placedWords.push({
-                                    word,
-                                    direction: "down",
-                                    start: { row, col },
-                                    index: item.index,
-                                });
-                                placed = true;
-                                break;
-                            }
-                        }
                     }
-                    if (placed) break;
                 }
-            }
-        });
 
-        return { grid, placedWords };
+            });
+        }
+        return { grid, placedWords }; // ✅ This line closes the useMemo function properly
     }, [qnaList]);
     return (
         <div className="text-white font-[Itim]">
@@ -379,9 +509,19 @@ export default function GeneratePuzzle({ screenWidth }) {
                             />
                             <button
                                 onClick={() => {
-                                    if (question.trim() && answer.trim()) {
-                                        const randomDirection = Math.random() < 0.5 ? "across" : "down";
-                                        setQnaList([...qnaList, { question, answer, direction: randomDirection }]);
+                                    const cleanQuestion = question.trim();
+                                    const cleanAnswer = answer.trim().toUpperCase();
+
+                                    if (cleanQuestion && cleanAnswer) {
+                                        const updatedList = [
+                                            ...qnaList,
+                                            {
+                                                question: cleanQuestion,
+                                                answer: cleanAnswer,
+                                            },
+                                        ];
+
+                                        setQnaList(updatedList);
                                         setQuestion("");
                                         setAnswer("");
                                     }
@@ -390,6 +530,7 @@ export default function GeneratePuzzle({ screenWidth }) {
                             >
                                 Add
                             </button>
+
                         </div>
 
                         {/* Show QnA box */}
@@ -490,12 +631,11 @@ export default function GeneratePuzzle({ screenWidth }) {
                                 <span className="font-semibold block mb-2">Across</span>
                                 {placedWords
                                     .filter((item) => item.direction === "across")
-                                    .map((item) => (
-                                        <div key={item.index} className="mb-2 text-sm">
+                                    .map((item, idx) => (
+                                        <div key={`${item.index}-${idx}`} className="mb-2 text-sm">
                                             <strong>{item.index + 1}.</strong> {qnaList[item.index].question}
                                         </div>
                                     ))}
-
                             </div>
 
                             {/* Down Box */}
@@ -503,18 +643,14 @@ export default function GeneratePuzzle({ screenWidth }) {
                                 <span className="font-semibold block mb-2">Down</span>
                                 {placedWords
                                     .filter((item) => item.direction === "down")
-                                    .map((item) => (
-                                        <div key={item.index} className="mb-2 text-sm">
+                                    .map((item, idx) => (
+                                        <div key={`${item.index}-${idx}`} className="mb-2 text-sm">
                                             <strong>{item.index + 1}.</strong> {qnaList[item.index].question}
                                         </div>
                                     ))}
-
-
                             </div>
                         </div>
-
                     </div>
-
                 </div>
             )}
         </div>
