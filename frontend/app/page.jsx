@@ -746,13 +746,18 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             console.log("Resetting to Library View"); // Debugging log
             setSelectedSet(null);  // ✅ Reset selected study set
             setIsCreatingSet("library");
+            setIsOpen(false);
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
           <i className="bi bi-folder2"></i> Your Library
         </button>
         <hr className="border-[#FFFFFF]" />
         <p className="text-sm">Your folders</p>
-        <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+        <button 
+        onClick={() => {
+          setIsOpen(false);
+        }}
+        className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
           <i className="bi bi-plus"></i> New Folder
         </button>
         <hr className="border-[#FFFFFF]" />
@@ -762,6 +767,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsCreatePuzzle(true);
             setIsCreatingSet(false);
             setSelectedSet(null);
+            setIsOpen(false);
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
           <i className="bi bi-puzzle"></i> CrossWord
