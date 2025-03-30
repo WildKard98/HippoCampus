@@ -142,7 +142,17 @@ export default function Home() {
         )}
 
         {/* WingPanel (Hidden by default, appears when clicking the hamburger) */}
-        {isWingPanelOpen && <WingPanel isOpen={isWingPanelOpen} setIsOpen={setIsWingPanelOpen} setIsCreatePuzzle={setIsCreatePuzzle} />}
+        {isWingPanelOpen && (
+          <WingPanel
+            isOpen={isWingPanelOpen}
+            setIsOpen={setIsWingPanelOpen}
+            setIsCreatePuzzle={setIsCreatePuzzle}
+            setIsCreatingSet={setIsCreatingSet}
+            setSelectedSet={setSelectedSet}
+            setIsHome={setIsHome}
+          />
+        )}
+
 
         {/* Main Container with Sidebar & Content */}
         <div className="flex flex-1 relative">
@@ -274,6 +284,7 @@ function HomeContent({ studySets }) {
 
 /* Component: Create a New Learning Set */
 function CreateSet({ onSave }) {
+  const [numCards, setNumCards] = useState(1);  // Default to 1 card
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [alwaysAddOne, setAlwaysAddOne] = useState(false); // Checkbox state
@@ -697,7 +708,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
 
 
 
-function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle }) {
+function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome }) {
   return (
     <motion.aside
       className="fixed top-0 left-0 h-full w-48 bg-[#3B0B24] p-4 shadow-lg z-50"
@@ -714,15 +725,29 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle }) {
           ☰
         </button>
 
-        <span className="text-3xl font-bold ml-2" style={{ fontFamily: "'Inknut Antiqua', serif" }}>W</span>
+        <span className="text-3xl font-bold ml-2" style={{ fontFamily: "'Inknut Antiqua', serif" }}>WN</span>
       </div>
 
       {/* Navigation Items */}
       <nav className="flex flex-col gap-4 mt-9">
-        <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+        <button
+          onClick={() => {
+            setIsCreatingSet(false);
+            setIsHome(true);
+            setIsCreatePuzzle(false);
+            setIsOpen(false);
+          }}
+          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
           <i className="bi bi-house-door"></i> Home
         </button>
-        <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+
+        <button
+          onClick={() => {
+            console.log("Resetting to Library View"); // Debugging log
+            setSelectedSet(null);  // ✅ Reset selected study set
+            setIsCreatingSet("library");
+          }}
+          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
           <i className="bi bi-folder2"></i> Your Library
         </button>
         <hr className="border-[#FFFFFF]" />
@@ -735,7 +760,8 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle }) {
         <button
           onClick={() => {
             setIsCreatePuzzle(true);
-            setIsOpen(false);
+            setIsCreatingSet(false);
+            setSelectedSet(null);
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
           <i className="bi bi-puzzle"></i> CrossWord
