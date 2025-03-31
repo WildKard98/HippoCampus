@@ -1,6 +1,6 @@
 // Shift + Option + F to Format code
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useEffect } from "react";
@@ -10,6 +10,7 @@ import MatchingCard from "./matchingcard";
 import Findterm from "./findterm";
 import CrosswordPuzzle from "./crossword";
 import GeneratePuzzle from "./generatepuzzle";
+
 
 export default function Home() {
   useEffect(() => {
@@ -443,6 +444,7 @@ function EditSet({ studySet, onSave, onCancel }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [alwaysAddOne, setAlwaysAddOne] = useState(false); // Checkbox state
   const [showCardDropdown, setShowCardDropdown] = useState(false); // Toggle dropdown
+  const [numCards, setNumCards] = useState(1);  // Default to 1 card
   const moveCard = (dragIndex, hoverIndex) => {
     const updatedTerms = [...terms];
     const [removed] = updatedTerms.splice(dragIndex, 1);
@@ -753,11 +755,11 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
         </button>
         <hr className="border-[#FFFFFF]" />
         <p className="text-sm">Your folders</p>
-        <button 
-        onClick={() => {
-          setIsOpen(false);
-        }}
-        className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+        <button
+          onClick={() => {
+            setIsOpen(false);
+          }}
+          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
           <i className="bi bi-plus"></i> New Folder
         </button>
         <hr className="border-[#FFFFFF]" />
@@ -790,6 +792,15 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
   const [showMatchingTest, setShowMatchingTest] = useState(false);
   const [showFillTest, setShowFillTest] = useState(false);
   const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
+  const scrollPauseTimerRef = useRef(null);
+
+  const resetScrollPauseTimer = () => {
+    if (scrollPauseTimerRef.current) clearTimeout(scrollPauseTimerRef.current);
+    scrollPauseTimerRef.current = setTimeout(() => {
+      setFlipped(false); // stay flipped front
+      // Add any visual reset if needed
+    }, 500);
+  };
 
   // Get the current term
   const currentTerm = studySet.terms[currentIndex].term;
@@ -882,11 +893,12 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
             {/* Flashcard with Flip Animation */}
             <motion.div
               className={`h-[35vh] flex items-center justify-center p-6 bg-[#522136] rounded-lg text-center text-3xl cursor-pointer select-none relative transition-all duration-300 
-            ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`}
+                ${starredTerms[studySet.terms[currentIndex].term] ? "border-2 border-yellow-400" : ""}
+                ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`}
               onClick={() => setFlipped(!flipped)}
               initial={{ rotateX: 0 }}
               animate={{ rotateX: flipped ? 180 : 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.001 }}
               style={{ transformStyle: "preserve-3d" }}
             >
               {/* FRONT SIDE (Definition) */}
@@ -951,8 +963,30 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               )}
             </motion.div>
 
+            {/* Smooth Scroll Slider to Flip Cards Like Chapters */}
+            <div className="flex w-[60%]">
+              <div className={`flex items-center gap-4 mt-6 ${screenWidth > 770 ? "w-[240px] mx-auto justify-center" : "w-[240px] mx-auto justify-center"}`}>
+
+                <input
+                  type="range"
+                  min="0"
+                  max={studySet.terms.length - 1}
+                  value={currentIndex}
+                  onChange={(e) => {
+                    const index = parseInt(e.target.value);
+                    setCurrentIndex(index);
+                    setFlipped(false);
+                    resetScrollPauseTimer();
+                  }}
+                  className="w-full accent-white transition-all duration-200 hover:accent-white-400"
+                />
+              </div>
+            </div>
+
+
             {/* Navigation Buttons - Centered Under Flashcard */}
             <div className="flex w-full mt-4">
+
               <div className={`flex items-center gap-4 ${screenWidth > 770 ? "flex justify-center w-[60%]" : "w-full justify-center"}`}>
                 <button
                   onClick={prevCard}
@@ -981,7 +1015,10 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
 
               <div className="flex flex-col gap-2">
                 {studySet.terms.map((item, index) => (
-                  <div key={index} className="bg-[#522136] p-4 rounded-lg flex items-center justify-between w-full">
+                  <div key={index}
+                    className={`bg-[#522136] p-4 rounded-lg flex items-center justify-between w-full transition-all duration-300
+                  ${starredTerms[item.term] ? "border-1 border-yellow-400" : ""}`}
+                  >
                     <span className="font-semibold w-1/3">{item.term}</span>
                     <span className="text-white text-5xl px-1 font-light">|</span> {/* Vertical Line */}
                     <span className="text-gray-300 w-2/3">{item.definition}</span>

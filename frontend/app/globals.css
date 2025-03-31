@@ -29,3 +29,39 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* Hide scrollbar for clean look */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+/* === Slider Customization === */
+input[type="range"].custom-slider {
+  -webkit-appearance: none;
+  background: transparent;
+  height: 6px;
+  width: 100%;
+}
+
+input[type="range"].custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: 2px solid #facc15; /* yellow border */
+  transition: all 0.2s ease;
+}
+input[type="range"].custom-slider::-webkit-slider-thumb:hover {
+  background: #facc15;
+}
+
+input[type="range"].custom-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  background: #444; /* dark neutral track */
+  border-radius: 2px;
+}
+
