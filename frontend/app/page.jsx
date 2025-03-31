@@ -4,12 +4,13 @@ import { useState, useRef } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useEffect } from "react";
-import { motion } from "framer-motion"; // 🔹 Import motion at the top of your file
+import { motion, AnimatePresence } from "framer-motion"; // 🔹 Import motion at the top of your file
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import MatchingCard from "./matchingcard";
 import Findterm from "./findterm";
 import CrosswordPuzzle from "./crossword";
 import GeneratePuzzle from "./generatepuzzle";
+
 
 
 export default function Home() {
@@ -890,15 +891,26 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               </button>
             </div>
 
-            {/* Flashcard with Flip Animation */}
+            {/* Flashcard scroll Animation */}
+            <AnimatePresence mode="wait" initial={false}>
             <motion.div
+            
+              key={currentIndex}
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.1 }}
+              className={`relative ${screenWidth <= 770 ? "w-full" : "w-full ml-0"}`}
+              >
+              {/* Flashcard with Flip Animation */}
+              <motion.div
               className={`h-[35vh] flex items-center justify-center p-6 bg-[#522136] rounded-lg text-center text-3xl cursor-pointer select-none relative transition-all duration-300 
                 ${starredTerms[studySet.terms[currentIndex].term] ? "border-2 border-yellow-400" : ""}
                 ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`}
               onClick={() => setFlipped(!flipped)}
               initial={{ rotateX: 0 }}
               animate={{ rotateX: flipped ? 180 : 0 }}
-              transition={{ duration: 0.001 }}
+              transition={{ duration: 0.002 }}
               style={{ transformStyle: "preserve-3d" }}
             >
               {/* FRONT SIDE (Definition) */}
@@ -961,144 +973,146 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
 
                 </div>
               )}
+              </motion.div>
             </motion.div>
+          </AnimatePresence>
 
             {/* Smooth Scroll Slider to Flip Cards Like Chapters */}
-            <div className="flex w-[60%]">
-              <div className={`flex items-center gap-4 mt-6 ${screenWidth > 770 ? "w-[240px] mx-auto justify-center" : "w-[240px] mx-auto justify-center"}`}>
+        <div className="flex w-[60%]">
+          <div className={`flex items-center gap-4 mt-6 ${screenWidth > 770 ? "w-[240px] mx-auto justify-center" : "w-[240px] mx-auto justify-center"}`}>
 
-                <input
-                  type="range"
-                  min="0"
-                  max={studySet.terms.length - 1}
-                  value={currentIndex}
-                  onChange={(e) => {
-                    const index = parseInt(e.target.value);
-                    setCurrentIndex(index);
-                    setFlipped(false);
-                    resetScrollPauseTimer();
-                  }}
-                  className="w-full accent-white transition-all duration-200 hover:accent-white-400"
-                />
-              </div>
-            </div>
-
-
-            {/* Navigation Buttons - Centered Under Flashcard */}
-            <div className="flex w-full mt-4">
-
-              <div className={`flex items-center gap-4 ${screenWidth > 770 ? "flex justify-center w-[60%]" : "w-full justify-center"}`}>
-                <button
-                  onClick={prevCard}
-                  className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
-                >
-                  ←
-                </button>
-                <span className="text-xl flex items-center justify-center h-[45px]">
-                  {currentIndex + 1} / {studySet.terms.length}
-                </span>
-                <button
-                  onClick={nextCard}
-                  className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
-                >
-                  →
-                </button>
-              </div>
-            </div>
-
-            {/* White Line Below the Flashcard */}
-            <div className={`mt-6 h-[2px] bg-white ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}></div>
-
-            {/* Term List Below Flashcard */}
-            <div className={`mt-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
-              <h3 className="text-lg font-semibold mb-2">Term in this set ({studySet.terms.length})</h3>
-
-              <div className="flex flex-col gap-2">
-                {studySet.terms.map((item, index) => (
-                  <div key={index}
-                    className={`bg-[#522136] p-4 rounded-lg flex items-center justify-between w-full transition-all duration-300
-                  ${starredTerms[item.term] ? "border-1 border-yellow-400" : ""}`}
-                  >
-                    <span className="font-semibold w-1/3">{item.term}</span>
-                    <span className="text-white text-5xl px-1 font-light">|</span> {/* Vertical Line */}
-                    <span className="text-gray-300 w-2/3">{item.definition}</span>
-
-                    {/* ⭐ Star & ✏️ Edit Buttons Container */}
-                    <div className="relative flex items-center pl-8">
-                      {/* Star Button - Positioned at the top-right */}
-                      <button
-                        onClick={() => toggleStar(item.term)}
-                        className="absolute bottom-0 right-0 text-white text-xl"
-                      >
-                        {starredTerms[item.term] ? (
-                          <i className="bi bi-star-fill text-yellow-400"></i>
-                        ) : (
-                          <i className="bi bi-star"></i>
-                        )}
-                      </button>
-
-                      {/* ✏️ Pencil Icon (Edit Button) - Positioned lower right */}
-                      <button
-                        onClick={() => handleEditClick(item, index)}
-                        className="absolute top-0 right-0 text-white text-lg transition duration-300 hover:text-yellow-400 hover:scale-110"
-                      >
-                        <i className="bi bi-pencil-fill"></i>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add or Remove Term Button */}
-              <div className="flex justify-center mt-4">
-                <button
-                  onClick={() => {
-                    setIsEditingSet(studySet);  // ✅ Set the correct study set
-                    setIsCreatingSet(false);    // ✅ Prevent conflict with Create Set mode
-                  }}
-                  className="bg-[#6A2E3B] text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-[#8A3E4B] hover:scale-105"
-                >
-                  Add or remove term
-                </button>
-              </div>
-
-
-            </div>
+            <input
+              type="range"
+              min="0"
+              max={studySet.terms.length - 1}
+              value={currentIndex}
+              onChange={(e) => {
+                const index = parseInt(e.target.value);
+                setCurrentIndex(index);
+                setFlipped(false);
+                resetScrollPauseTimer();
+              }}
+              className="w-full accent-white transition-all duration-200 hover:accent-white-400"
+            />
           </div>
-        )}
-        {isEditing && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div
-              className="bg-[#3B0B24] p-6 rounded-lg text-white relative"
-              style={{ width: screenWidth > 450 ? "450px" : "100%" }} // ✅ Set width logic
+        </div>
+
+
+        {/* Navigation Buttons - Centered Under Flashcard */}
+        <div className="flex w-full mt-4">
+
+          <div className={`flex items-center gap-4 ${screenWidth > 770 ? "flex justify-center w-[60%]" : "w-full justify-center"}`}>
+            <button
+              onClick={prevCard}
+              className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
             >
-              <button className="absolute top-2 right-2 text-xl" onClick={() => setIsEditing(false)}>✖</button>
-              <h2 className="text-2xl font-bold mb-4">Edit</h2>
-
-              <label className="block mb-2">Term:</label>
-              <input
-                type="text"
-                className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
-                value={editTerm}
-                onChange={(e) => setEditTerm(e.target.value)}
-              />
-
-              <label className="block mb-2">Definition:</label>
-              <textarea
-                className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
-                value={editDefinition}
-                onChange={(e) => setEditDefinition(e.target.value)}
-              />
-
-              <button onClick={handleSaveEdit} className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105">
-                Done
-              </button>
-            </div>
+              ←
+            </button>
+            <span className="text-xl flex items-center justify-center h-[45px]">
+              {currentIndex + 1} / {studySet.terms.length}
+            </span>
+            <button
+              onClick={nextCard}
+              className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
+            >
+              →
+            </button>
           </div>
-        )}
+        </div>
 
+        {/* White Line Below the Flashcard */}
+        <div className={`mt-6 h-[2px] bg-white ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}></div>
+
+        {/* Term List Below Flashcard */}
+        <div className={`mt-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
+          <h3 className="text-lg font-semibold mb-2">Term in this set ({studySet.terms.length})</h3>
+
+          <div className="flex flex-col gap-2">
+            {studySet.terms.map((item, index) => (
+              <div key={index}
+                className={`bg-[#522136] p-4 rounded-lg flex items-center justify-between w-full transition-all duration-300
+                  ${starredTerms[item.term] ? "border-1 border-yellow-400" : ""}`}
+              >
+                <span className="font-semibold w-1/3">{item.term}</span>
+                <span className="text-white text-5xl px-1 font-light">|</span> {/* Vertical Line */}
+                <span className="text-gray-300 w-2/3">{item.definition}</span>
+
+                {/* ⭐ Star & ✏️ Edit Buttons Container */}
+                <div className="relative flex items-center pl-8">
+                  {/* Star Button - Positioned at the top-right */}
+                  <button
+                    onClick={() => toggleStar(item.term)}
+                    className="absolute bottom-0 right-0 text-white text-xl"
+                  >
+                    {starredTerms[item.term] ? (
+                      <i className="bi bi-star-fill text-yellow-400"></i>
+                    ) : (
+                      <i className="bi bi-star"></i>
+                    )}
+                  </button>
+
+                  {/* ✏️ Pencil Icon (Edit Button) - Positioned lower right */}
+                  <button
+                    onClick={() => handleEditClick(item, index)}
+                    className="absolute top-0 right-0 text-white text-lg transition duration-300 hover:text-yellow-400 hover:scale-110"
+                  >
+                    <i className="bi bi-pencil-fill"></i>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Add or Remove Term Button */}
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => {
+                setIsEditingSet(studySet);  // ✅ Set the correct study set
+                setIsCreatingSet(false);    // ✅ Prevent conflict with Create Set mode
+              }}
+              className="bg-[#6A2E3B] text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-[#8A3E4B] hover:scale-105"
+            >
+              Add or remove term
+            </button>
+          </div>
+
+
+        </div>
       </div>
+        )}
+      {isEditing && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div
+            className="bg-[#3B0B24] p-6 rounded-lg text-white relative"
+            style={{ width: screenWidth > 450 ? "450px" : "100%" }} // ✅ Set width logic
+          >
+            <button className="absolute top-2 right-2 text-xl" onClick={() => setIsEditing(false)}>✖</button>
+            <h2 className="text-2xl font-bold mb-4">Edit</h2>
+
+            <label className="block mb-2">Term:</label>
+            <input
+              type="text"
+              className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+              value={editTerm}
+              onChange={(e) => setEditTerm(e.target.value)}
+            />
+
+            <label className="block mb-2">Definition:</label>
+            <textarea
+              className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+              value={editDefinition}
+              onChange={(e) => setEditDefinition(e.target.value)}
+            />
+
+            <button onClick={handleSaveEdit} className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105">
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
+    </div >
   );
 }
 
