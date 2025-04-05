@@ -1,238 +1,287 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
+export default function CrosswordPuzzle({ screenWidth }) {
+    const [puzzleTitle, setPuzzleTitle] = React.useState("");
+    const [question, setQuestion] = React.useState("");
+    const [answer, setAnswer] = React.useState("");
+    const [qnaList, setQnaList] = React.useState([]);
+    const [editAnswer, setEditAnswer] = useState("");
+    const [editQuestion, setEditQuestion] = useState("");
+    const [editingIndex, setEditingIndex] = useState(null); // Index of the QnA being edited
+    const [isEditing, setIsEditing] = useState(false);
 
-// Dynamically set grid size based on longest word
-const getDynamicGridSize = (words) => {
-    let longestWord = words.reduce((max, word) => Math.max(max, word.length), 0);
-    return Math.max(longestWord + 4, 10); // Ensure at least a 10x10 grid
-};
+    // Open the edit modal
+    const handleEditClick = (termObj, index) => {
+        setEditAnswer(termObj.answer);       // ✅ Pre-fill answer
+        setEditQuestion(termObj.question);   // ✅ Pre-fill question
+        setEditingIndex(index);              // ✅ Track index
+        setIsEditing(true);                  // ✅ Open modal
+    };
 
-const emptyCell = "."; // Placeholder for empty cells
-
-const extractWords = (studySet) => {
-    if (!studySet || !studySet.terms) return [];
-    return studySet.terms.map(item => item.term.toUpperCase());
-};
-
-// Function to check if a word can be placed in the grid
-const canPlaceWord = (grid, word, row, col, direction, gridSize) => {
-    const length = word.length;
-
-    if (direction === "H") {
-        if (col + length > grid.length) return false; // Prevent overflow    
-        for (let i = 0; i < length; i++) {
-            const cell = grid[row][col + i];
-            if (cell !== emptyCell && cell !== word[i]) return false;
+    // Save changes
+    const handleSaveEdit = () => {
+        if (editingIndex !== null) {
+            const updatedQnA = [...qnaList];  // ✅ Copy the qnaList
+            updatedQnA[editingIndex] = {
+                answer: editAnswer,          // ✅ Use new edited values
+                question: editQuestion
+            };
+            setQnaList(updatedQnA);          // ✅ Save back to state
         }
-    } else {
-        if (row + length > grid.length) return false; // Prevent overflow
-        for (let i = 0; i < length; i++) {
-            const cell = grid[row + i][col];
-            if (cell !== emptyCell && cell !== word[i]) return false;
-        }
-    }
-    return true;
-};
+        setIsEditing(false);                 // ✅ Close modal
+    };
+    // Get clue number for a specific grid cell
+    const getClueNumber = (row, col) => {
+        const match = placedWords.find((entry) => {
+            if (!entry || !entry.start) return false;
+            return entry.start.row === row && entry.start.col === col;
+        });
 
-// Function to place a word in the grid
-const placeWord = (grid, word, row, col, direction) => {
-    for (let i = 0; i < word.length; i++) {
-        if (direction === "H") {
-            grid[row][col + i] = word[i];
-        } else {
-            grid[row + i][col] = word[i];
-        }
-    }
-};
-
-// Function to generate crossword grid
-const generateCrossword = (words, gridSize = 15) => {
-    if (!words || words.length === 0) {
-        console.warn("No words provided for the crossword puzzle.");
-        return { grid: [], placedWords: [] }; // Return an empty crossword if words are missing
-    }
-
-    let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(emptyCell)); // Use `emptyCell`
-    // Sort words by length (longest first) to maximize placement success
-    words = words.filter(word => word && word.length > 0).sort((a, b) => b.length - a.length);
-
-    if (words.length === 0) {
-        console.warn("No valid words available after filtering.");
-        return { grid, placedWords: [] };
-    }
-
-    let placedWords = [];
-
-    // Center the first word correctly
-    let startRow = Math.floor(gridSize / 2) - Math.floor(words[0].length / 2);
-    let startCol = Math.floor(gridSize / 2) - Math.floor(words[0].length / 2);
-    placeWord(grid, words[0], startRow, startCol, "H");
-    placedWords.push({ word: words[0], row: startRow, col: startCol, dir: "H" });
-
-    // Improved Word Placement: Prioritizes intersections first
-    for (let i = 1; i < words.length; i++) {
-        let word = words[i];
-        let placed = false;
-
-        // Try to place the word where it shares a letter with an existing word
-        for (let existingWord of placedWords) {
-            for (let j = 0; j < existingWord.word.length; j++) {
-                for (let k = 0; k < word.length; k++) {
-                    if (existingWord.word[j] === word[k]) {
-                        let newRow = existingWord.row + (existingWord.dir === "H" ? 0 : j - k);
-                        let newCol = existingWord.col + (existingWord.dir === "H" ? j - k : 0);
-                        let newDirection = existingWord.dir === "H" ? "V" : "H";
-
-                        if (canPlaceWord(grid, word, newRow, newCol, newDirection)) {
-                            placeWord(grid, word, newRow, newCol, newDirection);
-                            placedWords.push({ word, row: newRow, col: newCol, dir: newDirection });
-                            placed = true;
-                            break;
-                        }
-                    }
-                }
-                if (placed) break;
-            }
-            if (placed) break;
-        }
-
-        // If no intersection is found, try placing in open spaces first before random
-        if (!placed) {
-            let bestSpot = null;
-            let bestScore = -1;
-        
-            for (let r = 0; r < gridSize; r++) {
-                for (let c = 0; c < gridSize; c++) {
-                    ["H", "V"].forEach((dir) => {
-                        if (canPlaceWord(grid, word, r, c, dir, gridSize)) {
-                            let score = 0;
-                            for (let i = 0; i < word.length; i++) {
-                                const row = dir === "H" ? r : r + i;
-                                const col = dir === "H" ? c + i : c;
-                                if (grid[row][col] === word[i]) score += 1;
-                            }
-                            if (score > bestScore) {
-                                bestScore = score;
-                                bestSpot = { row: r, col: c, dir };
-                            }
-                        }
-                    });
-                }
-            }
-        
-            if (bestSpot) {
-                placeWord(grid, word, bestSpot.row, bestSpot.col, bestSpot.dir);
-                placedWords.push({ word, row: bestSpot.row, col: bestSpot.col, dir: bestSpot.dir });
-            }
-        }
-        
-    }
-
-    return { grid, placedWords };
-};
-
-// React Component to Render Crossword Puzzle
-const CrosswordPuzzle = ({ studySet, setShowCrosswordPuzzle }) => {
-    const [crossword, setCrossword] = useState({ grid: [], placedWords: [] });
-    const [selectedCell, setSelectedCell] = useState(null);
-    const [inputValue, setInputValue] = useState("");
+        return match ? match.index + 1 : null;
+    };
+    const [grid, setGrid] = useState([]);
+    const [placedWords, setPlacedWords] = useState([]);
 
     useEffect(() => {
-        if (studySet) {
-            const words = extractWords(studySet);
-            const dynamicGridSize = getDynamicGridSize(words); // ✅ Now calculated dynamically
-            const newCrossword = generateCrossword(words, dynamicGridSize);
-            setCrossword(newCrossword);
-        }
-    }, [studySet]);
-
-    const handleCellClick = (row, col) => {
-        setSelectedCell({ row, col });
-        setInputValue("");
-    };
-
-    const handleInputChange = (e) => {
-        const value = e.target.value.toUpperCase();
-        setInputValue(value);
-        if (value.length === 1 && selectedCell) {
-            const newGrid = [...crossword.grid];
-            newGrid[selectedCell.row][selectedCell.col] = value;
-            setCrossword({ ...crossword, grid: newGrid });
-            setSelectedCell(null);
-        }
-    };
-
+        const generate = async () => {
+            const res = await fetch("/api/generate-puzzle", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ qnaList })
+            });
+    
+            const data = await res.json();
+            setGrid(data.grid);
+            setPlacedWords(data.placedWords);
+        };
+    
+        generate();
+    }, [qnaList]);
+    
     return (
-        <div className="flex flex-col items-center p-6 bg-[#3B0B24] min-h-screen text-white">
-            <h1 className="text-3xl font-bold mb-4">Crossword Puzzle</h1>
+        <div className="text-white font-[Itim]">
+            <h1 className="text-3xl font-bold mb-6">Crossword Puzzle</h1>
+            {isEditing ? (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div
+                        className="bg-[#3B0B24] p-6 rounded-lg text-white relative"
+                        style={{ width: screenWidth > 450 ? "450px" : "100%" }} // ✅ Set width logic
+                    >
+                        <button className="absolute top-2 right-2 text-xl" onClick={() => setIsEditing(false)}>✖</button>
+                        <h2 className="text-2xl font-bold mb-4">Edit</h2>
 
-            {/* Crossword Grid */}
-            <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${crossword.grid.length}, 1fr)` }}>
-                {crossword.grid.map((row, rowIndex) =>
-                    row.map((cell, colIndex) => (
-                        <div
-                            key={`${rowIndex}-${colIndex}`}
-                            className={`w-8 h-8 flex items-center justify-center text-lg font-bold rounded-lg ${
-                                cell !== emptyCell ? "bg-gray-700" : "bg-transparent"
-                            } ${selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex ? "border-2 border-yellow-500" : ""}`}
-                            onClick={() => handleCellClick(rowIndex, colIndex)}
-                        >
-                            {cell !== emptyCell ? cell : ""}
+                        <label className="block mb-2">Answer:</label>
+                        <input
+                            type="text"
+                            className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+                            value={editAnswer}
+                            onChange={(e) => setEditAnswer(e.target.value)}
+                        />
+
+                        <label className="block mb-2">Question:</label>
+                        <textarea
+                            className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+                            value={editQuestion}
+                            onChange={(e) => setEditQuestion(e.target.value)}
+                        />
+
+                        <button onClick={handleSaveEdit} className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105">
+                            Done
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="flex flex-col md:flex-row gap-2 w-full justify-start">
+
+                    {/* Left Column */}
+                    <div className={`flex flex-col gap-2 ${screenWidth > 770 ? "w-full md:w-2/5 max-w-[450px]" : "w-full"}`}>
+
+                        {/* Box 1: Title Input + Create Button */}
+                        <div className="bg-[#522136] p-4 rounded-lg">
+                            <input
+                                type="text"
+                                placeholder="Enter title"
+                                value={puzzleTitle}
+                                onChange={(e) => setPuzzleTitle(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg text-white bg-transparent border border-white focus:outline-none placeholder-white"
+                            />
+                            <button
+                                className="w-full mt-4 bg-[#B0913D] text-white py-2 rounded-md hover:bg-[#c5a847] transition duration-300"
+                            >
+                                Create
+                            </button>
                         </div>
-                    ))
-                )}
-            </div>
 
-            {/* Input for Cell */}
-            {selectedCell && (
-                <div className="mt-4">
-                    <input
-                        type="text"
-                        value={inputValue}
-                        onChange={handleInputChange}
-                        className="bg-[#522136] text-white px-4 py-2 rounded-lg"
-                        maxLength={1}
-                        autoFocus
-                    />
+                        {/* Box 2: Question + Answer Input */}
+                        <div className="bg-[#522136] p-4 rounded-lg">
+                            <label className="block mb-2 text-white">Question</label>
+                            <input
+                                type="text"
+                                value={question}
+                                onChange={(e) => setQuestion(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg text-white bg-transparent border border-white mb-4 focus:outline-none placeholder-white"
+                            />
+                            <hr className="border-white my-2" />
+                            <label className="block mb-2 text-white">Answer</label>
+                            <input
+                                type="text"
+                                value={answer}
+                                onChange={(e) => setAnswer(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg text-white bg-transparent border border-white focus:outline-none placeholder-white"
+                            />
+                            <button
+                                onClick={() => {
+                                    const cleanQuestion = question.trim();
+                                    const cleanAnswer = answer.trim().toUpperCase();
+
+                                    if (cleanQuestion && cleanAnswer) {
+                                        const updatedList = [
+                                            ...qnaList,
+                                            {
+                                                question: cleanQuestion,
+                                                answer: cleanAnswer,
+                                            },
+                                        ];
+
+                                        setQnaList(updatedList);
+                                        setQuestion("");
+                                        setAnswer("");
+                                    }
+                                }}
+                                className="mt-4 bg-[#B0913D] text-white px-6 py-2 rounded-md hover:bg-[#c5a847] transition duration-300"
+                            >
+                                Add
+                            </button>
+                        </div>
+
+                        {/* Show QnA box */}
+                        <div className="bg-[#522136] p-4 rounded-lg overflow-y-auto">
+                            {qnaList.length === 0 ? (
+                                <p className="text-white-400 text-center py-4">Enter a question and answer above to start</p>
+                            ) : (
+                                <div className="flex flex-col gap-2">
+                                    {qnaList.map((item, index) => (
+                                        <div
+                                            key={index}
+                                            className="bg-[#6A2A3B] p-4 rounded-lg flex items-center justify-between w-full"
+                                        >
+                                            <span className="font-semibold w-1/3">{item.answer}</span>
+                                            <div
+                                                className="w-[2px] h-full bg-white mx-4 rounded-full opacity-50"
+                                                style={{ minHeight: "40px" }}
+                                            ></div>
+                                            <span className="text-gray-300 w-2/3">{item.question}</span>
+
+                                            {/* ✏️ Edit Buttons Container */}
+                                            <div className="relative flex items-center pl-8">
+                                                <button
+                                                    onClick={() => {
+                                                        const updatedList = qnaList.filter((_, i) => i !== index);
+                                                        setQnaList(updatedList);
+                                                    }}
+                                                    className="absolute top-0 right-0 text-white transition duration-300 hover:text-red-500 hover:scale-110"
+                                                >
+                                                    <i className="bi bi-trash"></i>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleEditClick(item, index)}
+                                                    className="absolute bottom-1 right-0 text-white transition duration-300 hover:text-yellow-400 hover:scale-110"
+                                                >
+                                                    <i className="bi bi-pencil-fill"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Right Column */}
+                    {/* Puzzle look */}
+                    <div className={`bg-[#522136] p-2 rounded-lg ${screenWidth > 770 ? "md:w-3/5 flex flex-col gap-2 max-w-[750px]" : "w-full md:w-3/5 flex flex-col gap-2"}`}>
+
+
+                        {/* Puzzle Title Box */}
+                        <div className="flex justify-center ">
+                            <div className="bg-[#522136] text-white p-2 rounded-md font-semibold text-center">
+                                {puzzleTitle || "Untitled"}
+                            </div>
+                        </div>
+
+                        {/* Divider Line */}
+                        <hr className="border-white" />
+
+                        {/* THE PUZZLE */}
+                        <div className="bg-[#522136] text-white p-4 rounded-md min-h-[450px] flex flex-col items-center justify-center gap-1">
+                            {grid.map((rowArray, row) => (
+                                <div key={row} className="flex gap-1">
+                                    {rowArray.map((cell, col) => {
+                                        const clueNum = getClueNumber(row, col); // 👈 grab the clue number
+
+                                        return (
+                                            <div
+                                                key={`${row}-${col}`}
+                                                className="relative w-6 h-6 bg-[#522136] text-white rounded-sm flex items-center justify-center text-xs border border-white"
+                                            >
+                                                {/* The letter itself */}
+                                                <span className="z-10">{cell || ""}</span>
+
+                                                {/* The clue number (only for first letters) */}
+                                                {clueNum && (
+                                                    <span className="absolute top-[1px] left-[1px] text-[8px] text-white-400 font-bold z-20 leading-none">
+                                                        {clueNum}
+                                                    </span>
+
+                                                )}
+                                            </div>
+
+                                        );
+                                    })}
+                                </div>
+                            ))}
+                        </div>
+
+
+                        {/* Divider Line */}
+                        <hr className="border-white" />
+
+                        {/* Bottom: Across & Down */}
+                        <div className="flex gap-2">
+
+                            {/* Across Box */}
+                            <div className="bg-[#522136] text-white p-4 rounded-md w-1/2 min-h-[150px]">
+                                <span className="font-semibold block mb-2">Across</span>
+                                {placedWords
+                                    .filter((item) => item.direction === "across" && qnaList[item.index])
+                                    .map((item, idx) => (
+                                        <div key={idx} className="mb-2 text-sm">
+                                            <strong>{item.index + 1}.</strong> {qnaList[item.index].question}
+                                        </div>
+                                    ))}
+
+                            </div>
+
+                            {/* Down Box */}
+                            <div className="bg-[#522136] text-white p-4 rounded-md w-1/2 min-h-[150px]">
+                                <span className="font-semibold block mb-2">Down</span>
+                                {placedWords
+                                    .filter((item) => item.direction === "down" && qnaList[item.index])
+                                    .map((item, idx) => (
+                                        <div key={idx} className="mb-2 text-sm">
+                                            <strong>{item.index + 1}.</strong> {qnaList[item.index].question}
+                                        </div>
+                                    ))}
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
-
-            {/* Crossword Clues */}
-            <div className="mt-6">
-                <h2 className="text-2xl font-semibold">Clues</h2>
-                <div className="flex gap-8 mt-2">
-                    <div>
-                        <h3 className="text-xl">Across</h3>
-                        <ul>
-                            {crossword.placedWords
-                                .filter((w) => w.dir === "H")
-                                .map((w, i) => (
-                                    <li key={i}>{i + 1}. {w.word}</li>
-                                ))}
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 className="text-xl">Down</h3>
-                        <ul>
-                            {crossword.placedWords
-                                .filter((w) => w.dir === "V")
-                                .map((w, i) => (
-                                    <li key={i}>{i + 1}. {w.word}</li>
-                                ))}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            {/* Back Button */}
-            <button
-                onClick={() => setShowCrosswordPuzzle(false)}
-                className="mt-6 bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
-            >
-                Back
-            </button>
         </div>
     );
-};
+}
 
-export default CrosswordPuzzle;
+
+

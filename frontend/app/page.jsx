@@ -856,9 +856,9 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
         ) : showCrosswordPuzzle ? (
           <CrosswordPuzzle
             screenWidth={screenWidth}
-            setSelectedSet={setSelectedSet}
-            studySet={studySet} // ✅ Corrected to `studySet`
-            setShowCrosswordPuzzle={setShowCrosswordPuzzle}
+             //setSelectedSet={setSelectedSet}
+             //studySet={studySet} // ✅ Corrected to `studySet`
+             setShowCrosswordPuzzle={setShowCrosswordPuzzle}
           />
         ) : (
           <div className={`flex flex-col ${screenWidth > 770 ? "items-start" : "items-center"} w-full`}>

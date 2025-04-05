@@ -159,38 +159,38 @@ export default function GeneratePuzzle({ screenWidth }) {
             .sort((a, b) => b.score - a.score); // Sort from high to low
 
 
-        function neutralizeLetterScores(word, scores) {
-            const upperWord = word.toUpperCase();
-            const usedLetters = new Set();
-            const modifiedScores = [...scores];
-
-            for (let i = 0; i < upperWord.length; i++) {
-                const score = modifiedScores[i];
-                const letter = upperWord[i];
-
-                if (score > 0 && !usedLetters.has(letter)) {
-                    usedLetters.add(letter);
-
-                    // Step 1: Reduce/zero out all same letters
-                    for (let j = 0; j < upperWord.length; j++) {
-                        if (j === i) continue;
-                        if (upperWord[j] === letter) {
-                            if (modifiedScores[j] === 1) {
-                                modifiedScores[j] = 0;
-                            } else if (modifiedScores[j] > 1) {
-                                modifiedScores[j]--;
-                            }
-                        }
-                    }
-
-                    // Step 2: Zero out 2 adjacent letters
-                    if (i - 1 >= 0) modifiedScores[i - 1] = 0;
-                    if (i + 1 < upperWord.length) modifiedScores[i + 1] = 0;
+            function neutralizeLetterScores(word, scores, index) {
+                const upperWord = word.toUpperCase();
+                const modifiedScores = [...scores];
+              
+                // Reset mode
+                if (index === -1) {
+                  return scores;
                 }
-            }
-
-            return modifiedScores;
-        }
+              
+                const usedLetter = upperWord[index];
+              
+                // Step 1: Set the used letter's score to 0
+                modifiedScores[index] = 0;
+              
+                // Step 2: Zero out adjacent letters
+                if (index - 1 >= 0) modifiedScores[index - 1] = 0;
+                if (index + 1 < upperWord.length) modifiedScores[index + 1] = 0;
+              
+                // Step 3: Reduce or zero out all other instances of the same letter
+                for (let i = 0; i < upperWord.length; i++) {
+                  if (i === index) continue;
+                  if (upperWord[i] === usedLetter) {
+                    if (modifiedScores[i] === 1) {
+                      modifiedScores[i] = 0;
+                    } else if (modifiedScores[i] > 1) {
+                      modifiedScores[i]--;
+                    }
+                  }
+                }
+              
+                return modifiedScores;
+              }              
 
         // 
         
@@ -821,3 +821,229 @@ export default function GeneratePuzzle({ screenWidth }) {
                                 placed = true;
                             }
                      } */
+
+                            /* placement logic
+// 🧭 Coordinates of the start of the placed word — used to calculate where to attempt placing the current word
+                    const r = pw.start.row;
+                    const c = pw.start.col;
+                    let newRow, newCol;
+
+
+                    if (pw.direction === "across") { // of previous word is across
+
+                        // 🎯 Try placing the current word vertically (down), intersecting at letter j of previous word
+                        newRow = r - i;                  // Calculate row so that i-th letter of current word aligns with j-th of previous
+                        newCol = c + j;                  // Column stays aligned with j-th letter of previous word
+
+                        if (
+                            newRow >= 0 &&                              // ✅ Make sure new word fits within the grid from top
+                            newRow + word.length <= gridSize &&         // ✅ Ensure it doesn't overflow bottom
+                            newCol < gridSize                           // ✅ Ensure column is within bounds
+                        ) {
+
+                            // 🧠 No snake-combine check: above and below the word
+                            // 🧠 Check one-block spacing above and below current word (prevent touching other words)
+                            const topCell = testGrid[newRow - 1]?.[newCol];                  // Cell above the starting position
+                            const bottomCell = testGrid[newRow + word.length]?.[newCol];     // Cell just after the word ends
+
+                            // ❌ Block if top cell is filled and not part of a valid "across" word at that row
+                            const isTopBlocked = topCell && !testPlacedWords.some(w =>
+                                w.direction === "across" &&
+                                w.start.row === newRow - 1 &&
+                                w.start.col <= newCol &&
+                                newCol < w.start.col + w.word.length
+                            );
+
+                            // ❌ Block if bottom cell is filled and not part of a valid "across" word at that row
+                            const isBottomBlocked = bottomCell && !testPlacedWords.some(w =>
+                                w.direction === "across" &&
+                                w.start.row === newRow + word.length &&
+                                w.start.col <= newCol &&
+                                newCol < w.start.col + w.word.length
+                            );
+
+                            if (isTopBlocked || isBottomBlocked) continue;  // 🔄 Skip if there's a conflict
+
+
+                            let fits = true;
+                            for (let k = 0; k < word.length; k++) {
+                                const row = newRow + k;
+                                const cell = testGrid[row][newCol];
+
+                                if (cell && cell !== word[k]) {  // ❌ Conflict with existing letter
+                                    fits = false;
+                                    break;
+                                }
+
+                                // 🛑 check surrounding horizontal neighbors
+                                // 🚫 Block if left/right neighbors are filled and current cell is empty (spacing rule)
+                                if (
+                                    (testGrid[row][newCol - 1] || testGrid[row][newCol + 1]) &&
+                                    testGrid[row][newCol] === null
+                                ) {
+                                    fits = false;
+                                    break;
+                                }
+                            }
+
+                            if (fits) {
+                                // ✅ Place the word on the grid
+                                for (let k = 0; k < word.length; k++) {
+                                    testGrid[newRow + k][newCol] = word[k];
+                                }
+
+                                // 📌 Save the word with placement info
+                                testPlacedWords.push({
+                                    word,
+                                    row: newRow,
+                                    col: newCol,
+                                    direction: "down",
+                                    start: { row: newRow, col: newCol },
+                                    index: item.index,
+                                });
+                                placed = true;
+                                console.log(word, "add successfully! ✅");
+                                break;
+                            }
+                        }
+                    }
+                    else {
+
+                        // Try placing across intersecting at j
+                        newRow = r + j;
+                        newCol = c - i;
+                        if (
+                            newCol >= 0 &&
+                            newCol + word.length <= gridSize &&
+                            newRow < gridSize
+                        ) {
+
+                            // 🧠 No snake-combine check: left and right of the word
+                            const leftCell = testGrid[newRow]?.[newCol - 1];
+                            const rightCell = testGrid[newRow]?.[newCol + word.length];
+                            const isLeftBlocked = leftCell && !testPlacedWords.some(w =>
+                                w.direction === "down" &&
+                                w.start.col === newCol - 1 &&
+                                w.start.row <= newRow &&
+                                newRow < w.start.row + w.word.length
+                            );
+                            const isRightBlocked = rightCell && !testPlacedWords.some(w =>
+                                w.direction === "down" &&
+                                w.start.col === newCol + word.length &&
+                                w.start.row <= newRow &&
+                                newRow < w.start.row + w.word.length
+                            );
+                            if (isLeftBlocked || isRightBlocked) continue;
+
+                            let fits = true;
+                            for (let k = 0; k < word.length; k++) {
+                                const col = newCol + k;
+                                const cell = testGrid[newRow][col];
+                                if (cell && cell !== word[k]) {
+                                    fits = false;
+                                    break;
+                                }
+
+                                // 🛑 check surrounding vertical neighbors
+                                if (
+                                    (testGrid[newRow - 1]?.[col] || testGrid[newRow + 1]?.[col]) &&
+                                    testGrid[newRow][col] === null
+                                ) {
+                                    fits = false;
+                                    break;
+                                }
+                            }
+                            if (fits) {
+                                for (let k = 0; k < word.length; k++) {
+                                    testGrid[newRow][newCol + k] = word[k];
+                                }
+                                testPlacedWords.push({
+                                    word,
+                                    row: newRow,
+                                    col: newCol,
+                                    direction: "across",
+                                    start: { row: newRow, col: newCol },
+                                    index: item.index,
+                                });
+                                placed = true;
+                                console.log(word, "add successfully! ✅");
+                                break;
+                            }
+                        }
+                    }
+                        */
+
+
+// fallback logic
+/*
+// if word cant be placed
+                if (!placed) {
+
+                    console.log(word, "cant be place! 🚫");
+                    if (!placed) {
+
+                        // Try one last time ignoring the 1-block distance rule
+                        for (let row = 0; row < gridSize; row++) {
+                            for (let col = 0; col < gridSize; col++) {
+                                // Try placing across
+                                if (col + word.length <= gridSize) {
+                                    let fits = true;
+                                    for (let i = 0; i < word.length; i++) {
+                                        const cell = testGrid[row][col + i];
+                                        if (cell && cell !== word[i]) {
+                                            fits = false;
+                                            break;
+                                        }
+
+                                        // 🚫 Block if adjacent top or bottom cell is filled and this cell is empty
+                                        if (
+                                            !testGrid[row][col + i] && (
+                                                testGrid[row - 1]?.[col + i] ||
+                                                testGrid[row + 1]?.[col + i]
+                                            )
+                                        ) {
+                                            fits = false;
+                                            break;
+                                        }
+
+                                    }
+
+                                    // 🚫 Block if cell to the left or right is filled
+                                    if (
+                                        testGrid[row]?.[col - 1] ||
+                                        testGrid[row]?.[col + word.length]
+                                    ) {
+                                        fits = false;
+                                    }
+
+                                }
+                                // Try placing down
+                                if (placed) break;
+                                if (row + word.length <= gridSize) {
+                                    let fits = true;
+                                    for (let i = 0; i < word.length; i++) {
+                                        const ch = testGrid[row + i][col];
+                                        if (ch && ch !== word[i]) {
+                                            fits = false;
+                                            break;
+                                        }
+                                    }
+                                    if (fits) {
+                                        for (let i = 0; i < word.length; i++) {
+                                            testGrid[row + i][col] = word[i];
+                                        }
+                                        testPlacedWords.push({
+                                            word,
+                                            direction: "down",
+                                            start: { row, col },
+                                            index: item.index,
+                                        });
+                                        placed = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                    */
