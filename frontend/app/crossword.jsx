@@ -44,20 +44,29 @@ export default function CrosswordPuzzle({ screenWidth }) {
     const [placedWords, setPlacedWords] = useState([]);
 
     useEffect(() => {
+        if (qnaList.length === 0) return; // ⛔️ don't run if there's nothing
+    
         const generate = async () => {
             const res = await fetch("/api/generate-puzzle", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ qnaList })
             });
-    
+            
+            if (!res.ok) {
+                console.warn("Puzzle generation failed:", res.status);
+                return;
+            }
+            
             const data = await res.json();
             setGrid(data.grid);
             setPlacedWords(data.placedWords);
+            
         };
     
         generate();
     }, [qnaList]);
+    
     
     return (
         <div className="text-white font-[Itim]">
