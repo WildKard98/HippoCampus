@@ -99,7 +99,7 @@ export async function POST(req) {
     const longestWordLength = Math.max(...qnaList.map(item => item.answer.length), 0);
 
     // build the grid size base on double the length of the longest word
-    const gridSize = Math.max(10, longestWordLength * 2);
+    const gridSize = Math.max(10, longestWordLength * 3);
 
     // build empty grid puzzle
 
@@ -114,7 +114,7 @@ export async function POST(req) {
     // Helper to generate mutations from connections
     function generateMutationsFromConnections(cluster, allConnections) {
         const mutations = []; // Store all valid mutation paths
-        const MAX_MUTATIONS = 1000;
+        const MAX_MUTATIONS = 5000;
         function dfs(path, used, visitedSet) {
             if (mutations.length >= MAX_MUTATIONS) return;
             const lastWord = path[path.length - 1]; // Get the last word in the current path
@@ -160,6 +160,8 @@ export async function POST(req) {
 
         // 📦 Track placed word info (word, direction, location, etc.)
         const placedWords = [];
+        const usedAnswerIndices = new Set(); // ✅ TRACK used QnA indexes
+
         let hasFallback = false;
 
         // 🎯 Place the first word in the center, horizontally
@@ -172,12 +174,22 @@ export async function POST(req) {
         }
 
         // 📌 Save the placement info for the first word
+        let firstIndex = -1;
+        for (let k = 0; k < qnaList.length; k++) {
+            if (qnaList[k].answer.toUpperCase() === mutation[0] && !usedAnswerIndices.has(k)) {
+                firstIndex = k;
+                usedAnswerIndices.add(k);
+                break;
+            }
+        }
+
         placedWords.push({
             word: mutation[0],
-            direction: "across", // default first word is always across
+            direction: "across",
             start: { row: startRow, col: startCol },
-            index: 0, // index in qnaList is set to 0 by default here
+            index: firstIndex, // ✅ Correct index from qnaList
         });
+
 
         // 🔁 Try placing all remaining words in the mutation
         for (let i = 1; i < mutation.length; i++) {
@@ -347,7 +359,15 @@ export async function POST(req) {
                 }
 
                 // 🔍 Find the original index of this word from qnaList
-                const foundIndex = qnaList.findIndex(q => q.answer.toUpperCase() === word);
+                let foundIndex = -1;
+                for (let k = 0; k < qnaList.length; k++) {
+                    if (qnaList[k].answer.toUpperCase() === word && !usedAnswerIndices.has(k)) {
+                        foundIndex = k;
+                        usedAnswerIndices.add(k); // ✅ Mark as used
+                        break;
+                    }
+                }
+
                 if (foundIndex === -1) continue; // 🔄 Skip if the word isn't found in the original list
 
                 // 📝 Save the word's placement info for rendering or exporting later
@@ -441,7 +461,18 @@ export async function POST(req) {
                                     grid[r][c] = fallbackWord[k];
                                 }
 
-                                const foundIndex = qnaList.findIndex(q => q.answer.toUpperCase() === fallbackWord);
+                                let foundIndex = -1;
+                                for (let k = 0; k < qnaList.length; k++) {
+                                    if (
+                                        qnaList[k].answer.toUpperCase() === fallbackWord &&
+                                        !usedAnswerIndices.has(k)
+                                    ) {
+                                        foundIndex = k;
+                                        usedAnswerIndices.add(k);
+                                        break;
+                                    }
+                                }
+
                                 placedWords.push({
                                     word: fallbackWord,
                                     direction,
@@ -579,10 +610,23 @@ export async function POST(req) {
         }
     }
 
+    function assignClueNumbers(placedWords) {
+        const clueMap = new Map();
+        let next = 1;
+        for (const word of placedWords) {
+            const key = `${word.start.row},${word.start.col}`;
+            if (!clueMap.has(key)) {
+                clueMap.set(key, next++);
+            }
+            word.clueNumber = clueMap.get(key);
+        }
+    }
+
     // ✅ Skip everything if no input, prevent crash at the beginning 
     if (qnaList.length === 0) {
         return NextResponse.json({ grid: [], placedWords: [] });
     }
+    assignClueNumbers(placedSoFar);
 
     // Dummy return (for now)
     return NextResponse.json({
