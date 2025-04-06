@@ -90,13 +90,22 @@ export default function GeneratePuzzle({ screenWidth }) {
             }
 
             const data = await res.json();
-            console.log("🧩 placedWords from backend:");
             setGrid(data.grid);
             setPlacedWords(data.placedWords);
+
+            // 📦 Auto scroll to center
+            if (containerRef.current) {
+                const container = containerRef.current;
+                setTimeout(() => {
+                    container.scrollLeft = container.scrollWidth / 2 - container.clientWidth / 2;
+                    container.scrollTop = container.scrollHeight / 2 - container.clientHeight / 2;
+                }, 50);
+            }
         };
 
-        generate(); // ✅ always run, even if qnaList is empty
+        generate();
     }, [qnaList]);
+
 
     return (
         <div className="text-white font-[Itim]">
@@ -274,7 +283,7 @@ export default function GeneratePuzzle({ screenWidth }) {
                             <div
                                 className="flex flex-col items-center gap-1"
                                 style={{
-                                    transform: `scale(${grid.length > 20 ? 1 : grid.length > 15 ? 1.5 : 2})`,
+                                    transform: `scale(${grid.length > 25 ? 1 : grid.length > 10 ? 1.5 : 2})`,
                                     transformOrigin: "top center",
                                 }}
                             >

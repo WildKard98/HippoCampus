@@ -99,7 +99,7 @@ export async function POST(req) {
     const longestWordLength = Math.max(...qnaList.map(item => item.answer.length), 0);
 
     // build the grid size base on double the length of the longest word
-    const gridSize = Math.max(10, longestWordLength * 3);
+    const gridSize = Math.max(10, longestWordLength * 2);
 
     // build empty grid puzzle
 
@@ -611,14 +611,16 @@ export async function POST(req) {
     }
 
     function assignClueNumbers(placedWords) {
-        const clueMap = new Map();
+        const clueMap = new Map(); // 🔐 Prevent duplicate clue numbers
         let next = 1;
         for (const word of placedWords) {
-            const key = `${word.start.row},${word.start.col}`;
+            const key = `${word.start.row},${word.start.col}`; // 📍 Identify start cell
+
             if (!clueMap.has(key)) {
-                clueMap.set(key, next++);
+                clueMap.set(key, next++); // 🆕 First time we see this start cell
             }
-            word.clueNumber = clueMap.get(key);
+
+            word.clueNumber = clueMap.get(key); // 🧠 Share number for same cell
         }
     }
 
