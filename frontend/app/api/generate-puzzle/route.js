@@ -6,7 +6,7 @@ export async function POST(req) {
     const { qnaList } = await req.json();
 
     if (!Array.isArray(qnaList) || qnaList.length === 0) {
-        return NextResponse.json({ grid: [], placedWords: [] }, { status: 400 });
+        return NextResponse.json({ grid: [], placedWords: [] }, { status: 200 });
     }
 
     const words = qnaList.map(q => q.answer.toUpperCase());
@@ -94,6 +94,7 @@ export async function POST(req) {
     }
 
     // build the puzzle
+
     // find longest word length
     const longestWordLength = Math.max(...qnaList.map(item => item.answer.length), 0);
 
@@ -102,11 +103,6 @@ export async function POST(req) {
 
     // build empty grid puzzle
 
-
-    // ✅ Skip everything if no input, prevent crash at the beginning 
-    if (qnaList.length === 0) {
-        return { grid, placedWords };
-    }
     const indexedLetterMap = buildIndexedLetterMap(words);
     const allConnections = generateIndexedConnections(indexedLetterMap);
     //console.log("🔗 All valid 2-word connections:", allConnections);
@@ -375,17 +371,9 @@ export async function POST(req) {
                 const fallbackWord = word;
                 hasFallback = true;
 
-                // ❌ Skip if already placed
-                if (
-                    placedWords.some(p => p.word === fallbackWord) ||
-                    placedSoFar.some(p => p.word === fallbackWord)
-                ) {
-                    placed = true; // ✅ Mark as handled so we don’t fallback it again
-                    continue;       // ✅ Skip fallback logic entirely
-                }
-                
+
                 const usedShape = getUsedSize(grid);
-                const directions = usedShape.rows >= usedShape.cols ? ["across", "down"] : ["down", "across"];
+                const directions = usedShape.rows >= usedShape.cols ? ["down"] : ["across"];
 
                 for (const direction of directions) {
                     const centerRow = Math.floor(gridSize / 2);
@@ -516,10 +504,18 @@ export async function POST(req) {
     }
 
     function getNextClusterOffset(grid) {
-        const used = getUsedSize(grid);
-        // Offset below current content
-        return { row: used.rows + 2, col: Math.floor(grid[0].length / 2) };
+        let maxRow = 0;
+        for (let r = 0; r < grid.length; r++) {
+            for (let c = 0; c < grid[0].length; c++) {
+                if (grid[r][c]) {
+                    maxRow = Math.max(maxRow, r);
+                }
+            }
+        }
+        // Start new cluster 3 rows below the last used row
+        return { row: maxRow + 3, col: Math.floor(grid[0].length / 2) };
     }
+
 
 
     // 🔁 Loop through all clusters' generated mutations
@@ -529,21 +525,17 @@ export async function POST(req) {
     for (const { cluster, mutations } of clusterMutations) {
         let bestIsPerfect = false;
         let bestPerfect = null;
-
         const clusterConnections = allConnections.filter(
             c => cluster.includes(c.from) && cluster.includes(c.to)
         );
-
         let bestForCluster = null;
         let bestArea = Infinity;
-
         let attempts = 0;
         for (const mutation of mutations) {
             if (attempts++ > 5000) break;
 
             // Determine offset: center for first cluster, offset for next clusters
             const offset = combinedGrid ? getNextClusterOffset(combinedGrid) : null;
-
             const result = placeMutationToGrid(
                 mutation,
                 clusterConnections,
@@ -552,9 +544,7 @@ export async function POST(req) {
                 offset,
                 placedSoFar
             );
-
             if (!result) continue;
-
             const { grid, placedWords, hasFallback } = result;
             const isPerfect = !hasFallback;
             const used = getUsedSize(grid);
@@ -589,10 +579,9 @@ export async function POST(req) {
         }
     }
 
-
     // ✅ Skip everything if no input, prevent crash at the beginning 
     if (qnaList.length === 0) {
-        return { grid, placedWords };
+        return NextResponse.json({ grid: [], placedWords: [] });
     }
 
     // Dummy return (for now)
@@ -600,7 +589,4 @@ export async function POST(req) {
         grid: combinedGrid || [],
         placedWords: placedSoFar || [],
     });
-
-
 }
-
