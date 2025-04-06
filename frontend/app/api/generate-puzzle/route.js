@@ -109,17 +109,18 @@ export async function POST(req) {
     }
     const indexedLetterMap = buildIndexedLetterMap(words);
     const allConnections = generateIndexedConnections(indexedLetterMap);
-    console.log("🔗 All valid 2-word connections:", allConnections);
+    //console.log("🔗 All valid 2-word connections:", allConnections);
 
     // 🧠 Find clusters of connected words
     const clusters = clusterWordsFromConnections(words, allConnections);
-    console.log("🧩 Found clusters:", clusters);
+    //console.log("🧩 Found clusters:", clusters);
 
     // Helper to generate mutations from connections
     function generateMutationsFromConnections(cluster, allConnections) {
         const mutations = []; // Store all valid mutation paths
-
+        const MAX_MUTATIONS = 1000;
         function dfs(path, used, visitedSet) {
+            if (mutations.length >= MAX_MUTATIONS) return;
             const lastWord = path[path.length - 1]; // Get the last word in the current path
 
             if (path.length === cluster.length) { // ✅ If we’ve used all words in the cluster
@@ -140,29 +141,34 @@ export async function POST(req) {
 
                     path.pop();                  // 🧹 Backtrack: remove last word added
                     visitedSet.delete(conn.to); // 🧹 Unmark word as visited
+                    if (mutations.length >= MAX_MUTATIONS) return; // short-circuit deeper
                 }
             }
         }
 
         for (const startWord of cluster) {
+            if (mutations.length >= MAX_MUTATIONS) break;
             dfs([startWord], new Set(), new Set([startWord])); // 🔁 Start DFS from each word in the cluster
         }
 
         return mutations; // Return all generated mutation paths
     }
 
-    function placeMutationToGrid(mutation, connections, gridSize) {
+    function placeMutationToGrid(mutation, connections, gridSize, existingGrid = null, offset = null, placedSoFar = []) {
+
         // 🧱 Create an empty grid of given size (2D array filled with nulls)
-        const grid = Array.from({ length: gridSize }, () =>
-            Array.from({ length: gridSize }, () => null)
-        );
+        const grid = existingGrid
+            ? existingGrid.map(row => [...row]) // 🧠 Clone to avoid mutation
+            : Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
+
 
         // 📦 Track placed word info (word, direction, location, etc.)
         const placedWords = [];
+        let hasFallback = false;
 
         // 🎯 Place the first word in the center, horizontally
-        const startRow = Math.floor(gridSize / 2);
-        const startCol = Math.floor((gridSize - mutation[0].length) / 2);
+        const startRow = offset ? offset.row : Math.floor(gridSize / 2);
+        const startCol = offset ? offset.col : Math.floor((gridSize - mutation[0].length) / 2);
 
         // 📝 Write the first word to the grid
         for (let i = 0; i < mutation[0].length; i++) {
@@ -190,6 +196,7 @@ export async function POST(req) {
             for (const conn of candidateConns) {
                 const prevPlaced = placedWords.find(p => p.word === conn.from);
                 if (!prevPlaced) continue;
+                if (placedWords.some(p => p.word === word) || placedSoFar.some(p => p.word === word)) continue;
 
                 // 🧠 Access how the previous word was connected before
                 const lastPlaced = placedWords.find(p => p.word === prevPlaced.word);
@@ -272,7 +279,22 @@ export async function POST(req) {
                             sideSafe = false;
                         }
                     }
-                    
+                    // 🔁 Check up/down 1 block for all non-connecting letters (middle letters)
+                    for (let k = 0; k < word.length; k++) {
+                        if (k === conn.toIndex) continue; // 🚫 Skip connection letter
+
+                        const r = newRow;
+                        const c = newCol + k;
+
+                        const up = grid[r - 1]?.[c];
+                        const down = grid[r + 1]?.[c];
+
+                        if ((up && up !== null) || (down && down !== null)) {
+                            sideSafe = false; // ❌ Letter has neighbors above/below
+                            break;
+                        }
+                    }
+
 
                 } else { // ↕ Word is placed vertically
                     const before = grid[newRow - 1]?.[newCol]; // ⬆️ Above first letter
@@ -299,6 +321,22 @@ export async function POST(req) {
                             sideSafe = false;
                         }
                     }
+                    // 🔁 Check left/right 1 block for all non-connecting letters (middle letters)
+                    for (let k = 0; k < word.length; k++) {
+                        if (k === conn.toIndex) continue; // 🚫 Skip connection letter
+
+                        const r = newRow + k;
+                        const c = newCol;
+
+                        const left = grid[r]?.[c - 1];
+                        const right = grid[r]?.[c + 1];
+
+                        if ((left && left !== null) || (right && right !== null)) {
+                            sideSafe = false; // ❌ Letter has neighbors left/right
+                            break;
+                        }
+                    }
+
                 }
 
                 // 🚫 Skip this connection if the ends or sides aren't safe
@@ -333,12 +371,118 @@ export async function POST(req) {
                 break; // ✅ Done with this word
             }
 
-            // ❌ If no connection worked, stop the mutation
+            if (!placed) {
+                const fallbackWord = word;
+                hasFallback = true;
+
+                // ❌ Skip if already placed
+                if (
+                    placedWords.some(p => p.word === fallbackWord) ||
+                    placedSoFar.some(p => p.word === fallbackWord)
+                ) {
+                    placed = true; // ✅ Mark as handled so we don’t fallback it again
+                    continue;       // ✅ Skip fallback logic entirely
+                }
+                
+                const usedShape = getUsedSize(grid);
+                const directions = usedShape.rows >= usedShape.cols ? ["across", "down"] : ["down", "across"];
+
+                for (const direction of directions) {
+                    const centerRow = Math.floor(gridSize / 2);
+                    const centerCol = Math.floor(gridSize / 2);
+
+                    const rowOffsets = Array.from({ length: gridSize }, (_, i) => i - centerRow).sort((a, b) => Math.abs(a) - Math.abs(b));
+                    const colOffsets = Array.from({ length: gridSize }, (_, i) => i - centerCol).sort((a, b) => Math.abs(a) - Math.abs(b));
+
+                    for (const dr of rowOffsets) {
+                        const row = centerRow + dr;
+                        if (row < 0 || row >= gridSize) continue;
+
+                        for (const dc of colOffsets) {
+                            const col = centerCol + dc;
+                            if (col < 0 || col >= gridSize) continue;
+
+                            let fits = true;
+
+                            for (let k = 0; k < fallbackWord.length; k++) {
+                                const r = direction === "across" ? row : row + k;
+                                const c = direction === "across" ? col + k : col;
+
+                                if (r < 0 || r >= gridSize || c < 0 || c >= gridSize) {
+                                    fits = false;
+                                    break;
+                                }
+
+                                if (grid[r][c] && grid[r][c] !== fallbackWord[k]) {
+                                    fits = false;
+                                    break;
+                                }
+
+                                const neighbors = [
+                                    [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1],
+                                    [r - 1, c - 1], [r - 1, c + 1], [r + 1, c - 1], [r + 1, c + 1]
+                                ];
+                                for (const [nr, nc] of neighbors) {
+                                    if (
+                                        nr >= 0 && nr < gridSize &&
+                                        nc >= 0 && nc < gridSize &&
+                                        grid[nr][nc] && grid[nr][nc] !== fallbackWord[k]
+                                    ) {
+                                        fits = false;
+                                        break;
+                                    }
+                                }
+
+                                if (!fits) break;
+                            }
+
+                            const beforeR = direction === "across" ? row : row - 1;
+                            const beforeC = direction === "across" ? col - 1 : col;
+                            const afterR = direction === "across" ? row : row + fallbackWord.length;
+                            const afterC = direction === "across" ? col + fallbackWord.length : col;
+
+                            if (grid[beforeR]?.[beforeC] || grid[afterR]?.[afterC]) continue;
+
+                            if (fits) {
+                                if (placed == true) {
+                                    break;
+                                }
+                                for (let k = 0; k < fallbackWord.length; k++) {
+                                    const r = direction === "across" ? row : row + k;
+                                    const c = direction === "across" ? col + k : col;
+                                    grid[r][c] = fallbackWord[k];
+                                }
+
+                                const foundIndex = qnaList.findIndex(q => q.answer.toUpperCase() === fallbackWord);
+                                placedWords.push({
+                                    word: fallbackWord,
+                                    direction,
+                                    start: { row, col },
+                                    index: foundIndex,
+                                    mutationIndex: i,
+                                    connectedFrom: null,
+                                    connectedTo: fallbackWord,
+                                    fromIndex: null,
+                                    toIndex: null,
+                                });
+                                placed = true;
+                                break;
+                            }
+                        }
+                        if (placed) break;
+                    }
+                }
+                if (!placed) break;
+            }
             if (!placed) break;
         }
-
         // ✅ Return the built grid and word placement info
-        return { grid, placedWords };
+        return {
+            grid,
+            placedWords: placedSoFar.concat(placedWords),
+            hasFallback,
+        };
+
     }
 
 
@@ -355,14 +499,6 @@ export async function POST(req) {
         };
     });
 
-    console.log("🧩 All cluster mutations:", clusterMutations);
-    let saverPuzzle = {
-        grid: [],
-        placedWords: [],
-        fallbackCount: Infinity,
-        usedRows: Infinity,
-        usedCols: Infinity,
-    };
 
     function getUsedSize(grid) {
         let top = grid.length, bottom = 0, left = grid[0].length, right = 0;
@@ -379,118 +515,77 @@ export async function POST(req) {
         return { rows: bottom - top + 1, cols: right - left + 1 };
     }
 
-    for (const { mutations } of clusterMutations) {
+    function getNextClusterOffset(grid) {
+        const used = getUsedSize(grid);
+        // Offset below current content
+        return { row: used.rows + 2, col: Math.floor(grid[0].length / 2) };
+    }
+
+
+    // 🔁 Loop through all clusters' generated mutations
+    let combinedGrid = null;
+    let placedSoFar = [];
+
+    for (const { cluster, mutations } of clusterMutations) {
+        let bestIsPerfect = false;
+        let bestPerfect = null;
+
+        const clusterConnections = allConnections.filter(
+            c => cluster.includes(c.from) && cluster.includes(c.to)
+        );
+
+        let bestForCluster = null;
+        let bestArea = Infinity;
+
+        let attempts = 0;
         for (const mutation of mutations) {
-            const result = placeMutationToGrid(mutation, allConnections, gridSize);
-            if (!result) continue; // skip this mutation if it failed
+            if (attempts++ > 5000) break;
 
-            const { grid, placedWords } = result;
+            // Determine offset: center for first cluster, offset for next clusters
+            const offset = combinedGrid ? getNextClusterOffset(combinedGrid) : null;
 
+            const result = placeMutationToGrid(
+                mutation,
+                clusterConnections,
+                gridSize,
+                combinedGrid,
+                offset,
+                placedSoFar
+            );
 
-            const usedAnswers = placedWords.map(p => p.word);
-            const fallbackWords = words.filter(w => !usedAnswers.includes(w));
-            const fallbackCount = fallbackWords.length;
+            if (!result) continue;
 
-            // Place fallback words with spacing
-            const shape = getUsedSize(grid);
-            const isWider = shape.cols >= shape.rows;
+            const { grid, placedWords, hasFallback } = result;
+            const isPerfect = !hasFallback;
+            const used = getUsedSize(grid);
+            const area = used.rows * used.cols;
 
-            let fallbackPlacedWords = [];
-            for (const word of fallbackWords) {
-                let placed = false;
+            if (!bestForCluster) {
+                bestForCluster = { grid, placedWords };
+                bestArea = area;
+                bestIsPerfect = isPerfect;
+                bestPerfect = isPerfect ? { grid, placedWords, area } : null;
+            } else {
+                const isSmallerEnoughThanPerfect = bestPerfect && area < bestPerfect.area - 49; // 7x7 = 49
 
-                const directions = isWider ? ["across", "down"] : ["down", "across"];
-
-                for (const direction of directions) {
-                    for (let row = 0; row < gridSize; row++) {
-                        for (let col = 0; col < gridSize; col++) {
-                            let fits = true;
-
-                            for (let k = 0; k < word.length; k++) {
-                                const r = direction === "across" ? row : row + k;
-                                const c = direction === "across" ? col + k : col;
-
-                                if (r < 0 || r >= gridSize || c < 0 || c >= gridSize) {
-                                    fits = false;
-                                    break;
-                                }
-
-                                if (grid[r][c] && grid[r][c] !== word[k]) {
-                                    fits = false;
-                                    break;
-                                }
-
-                                const neighbors = [
-                                    [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1],
-                                    [r - 1, c - 1], [r - 1, c + 1], [r + 1, c - 1], [r + 1, c + 1]
-                                ];
-                                for (const [nr, nc] of neighbors) {
-                                    if (
-                                        nr >= 0 && nr < gridSize &&
-                                        nc >= 0 && nc < gridSize &&
-                                        grid[nr][nc] && grid[nr][nc] !== word[k]
-                                    ) {
-                                        fits = false;
-                                        break;
-                                    }
-                                }
-
-                                if (!fits) break;
-                            }
-
-                            const beforeR = direction === "across" ? row : row - 1;
-                            const beforeC = direction === "across" ? col - 1 : col;
-                            const afterR = direction === "across" ? row : row + word.length;
-                            const afterC = direction === "across" ? col + word.length : col;
-
-                            if (grid[beforeR]?.[beforeC] || grid[afterR]?.[afterC]) continue;
-
-                            if (fits) {
-                                for (let k = 0; k < word.length; k++) {
-                                    const r = direction === "across" ? row : row + k;
-                                    const c = direction === "across" ? col + k : col;
-                                    grid[r][c] = word[k];
-                                }
-
-                                fallbackPlacedWords.push({
-                                    word,
-                                    direction,
-                                    start: { row, col },
-                                    index: qnaList.findIndex(q => q.answer.toUpperCase() === word),
-                                });
-
-                                placed = true;
-                                break;
-                            }
-                        }
-                        if (placed) break;
+                if (isPerfect) {
+                    if (!bestIsPerfect || area < bestPerfect.area) {
+                        bestPerfect = { grid, placedWords, area };
+                        bestForCluster = { grid, placedWords };
+                        bestArea = area;
+                        bestIsPerfect = true;
                     }
-                    if (placed) break;
+                } else if (!bestIsPerfect || isSmallerEnoughThanPerfect) {
+                    bestForCluster = { grid, placedWords };
+                    bestArea = area;
                 }
-
             }
 
-            const totalPlacedWords = placedWords.concat(fallbackPlacedWords);
-            const used = getUsedSize(grid);
+        }
 
-            // Early skip if worse than saver
-            if (
-                fallbackCount > saverPuzzle.fallbackCount ||
-                (fallbackCount === saverPuzzle.fallbackCount &&
-                    (used.rows * used.cols >= saverPuzzle.usedRows * saverPuzzle.usedCols))
-            ) continue;
-
-            // Save it!
-            saverPuzzle = {
-                grid,
-                placedWords: totalPlacedWords,
-                fallbackCount,
-                usedRows: used.rows,
-                usedCols: used.cols,
-            };
-
-            // 🔁 Optional: Break early if no fallback
-            if (fallbackCount === 0) break;
+        if (bestForCluster) {
+            combinedGrid = bestForCluster.grid;
+            placedSoFar = bestForCluster.placedWords;
         }
     }
 
@@ -502,145 +597,10 @@ export async function POST(req) {
 
     // Dummy return (for now)
     return NextResponse.json({
-        grid: saverPuzzle.grid,
-        placedWords: saverPuzzle.placedWords,
+        grid: combinedGrid || [],
+        placedWords: placedSoFar || [],
     });
+
 
 }
 
-/*
- function generateMutationsFromConnections(cluster, allConnections) {
-        const mutations = [];
-
-        function dfs(path, visitedSet, usedIndexesMap) {
-            const lastWord = path[path.length - 1];
-            const conns = connectionMap[lastWord] || [];
-
-            for (const conn of conns) {
-                if (!cluster.includes(conn.to) || visitedSet.has(conn.to)) continue;
-
-                // 🧠 Enforce 1-block spacing rule only for the middle word
-                if (path.length >= 3) {
-                    const middleWord = path[path.length - 2]; // The word being connected twice
-                    const usedIndex = usedIndexesMap[middleWord];
-
-                    if (conn.from === middleWord && typeof usedIndex === "number") {
-                        if (conn.fromIndex <= usedIndex + 1) {
-                            continue; // 🚫 Too close to the previously used index
-                        }
-                    }
-                }
-
-                visitedSet.add(conn.to);
-                path.push(conn.to);
-                usedIndexesMap[conn.from] = conn.fromIndex;
-
-                dfs(path, visitedSet, usedIndexesMap);
-
-                path.pop();
-                visitedSet.delete(conn.to);
-                delete usedIndexesMap[conn.from];
-            }
-
-            if (path.length >= 1) {
-                mutations.push([...path]);
-            }
-        }
-
-        for (const startWord of cluster) {
-            dfs([startWord], new Set([startWord]), {});
-        }
-
-        return mutations;
-    }
-
-
-
-    function placeMutationToGrid(mutation, connections, gridSize) {
-        const grid = Array.from({ length: gridSize }, () =>
-            Array.from({ length: gridSize }, () => null)
-        );
-        const placedWords = [];
-
-        // Place the first word in the center
-        const startRow = Math.floor(gridSize / 2);
-        const startCol = Math.floor((gridSize - mutation[0].length) / 2);
-
-        for (let i = 0; i < mutation[0].length; i++) {
-            grid[startRow][startCol + i] = mutation[0][i];
-        }
-
-        placedWords.push({
-            word: mutation[0],
-            direction: "across",
-            start: { row: startRow, col: startCol },
-            index: 0,
-        });
-
-        // Place remaining words
-        for (let i = 1; i < mutation.length; i++) {
-            const word = mutation[i];
-            const prev = mutation[i - 1];
-
-            // Find the connection used
-            const conn = connections.find(c => c.from === prev && c.to === word);
-            if (!conn) continue;
-
-            const prevPlaced = placedWords.find(p => p.word === conn.from);
-            if (!prevPlaced) continue;
-
-            const { row: pr, col: pc } = prevPlaced.start;
-
-            let newRow, newCol, direction;
-            if (prevPlaced.direction === "across") {
-                // Place down
-                newRow = pr - conn.toIndex;
-                newCol = pc + conn.fromIndex;
-                direction = "down";
-            } else {
-                // Place across
-                newRow = pr + conn.fromIndex;
-                newCol = pc - conn.toIndex;
-                direction = "across";
-            }
-
-            let fits = true;
-            for (let k = 0; k < word.length; k++) {
-                const r = direction === "across" ? newRow : newRow + k;
-                const c = direction === "across" ? newCol + k : newCol;
-
-                if (r < 0 || r >= gridSize || c < 0 || c >= gridSize) {
-                    fits = false;
-                    break;
-                }
-
-                const cell = grid[r][c];
-                if (cell && cell !== word[k]) {
-                    fits = false;
-                    break;
-                }
-            }
-
-            if (!fits) break;
-
-            for (let k = 0; k < word.length; k++) {
-                const r = direction === "across" ? newRow : newRow + k;
-                const c = direction === "across" ? newCol + k : newCol;
-                grid[r][c] = word[k];
-            }
-
-            const foundIndex = qnaList.findIndex(q => q.answer.toUpperCase() === word);
-            if (foundIndex === -1) continue; // ⛔ skip if not found
-
-            placedWords.push({
-                word,
-                direction,
-                start: { row: newRow, col: newCol },
-                index: foundIndex,
-            });
-
-        }
-
-        return { grid, placedWords };
-    }
-*/
