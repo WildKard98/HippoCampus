@@ -10,7 +10,8 @@ export default function GeneratePuzzle({ screenWidth }) {
     const [editQuestion, setEditQuestion] = useState("");
     const [editingIndex, setEditingIndex] = useState(null); // Index of the QnA being edited
     const [isEditing, setIsEditing] = useState(false);
-    const MAX_WORDS = 2; // or any number you feel is good
+    const MAX_WORDS = 20; // or any number you feel is good
+    const MAX_LETTERS = 15; // or whatever max you want
 
     // Open the edit modal
     const handleEditClick = (termObj, index) => {
@@ -177,7 +178,10 @@ export default function GeneratePuzzle({ screenWidth }) {
                                         alert(`You’ve reached the max limit of ${MAX_WORDS} words.`);
                                         return;
                                     }
-
+                                    if (cleanAnswer.length > MAX_LETTERS) {
+                                        alert(`Word is too long. Max allowed is ${MAX_LETTERS} letters.`);
+                                        return;
+                                    }
                                     if (cleanQuestion && cleanAnswer) {
                                         const updatedList = [
                                             ...qnaList,
