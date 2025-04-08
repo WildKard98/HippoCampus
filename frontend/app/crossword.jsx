@@ -7,7 +7,8 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
     const [qnaList, setQnaList] = React.useState([]);
     const [hoverRow, setHoverRow] = useState(null);
     const [hoverCol, setHoverCol] = useState(null);
-
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     // Get clue number for a specific grid cell
     const getClueNumber = (row, col) => {
         const match = placedWords.find((entry) => {
@@ -25,6 +26,33 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
             return updated;
         });
     };
+    const handleMouseDown = (e) => {
+        setIsDragging(true);
+        setDragStart({
+            x: e.clientX,
+            y: e.clientY,
+        });
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDragging || !containerRef.current) return;
+
+        const dx = e.clientX - dragStart.x;
+        const dy = e.clientY - dragStart.y;
+
+        containerRef.current.scrollLeft -= dx;
+        containerRef.current.scrollTop -= dy;
+
+        setDragStart({
+            x: e.clientX,
+            y: e.clientY,
+        });
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
     const checkAnswers = () => {
         const incorrect = [];
 
@@ -46,8 +74,6 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
     const [grid, setGrid] = useState([]);
     const [placedWords, setPlacedWords] = useState([]);
     const containerRef = React.useRef(null);
-    const [activeCell, setActiveCell] = useState(null);
-
     const [userGrid, setUserGrid] = useState([]);
     const inputRefs = React.useRef({});
     useEffect(() => {
@@ -69,21 +95,21 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
             const data = await res.json();
             setGrid(data.grid);
             setPlacedWords(data.placedWords);
+
             const emptyGrid = data.grid.map((row) =>
                 row.map((cell) => (cell ? "" : null))
             );
             setUserGrid(emptyGrid);
-
+            // 📦 Auto scroll to center
+            if (containerRef.current) {
+                const container = containerRef.current;
+                setTimeout(() => {
+                    container.scrollLeft = container.scrollWidth / 2 - container.clientWidth / 2;
+                    container.scrollTop = container.scrollHeight / 2 - container.clientHeight / 2;
+                }, 50);
+            }
         };
 
-        // 📦 Auto scroll to center
-        if (containerRef.current) {
-            const container = containerRef.current;
-            setTimeout(() => {
-                container.scrollLeft = container.scrollWidth / 2 - container.clientWidth / 2;
-                container.scrollTop = container.scrollHeight / 2 - container.clientHeight / 2;
-            }, 50);
-        }
         generate();
     }, [studySet]);
 
@@ -97,21 +123,19 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                 ← Back
             </button>
             <h1 className="text-3xl font-bold mb-6">Crossword Puzzle</h1>
-            <div className="flex flex-col md:flex-row gap-2 w-full justify-start">
+
+
+            <div className="flex flex-col md:flex-row flex-wrap gap-2 w-full justify-start">
 
                 {/* Puzzle look */}
-                <div className={`bg-[#522136] p-2 rounded-lg ${screenWidth > 770 ? "md:w-5/5 flex flex-col gap-2 max-w-[750px]" : "w-full md:w-3/5 flex flex-col gap-2"}`}>
 
+                <div className="bg-[#522136] p-2 rounded-lg w-full flex flex-col gap-2 w-full md:max-w-[750px]">
                     {/* ✅ highlight is now scoped inside the render and updates correctly */}
                     {(() => {
                         if (!grid.length || !placedWords.length) return null;
 
                         // Inline highlight calculation
                         const highlighted = (() => {
-                            const targetRow = activeCell?.row ?? hoverRow;
-                            const targetCol = activeCell?.col ?? hoverCol;
-                          
-                            if (targetRow === null || targetCol === null) return [];
                             if (hoverRow === null || hoverCol === null) return [];
 
                             const results = [];
@@ -147,95 +171,131 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                                 }
 
                             });
-
                             return results;
                         })();
-
                         return (
-                            <div
-                                className="flex flex-col items-start gap-px w-fit max-w-full"
-                                style={{
-                                    transform: `scale(${grid.length > 20 ? 1 : grid.length > 10 ? 1.2 : 1.5})`,
-                                    transformOrigin: "top left",
-                                }}
-                            >
-                                {grid.map((rowArray, row) => (
-                                    <div key={row} className="flex gap-px">
-                                        {rowArray.map((cell, col) => {
-                                            const clueNum = getClueNumber(row, col);
+                            <>
 
-                                            return cell ? (
-                                                <div
-                                                    key={`${row}-${col}`}
-                                                    onMouseEnter={() => {
-                                                        setHoverRow(row);
-                                                        setHoverCol(col);
-                                                    }}
-                                                    onMouseLeave={() => {
-                                                        setHoverRow(null);
-                                                        setHoverCol(null);
-                                                    }}
-                                                    onClick={() => setActiveCell({ row, col })}
-                                                    className={`relative z-20 w-6 h-6 rounded-sm flex items-center justify-center text-xs border transition-all duration-100
+                                {/* THE PUZZLE */}
+
+                                <div
+                                    className="w-full h-[420px] overflow-auto"
+                                    style={{
+                                        cursor: isDragging ? "grabbing" : "grab",
+                                        maxWidth: "100%",
+                                        maxHeight: "420px",
+                                        border: "1px solid #fff", // optional for visual clarity
+                                        position: "relative",
+                                    }}
+                                    ref={containerRef}
+                                    onMouseDown={handleMouseDown}
+                                    onMouseMove={handleMouseMove}
+                                    onMouseUp={handleMouseUp}
+                                    onMouseLeave={handleMouseUp}
+                                >
+                                    <div
+                                        className="flex flex-col items-start gap-px w-fit max-w-full"
+                                        style={{
+                                            transform: `scale(${grid.length > 20 ? 1 : grid.length > 10 ? 1.2 : 1.5})`,
+                                            transformOrigin: "top left",
+                                        }}
+                                    >
+                                        {grid.map((rowArray, row) => (
+                                            <div key={row} className="flex gap-px">
+                                                {rowArray.map((cell, col) => {
+                                                    const clueNum = getClueNumber(row, col);
+
+                                                    return cell ? (
+                                                        <div
+                                                            key={`${row}-${col}`}
+                                                            onMouseEnter={() => {
+                                                                setHoverRow(row);
+                                                                setHoverCol(col);
+
+                                                                // 💡 Auto-focus the first input of the hovered word
+                                                                const targetKey = highlighted.find(key => key === `${row}-${col}`);
+                                                                if (targetKey && inputRefs.current[targetKey]) {
+                                                                    setTimeout(() => {
+                                                                        inputRefs.current[targetKey].focus();
+                                                                    }, 10);
+                                                                }
+                                                            }}
+
+                                                            onMouseLeave={() => {
+                                                                setHoverRow(null);
+                                                                setHoverCol(null);
+                                                            }}
+
+                                                            className={`relative z-20 w-6 h-6 rounded-sm flex items-center justify-center text-xs border transition-all duration-100
                                                         ${highlighted.includes(`${row}-${col}`)
-                                                            ? 'bg-yellow-300 text-black font-extrabold border-2 border-black scale-110'
-                                                            : 'bg-[#522136] text-white'}
+                                                                    ? 'bg-yellow-300 text-black font-extrabold border-2 border-black scale-110'
+                                                                    : 'bg-[#522136] text-white'}
                                                       `}
-                                                >
-                                                    <input
-                                                        ref={(el) => {
-                                                            if (el) inputRefs.current[`${row}-${col}`] = el;
-                                                        }}
-                                                        type="text"
-                                                        maxLength={1}
-                                                        value={userGrid[row]?.[col] || ""}
-                                                        onChange={(e) => {
-                                                            const val = e.target.value.toUpperCase();
-                                                            handleInputChange(val, row, col);
+                                                        >
+                                                            <input
+                                                                ref={(el) => {
+                                                                    if (el) inputRefs.current[`${row}-${col}`] = el;
+                                                                }}
+                                                                type="text"
+                                                                maxLength={1}
+                                                                value={userGrid[row]?.[col] || ""}
+                                                                onChange={(e) => {
+                                                                    const val = e.target.value.toUpperCase();
+                                                                    handleInputChange(val, row, col);
 
-                                                            if (val && highlighted.length > 0) {
-                                                                const currentIndex = highlighted.findIndex(cell => cell === `${row}-${col}`);
-                                                                const nextKey = highlighted[currentIndex + 1];
-                                                                if (nextKey && inputRefs.current[nextKey]) {
-                                                                    setTimeout(() => {
-                                                                        inputRefs.current[nextKey].focus();
-                                                                    }, 10);
-                                                                }
-                                                            }
-                                                        }}
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === "Backspace" && !userGrid[row][col]) {
-                                                                const currentIndex = highlighted.findIndex(cell => cell === `${row}-${col}`);
-                                                                const prevKey = highlighted[currentIndex - 1];
-                                                                if (prevKey && inputRefs.current[prevKey]) {
-                                                                    setTimeout(() => {
-                                                                        inputRefs.current[prevKey].focus();
-                                                                    }, 10);
-                                                                }
-                                                            }
-                                                        }}
-                                                        className="w-full h-full text-center bg-transparent outline-none z-10"
-                                                    />
+                                                                    if (val && highlighted.length > 0) {
+                                                                        let currentIndex = highlighted.findIndex(cell => cell === `${row}-${col}`);
 
-                                                    {clueNum && (
-                                                        <span className="absolute top-[1px] left-[1px] text-[8px] text-yellow font-bold z-20 leading-none">
-                                                            {clueNum}
-                                                        </span>
-                                                    )}
-                                                </div>
+                                                                        // 🔁 Look for the next empty cell in the highlight path
+                                                                        for (let i = currentIndex + 1; i < highlighted.length; i++) {
+                                                                            const [nextRow, nextCol] = highlighted[i].split("-").map(Number);
+                                                                            if (!userGrid[nextRow][nextCol]) {
+                                                                                const nextKey = `${nextRow}-${nextCol}`;
+                                                                                if (inputRefs.current[nextKey]) {
+                                                                                    setTimeout(() => {
+                                                                                        inputRefs.current[nextKey].focus();
+                                                                                    }, 10);
+                                                                                }
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }}
 
-                                            ) : (
-                                                <div key={`${row}-${col}`} className="w-6 h-6" />
-                                            );
+                                                                onKeyDown={(e) => {
+                                                                    if (e.key === "Backspace" && !userGrid[row][col]) {
+                                                                        const currentIndex = highlighted.findIndex(cell => cell === `${row}-${col}`);
+                                                                        const prevKey = highlighted[currentIndex - 1];
+                                                                        if (prevKey && inputRefs.current[prevKey]) {
+                                                                            setTimeout(() => {
+                                                                                inputRefs.current[prevKey].focus();
+                                                                            }, 10);
+                                                                        }
+                                                                    }
+                                                                }}
+                                                                className="w-full h-full text-center bg-transparent outline-none z-10"
+                                                            />
+
+                                                            {clueNum && (
+                                                                <span className="absolute top-[1px] left-[1px] text-[8px] text-yellow font-bold z-20 leading-none">
+                                                                    {clueNum}
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                    ) : (
+                                                        <div key={`${row}-${col}`} className="w-6 h-6" />
+                                                    );
 
 
-                                        })}
+                                                })}
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            </>
                         );
                     })()}
-
                     {/* Divider Line */}
                     <hr className="border-white" />
 
@@ -275,14 +335,13 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                     </div>
                 </div>
             </div>
-
             <button
                 onClick={() => checkAnswers()}
                 className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-500 transition"
             >
                 Check Answers
             </button>
-        </div>
+        </div >
     );
 
 }

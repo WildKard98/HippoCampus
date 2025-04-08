@@ -903,7 +903,8 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
   return (
     <div className="flex flex-1">
       {/* Main Flashcard Area */}
-      <div className="flex-1">
+      <div className="flex-1 overflow-hidden"
+            style={{ maxWidth: "100%", overflowX: "hidden" }}>
         <h2 className="text-3xl font-semibold mb-6 text-left">{studySet.title}</h2>
         {showMatchingTest ? (
           <MatchingCard
