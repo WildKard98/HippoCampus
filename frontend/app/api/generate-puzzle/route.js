@@ -99,7 +99,7 @@ export async function POST(req) {
     const longestWordLength = Math.max(...qnaList.map(item => item.answer.length), 0);
 
     // build the grid size base on double the length of the longest word
-    const gridSize = Math.max(10, longestWordLength * 2);
+    const gridSize = Math.max(10, longestWordLength * 3);
 
     // build empty grid puzzle
 

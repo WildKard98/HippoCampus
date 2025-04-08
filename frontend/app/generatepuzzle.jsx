@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
-export default function GeneratePuzzle({ screenWidth }) {
+
+export default function GeneratePuzzle({ screenWidth, onBack }) {
     const [puzzleTitle, setPuzzleTitle] = React.useState("");
     const [question, setQuestion] = React.useState("");
     const [answer, setAnswer] = React.useState("");
@@ -109,6 +110,12 @@ export default function GeneratePuzzle({ screenWidth }) {
 
     return (
         <div className="text-white font-[Itim]">
+            <button
+                className="mb-4 px-4 py-2 bg-[#5A2E44] text-white rounded hover:bg-[#6A2A3B] transition"
+                onClick={onBack}
+            >
+                ← Back
+            </button>
             <h1 className="text-3xl font-bold mb-6">Crossword Puzzle</h1>
             {isEditing ? (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -144,7 +151,6 @@ export default function GeneratePuzzle({ screenWidth }) {
 
                     {/* Left Column */}
                     <div className={`flex flex-col gap-2 ${screenWidth > 770 ? "w-full md:w-2/5 max-w-[450px]" : "w-full"}`}>
-
                         {/* Box 1: Title Input + Create Button */}
                         <div className="bg-[#522136] p-4 rounded-lg">
                             <input
@@ -155,10 +161,32 @@ export default function GeneratePuzzle({ screenWidth }) {
                                 className="w-full px-4 py-2 rounded-lg text-white bg-transparent border border-white focus:outline-none placeholder-white"
                             />
                             <button
+                                onClick={() => {
+                                    if (!puzzleTitle.trim()) {
+                                        alert("Please enter a title before creating.");
+                                        return;
+                                    }
+                                    if (qnaList.length === 0) {
+                                        alert("Please add at least one word.");
+                                        return;
+                                    }
+
+                                    const saved = JSON.parse(localStorage.getItem("myPuzzles")) || [];
+                                    const newPuzzle = {
+                                        id: Date.now(),
+                                        title: puzzleTitle.trim(),
+                                        terms: qnaList.length,
+                                        qnaList: [...qnaList], // ✅ store full data
+                                    };
+                                    localStorage.setItem("myPuzzles", JSON.stringify([...saved, newPuzzle]));
+
+                                    if (onBack) onBack(); // Return to puzzle page
+                                }}
                                 className="w-full mt-4 bg-[#B0913D] text-white py-2 rounded-md hover:bg-[#c5a847] transition duration-300"
                             >
                                 Create
                             </button>
+
                         </div>
 
                         {/* Box 2: Question + Answer Input */}
@@ -222,12 +250,30 @@ export default function GeneratePuzzle({ screenWidth }) {
                                             key={index}
                                             className="bg-[#6A2A3B] p-4 rounded-lg flex items-center justify-between w-full"
                                         >
-                                            <span className="font-semibold w-1/3">{item.answer}</span>
-                                            <div
-                                                className="w-[2px] h-full bg-white mx-4 rounded-full opacity-50"
-                                                style={{ minHeight: "40px" }}
-                                            ></div>
-                                            <span className="text-gray-300 w-2/3">{item.question}</span>
+
+                                            <div className="flex items-center gap-2 w-full">
+                                                {/* Answer (1/3) */}
+                                                <div
+                                                    className="w-1/3 px-4 py-2 text-white font-bold bg-[#6A2A3B] rounded text-center break-words overflow-hidden"
+                                                    style={{
+                                                        fontSize: item.answer.length > 10 ? "0.75rem" : "0.875rem",
+                                                        wordBreak: "break-word", // ✅ break at character level if needed
+                                                        lineHeight: "1.2",        // ✅ tighter vertical spacing
+                                                        maxHeight: "3.5rem",      // ✅ limits the vertical stretch
+                                                    }}
+                                                >
+                                                    {item.answer.charAt(0).toUpperCase() + item.answer.slice(1).toLowerCase()}
+                                                </div>
+
+                                                {/* Divider */}
+                                                <div className="w-[2px] h-10 bg-white mx-2 rounded-full opacity-50" />
+
+                                                {/* Question (2/3) */}
+                                                <div className="w-2/3 px-4 py-2 text-gray-300 text-sm bg-[#6A2A3B] rounded break-words">
+                                                    {item.question}
+                                                </div>
+                                            </div>
+
 
                                             {/* ✏️ Edit Buttons Container */}
                                             <div className="relative flex items-center pl-8">
@@ -256,9 +302,7 @@ export default function GeneratePuzzle({ screenWidth }) {
 
                     {/* Right Column */}
                     {/* Puzzle look */}
-                    <div className={`bg-[#522136] p-2 rounded-lg ${screenWidth > 770 ? "md:w-3/5 flex flex-col gap-2 max-w-[700px]" : "w-full md:w-3/5 flex flex-col gap-2"}`}>
-
-
+                    <div className={`bg-[#522136] p-2 rounded-lg ${screenWidth > 770 ? "md:w-3/5 flex flex-col gap-2 max-w-[750px]" : "w-full md:w-3/5 flex flex-col gap-2"}`}>
                         {/* Puzzle Title Box */}
                         <div className="flex justify-center ">
                             <div className="bg-[#522136] text-white p-2 rounded-md font-semibold text-center">
@@ -272,8 +316,14 @@ export default function GeneratePuzzle({ screenWidth }) {
                         {/* THE PUZZLE */}
 
                         <div
-                            className="w-full h-[420px] overflow-scroll"
-                            style={{ cursor: isDragging ? "grabbing" : "grab" }}
+                            className="w-full h-[420px] overflow-auto"
+                            style={{
+                                cursor: isDragging ? "grabbing" : "grab",
+                                maxWidth: "100%",
+                                maxHeight: "420px",
+                                border: "1px solid #fff", // optional for visual clarity
+                                position: "relative",
+                            }}
                             ref={containerRef}
                             onMouseDown={handleMouseDown}
                             onMouseMove={handleMouseMove}
@@ -281,14 +331,15 @@ export default function GeneratePuzzle({ screenWidth }) {
                             onMouseLeave={handleMouseUp}
                         >
                             <div
-                                className="flex flex-col items-center gap-1"
+                                className="flex flex-col items-start gap-px w-fit max-w-full"
                                 style={{
-                                    transform: `scale(${grid.length > 25 ? 1 : grid.length > 10 ? 1.5 : 2})`,
-                                    transformOrigin: "top center",
+                                    transform: `scale(${grid.length > 20 ? 1 : grid.length > 10 ? 1.2 : 1.5})`,
+                                    transformOrigin: "top left",
                                 }}
                             >
                                 {grid.map((rowArray, row) => (
-                                    <div key={row} className="flex gap-1">
+                                    <div key={row} className="flex gap-px">
+
                                         {rowArray.map((cell, col) => {
                                             const clueNum = getClueNumber(row, col);
 
@@ -363,3 +414,11 @@ export default function GeneratePuzzle({ screenWidth }) {
 
 
 
+/*
+<span className="font-semibold w-1/3">{item.answer}</span>
+                                            <div
+                                                className="w-[2px] h-full bg-white mx-4 rounded-full opacity-50"
+                                                style={{ minHeight: "40px" }}
+                                            ></div>
+                                            <span className="text-gray-300 w-2/3">{item.question}</span>
+*/
