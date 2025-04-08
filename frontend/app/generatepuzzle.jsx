@@ -254,9 +254,9 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
                                             <div className="flex items-center gap-2 w-full">
                                                 {/* Answer (1/3) */}
                                                 <div
-                                                    className="w-1/3 px-4 py-2 text-white font-bold bg-[#6A2A3B] rounded text-center break-words overflow-hidden"
+                                                    className="w-1/3 px-1 py-4 text-white font-bold bg-[#6A2A3B] rounded text-center break-words overflow-hidden"
                                                     style={{
-                                                        fontSize: item.answer.length > 10 ? "0.75rem" : "0.875rem",
+                                                        fontSize: item.answer.length > 10 ? "0.7rem" : "0.9rem",
                                                         wordBreak: "break-word", // ✅ break at character level if needed
                                                         lineHeight: "1.2",        // ✅ tighter vertical spacing
                                                         maxHeight: "3.5rem",      // ✅ limits the vertical stretch
@@ -269,7 +269,7 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
                                                 <div className="w-[2px] h-10 bg-white mx-2 rounded-full opacity-50" />
 
                                                 {/* Question (2/3) */}
-                                                <div className="w-2/3 px-4 py-2 text-gray-300 text-sm bg-[#6A2A3B] rounded break-words">
+                                                <div className="w-2/3 px-1 py-4 text-gray-300 text-sm bg-[#6A2A3B] rounded break-words">
                                                     {item.question}
                                                 </div>
                                             </div>
