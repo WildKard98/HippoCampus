@@ -628,11 +628,20 @@ export async function POST(req) {
     if (qnaList.length === 0) {
         return NextResponse.json({ grid: [], placedWords: [] });
     }
-    assignClueNumbers(placedSoFar);
+    // assignClueNumbers(placedSoFar);
+    // 🔍 Filter out broken placements
+    const cleanedPlacedWords = placedSoFar.filter(w => w.start && w.direction && typeof w.index === "number");
+    assignClueNumbers(cleanedPlacedWords);
+    // 💡 Add this: reconstruct the answer for each placed word
+    for (const word of cleanedPlacedWords) {
+        if (!word.answer) {
+            word.answer = qnaList[word.index]?.answer?.toUpperCase();
+        }
+    }
 
-    // Dummy return (for now)
     return NextResponse.json({
         grid: combinedGrid || [],
-        placedWords: placedSoFar || [],
+        placedWords: cleanedPlacedWords,
     });
+
 }

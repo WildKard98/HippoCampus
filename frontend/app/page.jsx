@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"; // 🔹 Import motion a
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import MatchingCard from "./matchingcard";
 import Findterm from "./findterm";
-import CrosswordPuzzle from "./crossword";
+import CrosswordPuzzle from "./crossword"
 import GeneratePuzzle from "./generatepuzzle";
 
 
@@ -922,9 +922,10 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
         ) : showCrosswordPuzzle ? (
           <CrosswordPuzzle
             screenWidth={screenWidth}
-            //setSelectedSet={setSelectedSet}
-            //studySet={studySet} // ✅ Corrected to `studySet`
-            setShowCrosswordPuzzle={setShowCrosswordPuzzle}
+            setSelectedSet={setSelectedSet}
+            studySet={studySet} // ✅ Corrected to `studySet`
+            // setShowCrosswordPuzzle={setShowCrosswordPuzzle}
+            onBack={() => setShowCrosswordPuzzle(false)}
           />
         ) : (
           <div className={`flex flex-col ${screenWidth > 770 ? "items-start" : "items-center"} w-full`}>
