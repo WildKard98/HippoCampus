@@ -43,12 +43,12 @@ export default function Home() {
       title: "Anh Em Ben Ngoai",
       description: "",
       terms: [
-        { term: "Canh", definition: "C1" },
-        { term: "Thu", definition: "C2" },
-        { term: "Thuan", definition: "C3" },
-        { term: "Tham", definition: "C4" },
-        { term: "Thuy", definition: "C5" },
-        { term: "Nguyen", definition: "C6" },
+        { term: "Canh", definition: "Con đầu mệ cảnh" },
+        { term: "Thu", definition: "Con thứ hai mệ cảnh" },
+        { term: "Thuan", definition: "Tui" },
+        { term: "Tham", definition: "Con trai trưởng" },
+        { term: "Thuy", definition: "Con gái út mệ canh" },
+        { term: "Nguyen", definition: "Con út mệ canh" },
       ]
     }
     
