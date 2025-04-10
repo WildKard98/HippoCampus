@@ -64,14 +64,14 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
 
             {/* Matching Test Title & Back Button */}
             <div className={`grid grid-cols-2 gap-30 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h3 className="text-xl">Matching Test</h3>
+                <h3 className="text-xl">Nối Từ</h3>
                 <button
                     className="bg-yellow-500 px-4 py-2 text-sm rounded-lg hover:bg-yellow-400 transition duration-300"
                     onClick={() => {
                         setShowMatchingTest(false);
                     }}
                 >
-                    ← Back
+                    ← Quay Lại
                 </button>
             </div>
 
@@ -91,7 +91,7 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
                         className="mt-4 bg-yellow-500 px-6 py-2 rounded-lg text-sm hover:bg-yellow-400 transition duration-300"
                         onClick={handleRetry}
                     >
-                        Try again!
+                        Thử Lại!
                     </button>
                 )}
             </div>

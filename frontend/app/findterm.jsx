@@ -27,12 +27,12 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
         <div className="flex flex-col text-white">
             {/* Title & Back Button */}
             <div className={`grid grid-cols-2 gap-50 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h3 className="text-xl">Find the Term</h3>
+                <h3 className="text-xl">Tìm Từ Khoá</h3>
                 <button
                     className="bg-yellow-500 px-4 py-2 text-sm rounded-lg hover:bg-yellow-400 transition duration-300"
                     onClick={() => setShowFillTest(false)}
                 >
-                    ← Back
+                    ← Quay Lại
                 </button>
             </div>
 
@@ -51,7 +51,7 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
                                 ${answers[`correct-${index}`] ? "border-green-500" : (answers[`wrong-${index}`] ? "border-red-500" : "border-transparent")}
                                 focus:outline-none focus:ring-0`
                                 }
-                                placeholder="Enter term..."
+                                placeholder="Nhập thuật ngữ ..."
                                 value={answers[index] || ""}
                                 onChange={(e) => handleChange(index, e.target.value)}
                                 disabled={answers[`correct-${index}`]}
@@ -99,7 +99,7 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
     `}
                     onClick={() => setAnswers({})} // ✅ Reset all inputs
                 >
-                    {allCorrect ? "Congratulations! Want to try again?" : "Try Again"}
+                    {allCorrect ? "Chúc mừng! Bạn muốn thử lại?" : "Thử Lại"}
                 </button>
             </div>
         </div>

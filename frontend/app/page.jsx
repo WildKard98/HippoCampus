@@ -29,7 +29,7 @@ export default function Home() {
 
   const [studySets, setStudySets] = useState([
     {
-      title: "Fruits",
+      title: "Hoa Qua",
       description: "A study set about different kinds of fruits",
       terms: [
         { term: "Apple", definition: "A small, round fruit that is usually red or black with a hard pit inside." },
@@ -38,7 +38,20 @@ export default function Home() {
         { term: "Cherry", definition: "A small, juicy fruit that grows in bunches and has a single hard pit." },
         { term: "Banana", definition: "A long, curved fruit with yellow skin and soft, sweet flesh." }
       ]
+    },
+    {
+      title: "Anh Em Ben Ngoai",
+      description: "",
+      terms: [
+        { term: "Canh", definition: "C1" },
+        { term: "Thu", definition: "C2" },
+        { term: "Thuan", definition: "C3" },
+        { term: "Tham", definition: "C4" },
+        { term: "Thuy", definition: "C5" },
+        { term: "Nguyen", definition: "C6" },
+      ]
     }
+    
   ]);
 
   // Main Feature variable 
@@ -171,7 +184,7 @@ export default function Home() {
                   setIsCreatePuzzle(false);
                 }}
                 className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
-                <i className="bi bi-house-door"></i> {!isMenuCollapsed && "Home"}
+                <i className="bi bi-house-door"></i> {!isMenuCollapsed && "Nhà"}
               </button>
               <button
                 onClick={() => {
@@ -180,16 +193,16 @@ export default function Home() {
                 }}
                 className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]"
               >
-                <i className="bi bi-folder2"></i> {!isMenuCollapsed && "Your Library"}
+                <i className="bi bi-folder2"></i> {!isMenuCollapsed && "Thư Viện"}
               </button>
 
               <hr className="border-[#FFFFFF]" />
-              <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Your folders</p>
+              <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Tệp Của Bạn</p>
               <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
-                <i className="bi bi-plus"></i> {!isMenuCollapsed && "New Folder"}
+                <i className="bi bi-plus"></i> {!isMenuCollapsed && "Tạo Tệp Mới"}
               </button>
               <hr className="border-[#FFFFFF]" />
-              <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Explore</p>
+              <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Khám Phá</p>
               <button
                 onClick={() => {
                   setIsCreatePuzzle(true);
@@ -197,7 +210,7 @@ export default function Home() {
                   setSelectedSet(null);
                 }}
                 className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
-                <i className="bi bi-puzzle"></i> {!isMenuCollapsed && "CrossWord"}
+                <i className="bi bi-puzzle"></i> {!isMenuCollapsed && "Trò Chơi Ô Chữ "}
               </button>
             </nav>
           </aside>
@@ -213,7 +226,7 @@ export default function Home() {
                 screenWidth={screenWidth}
                 isEditing={isEditing}
                 setIsEditing={setIsEditing} // 🔹 Pass this down
-                setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
+                setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop`
                 setIsCreatingSet={setIsCreatingSet}
               />
             ) : isEditingSet ? (
@@ -281,11 +294,11 @@ export default function Home() {
 function HomeContent({ studySets }) {
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-4">Recents</h2>
+      <h2 className="text-lg font-semibold mb-4">Thư mục gần đây</h2>
       {studySets.length > 0 ? (
         studySets.map((set, index) => (
           <div key={index} className="bg-[#522136] p-4 rounded-lg w-1/3 mb-2">
-            📂 {set.title} ({set.terms.length} {set.terms.length === 1 ? "term" : "terms"})
+            📂 {set.title} ({set.terms.length} {set.terms.length === 1 ? "mục" : "mục"})
           </div>
         ))
       ) : (
@@ -346,17 +359,17 @@ function CreateSet({ onSave }) {
   };
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Create a New Learning Set</h1>
+      <h1 className="text-2xl font-bold mb-4">Tạo danh sách học mới</h1>
       <input
         type="text"
-        placeholder="Enter a title"
+        placeholder="Nhập tiêu đề"
         className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <textarea
-        placeholder="Add a description"
+        placeholder="Thêm chú thích"
         className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
@@ -373,7 +386,7 @@ function CreateSet({ onSave }) {
           onClick={handleSave}
           className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
         >
-          Create
+          Thiết Lập
         </button>
       </div>
       {terms.map((item, index) => (
@@ -407,7 +420,7 @@ function CreateSet({ onSave }) {
             }}
             className="bg-[#5A2E44] px-6 py-2 rounded-lg w-full hover:bg-[#6A2A3B] transition duration-300 flex items-center justify-center relative"
           >
-            <span>+ Add More Card</span>
+            <span>+ Thêm thẻ</span>
             {!alwaysAddOne && (
               <span className="absolute right-4">▼</span>
             )}
@@ -440,7 +453,7 @@ function CreateSet({ onSave }) {
               onChange={() => setAlwaysAddOne(!alwaysAddOne)}
               className="mr-2"
             />
-            Always add 1 card
+            Luôn thêm 1 thẻ
           </label>
         </div>
       </div>
@@ -545,7 +558,7 @@ function EditSet({ studySet, onSave, onCancel }) {
             }}
             className="bg-[#5A2E44] px-6 py-2 rounded-lg w-full hover:bg-[#6A2A3B] transition duration-300 flex items-center justify-center relative"
           >
-            <span>+ Add More Card</span>
+            <span>+ Thêm Thẻ</span>
             {!alwaysAddOne && (
               <span className="absolute right-4">▼</span>
             )}
@@ -578,7 +591,7 @@ function EditSet({ studySet, onSave, onCancel }) {
               onChange={() => setAlwaysAddOne(!alwaysAddOne)}
               className="mr-2"
             />
-            Always add 1 card
+            Luôn tạo thêm 1 thẻ
           </label>
         </div>
       </div>
@@ -589,7 +602,7 @@ function EditSet({ studySet, onSave, onCancel }) {
           onClick={handleSave}
           className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
         >
-          Done
+          Xong!
         </button>
       </div>
     </div>
@@ -639,7 +652,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
       <div className="flex items-center">
         <input
           type="text"
-          placeholder="Enter term"
+          placeholder="Nhập thuật ngữ"
           className="w-1/2 px-4 py-2 rounded-lg text-white bg-[#522136]"
           value={term}
           onChange={(e) => onTermChange(e.target.value)}
@@ -649,7 +662,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
 
         <input
           type="text"
-          placeholder="Enter definition"
+          placeholder="Nhập định nghĩa"
           className="w-1/2 px-4 py-2 rounded-lg text-white bg-[#522136]"
           value={definition}
           onChange={(e) => onDefinitionChange(e.target.value)}
@@ -658,7 +671,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
         <button
           className="bg-[#5A2E44] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#7A3E54] hover:scale-105 ml-4"
         >
-          <i className="bi bi-image"></i> Add Image
+          <i className="bi bi-image"></i> Thêm ảnh
         </button>
       </div>
     </div>
@@ -701,7 +714,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
 
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-4">Your Library</h2>
+      <h2 className="text-lg font-semibold mb-4">Thư viện của bạn</h2>
       {studySets.length > 0 ? (
         studySets.map((studySet, index) => (
           <div
@@ -709,7 +722,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
             className="bg-[#522136] p-4 rounded-lg w-1/3 mb-2 cursor-pointer hover:bg-[#6A2A3B]"
             onClick={() => setSelectedSet(studySet)} // ✅ Clicking opens Flashcard Review
           >
-            📂 {studySet.title} ({studySet.terms.length} terms)
+            📂 {studySet.title} ({studySet.terms.length} mục)
           </div>
         ))
 
@@ -754,7 +767,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsOpen(false);
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
-          <i className="bi bi-house-door"></i> Home
+          <i className="bi bi-house-door"></i> Nhà
         </button>
 
         <button
@@ -765,19 +778,19 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsOpen(false);
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
-          <i className="bi bi-folder2"></i> Your Library
+          <i className="bi bi-folder2"></i> Thư Viện
         </button>
         <hr className="border-[#FFFFFF]" />
-        <p className="text-sm">Your folders</p>
+        <p className="text-sm">Thư Mục Của Bạn</p>
         <button
           onClick={() => {
             setIsOpen(false);
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
-          <i className="bi bi-plus"></i> New Folder
+          <i className="bi bi-plus"></i> Tạo Thư Mục
         </button>
         <hr className="border-[#FFFFFF]" />
-        <p className="text-sm">Explore</p>
+        <p className="text-sm">Khám Phá</p>
         <button
           onClick={() => {
             setIsCreatePuzzle(true);
@@ -786,7 +799,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsOpen(false);
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
-          <i className="bi bi-puzzle"></i> CrossWord
+          <i className="bi bi-puzzle"></i> Trò Chơi Ô Chữ
         </button>
       </nav>
     </motion.aside>
@@ -809,10 +822,10 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
 
   return (
     <div className="text-white font-[Itim] p-4">
-      <h1 className="text-3xl font-bold mb-4">Recent Puzzle</h1>
+      <h1 className="text-3xl font-bold mb-4">Trò Chơi Ô Chữ Gần Đây!</h1>
 
       {recentPuzzles.length === 0 ? (
-        <p className="text-gray-400 mb-4">No puzzles created yet.</p>
+        <p className="text-gray-400 mb-4">Chưa có ô chữ nào được tạo.</p>
       ) : (
         <ul className="mb-4">
           {recentPuzzles.map((puz, i) => (
@@ -936,26 +949,26 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               <button
                 onClick={() => setShowMatchingTest(true)}
                 className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
-                Matching Card
+                Nối Từ
               </button>
               <button
                 className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]"
                 onClick={() => setShowFillTest(true)}
               >
-                Find the Term
+                Tìm Từ Khoá
               </button>
               <button
                 className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]"
                 onClick={() => setShowCrosswordPuzzle(true)}
               >
-                Puzzle
+                Chơi Ô Chữ
               </button>
             </div>
 
             {/* Loop Test Button - Also Inside for Consistent Alignment */}
             <div className={`mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
               <button className="w-full px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B] flex items-center justify-center gap-2">
-                <i className="bi bi-arrow-repeat"></i> Loop Test
+                <i className="bi bi-arrow-repeat"></i> Bài Thi Vòng Lặp
               </button>
             </div>
 
@@ -1093,7 +1106,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
 
             {/* Term List Below Flashcard */}
             <div className={`mt-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
-              <h3 className="text-lg font-semibold mb-2">Term in this set ({studySet.terms.length})</h3>
+              <h3 className="text-lg font-semibold mb-2">Danh sách các mục ({studySet.terms.length})</h3>
 
               <div className="flex flex-col gap-2">
                 {studySet.terms.map((item, index) => (
@@ -1140,7 +1153,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                   }}
                   className="bg-[#6A2E3B] text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-[#8A3E4B] hover:scale-105"
                 >
-                  Add or remove term
+                  Thêm hoặc xoá mục
                 </button>
               </div>
 
@@ -1155,9 +1168,9 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               style={{ width: screenWidth > 450 ? "450px" : "100%" }} // ✅ Set width logic
             >
               <button className="absolute top-2 right-2 text-xl" onClick={() => setIsEditing(false)}>✖</button>
-              <h2 className="text-2xl font-bold mb-4">Edit</h2>
+              <h2 className="text-2xl font-bold mb-4">Sửa mục</h2>
 
-              <label className="block mb-2">Term:</label>
+              <label className="block mb-2">Thuật Ngữ:</label>
               <input
                 type="text"
                 className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
@@ -1165,7 +1178,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                 onChange={(e) => setEditTerm(e.target.value)}
               />
 
-              <label className="block mb-2">Definition:</label>
+              <label className="block mb-2">Định Nghĩa:</label>
               <textarea
                 className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
                 value={editDefinition}
@@ -1173,7 +1186,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               />
 
               <button onClick={handleSaveEdit} className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105">
-                Done
+                Xong!
               </button>
             </div>
           </div>

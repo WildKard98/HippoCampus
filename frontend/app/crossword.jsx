@@ -116,13 +116,16 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
 
     return (
         <div className="text-white font-[Itim]">
-            <button
-                className="mb-4 px-4 py-2 bg-[#5A2E44] text-white rounded hover:bg-[#6A2A3B] transition"
-                onClick={onBack}
-            >
-                ← Back
-            </button>
-            <h1 className="text-3xl font-bold mb-6">Crossword Puzzle</h1>
+           {/* Title & Back Button */}
+           <div className={`grid grid-cols-2 gap-50 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
+                <h1 className="text-xl">Chơi Ô Chữ</h1>
+                <button
+                    className="bg-yellow-500 px-4 py-2 text-sm rounded-lg hover:bg-yellow-400 transition duration-300"
+                    onClick={() => setShowFillTest(false)}
+                >
+                    ← Quay Lại
+                </button>
+            </div>
 
 
             <div className="flex flex-col md:flex-row flex-wrap gap-2 w-full justify-start">
@@ -302,7 +305,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                     {/* Bottom: Across & Down */}
                     <div className="flex gap-2">
                         <div className="bg-[#522136] text-white p-4 rounded-md w-1/2 min-h-[150px]">
-                            <span className="font-semibold block mb-2">Across</span>
+                            <span className="font-semibold block mb-2">Hàng Ngang</span>
                             {placedWords
                                 .filter((entry) => entry.direction === "across")
                                 .sort((a, b) => a.clueNumber - b.clueNumber)
@@ -318,7 +321,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                         </div>
 
                         <div className="bg-[#522136] text-white p-4 rounded-md w-1/2 min-h-[150px]">
-                            <span className="font-semibold block mb-2">Down</span>
+                            <span className="font-semibold block mb-2">Hàng Dọc</span>
                             {placedWords
                                 .filter((entry) => entry.direction === "down")
                                 .sort((a, b) => a.clueNumber - b.clueNumber)
@@ -337,9 +340,9 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
             </div>
             <button
                 onClick={() => checkAnswers()}
-                className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-500 transition"
+                className="mt-4 bg-yellow-600 text-white px-6 py-2 rounded hover:bg-green-500 transition"
             >
-                Check Answers
+                Kiểm tra!
             </button>
         </div >
     );
