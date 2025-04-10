@@ -116,20 +116,19 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
 
     return (
         <div className="text-white font-[Itim]">
-           {/* Title & Back Button */}
-           <div className={`grid grid-cols-2 gap-50 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h1 className="text-xl">Chơi Ô Chữ</h1>
-                <button
-                    className="bg-yellow-500 px-4 py-2 text-sm rounded-lg hover:bg-yellow-400 transition duration-300"
-                    onClick={() => setShowFillTest(false)}
-                >
-                    ← Quay Lại
-                </button>
-            </div>
 
 
             <div className="flex flex-col md:flex-row flex-wrap gap-2 w-full justify-start">
-
+                {/* Title & Back Button */}
+                <div className={`grid grid-cols-2 gap-50 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
+                    <h1 className="text-xl">Chơi Ô Chữ</h1>
+                    <button
+                        className="bg-yellow-500 px-4 py-2 text-sm rounded-lg hover:bg-yellow-400 transition duration-300"
+                        onClick={() => setShowFillTest(false)}
+                    >
+                        ← Quay Lại
+                    </button>
+                </div>
                 {/* Puzzle look */}
 
                 <div className="bg-[#522136] p-2 rounded-lg w-full flex flex-col gap-2 w-full md:max-w-[750px]">
