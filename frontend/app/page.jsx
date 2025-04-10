@@ -103,7 +103,7 @@ export default function Home() {
               WN
             </span>
             <span className={`text-3xl font-bold ml-4 ${screenWidth > 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
-              WordNest
+              Hippocampus
             </span>
           </div>
 
