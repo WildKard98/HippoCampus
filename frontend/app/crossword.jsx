@@ -123,7 +123,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                  className="mb-4 px-4 py-2 bg-[#5A2E44] text-white rounded hover:bg-[#6A2A3B] transition"
                  onClick={onBack}
              >
-                 ← Back
+                 ← Quay lại
              </button>
              <h1 className="text-3xl font-bold mb-6">Trò Chơi Ô Chữ</h1>
                 {/* Puzzle look */}

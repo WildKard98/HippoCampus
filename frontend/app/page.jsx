@@ -78,15 +78,15 @@ export default function Home() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen bg-[#3B0B24] text-white flex flex-col">
+      <div className="min-h-screen bg-[#3b0b13] text-white flex flex-col">
 
         {/* Unified Header */}
-        <header className="flex justify-between items-center p-4 bg-[#3B0B24] text-white">
+        <header className="flex justify-between items-center p-4 bg-[#3b0b13] text-white">
 
           {/* Left: Hamburger & App Name */}
           <div className="flex items-center">
             <button
-              className="text-white text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-white hover:text-[#3B0B24]"
+              className="text-white text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-white hover:text-[#3b0b13]"
               onClick={() => {
                 if (window.innerWidth <= 770) {
                   setIsWingPanelOpen(true);  // Open WingPanel if screen width ≤ 770px
@@ -175,7 +175,7 @@ export default function Home() {
         <div className="flex flex-1 relative">
 
           {/* Side Navigation */}
-          <aside className={`bg-[#3B0B24] p-4 transition-all ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"}`}>
+          <aside className={`bg-[#3b0b13] p-4 transition-all ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"}`}>
             <nav className="flex flex-col gap-4">
               <button
                 onClick={() => {
@@ -183,7 +183,7 @@ export default function Home() {
                   setIsHome(true);
                   setIsCreatePuzzle(false);
                 }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3b0b13]">
                 <i className="bi bi-house-door"></i> {!isMenuCollapsed && "Nhà"}
               </button>
               <button
@@ -191,14 +191,14 @@ export default function Home() {
                   setSelectedSet(null);  // ✅ Reset selected study set
                   setIsCreatingSet("library");
                 }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]"
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3b0b13]"
               >
                 <i className="bi bi-folder2"></i> {!isMenuCollapsed && "Thư Viện"}
               </button>
 
               <hr className="border-[#FFFFFF]" />
               <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Tệp Của Bạn</p>
-              <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
+              <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3b0b13]">
                 <i className="bi bi-plus"></i> {!isMenuCollapsed && "Tạo Tệp Mới"}
               </button>
               <hr className="border-[#FFFFFF]" />
@@ -209,7 +209,7 @@ export default function Home() {
                   setIsCreatingSet(false);
                   setSelectedSet(null);
                 }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3B0B24]">
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3b0b13]">
                 <i className="bi bi-puzzle"></i> {!isMenuCollapsed && "Trò Chơi Ô Chữ "}
               </button>
             </nav>
@@ -740,7 +740,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
 function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome }) {
   return (
     <motion.aside
-      className="fixed top-0 left-0 h-full w-48 bg-[#3B0B24] p-4 shadow-lg z-50"
+      className="fixed top-0 left-0 h-full w-48 bg-[#3b0b13] p-4 shadow-lg z-50"
       initial={{ x: -200 }}
       animate={{ x: isOpen ? 0 : -200 }}
       transition={{ duration: 0.3 }}
@@ -748,7 +748,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
       {/* BigMac Button & Web Title "W" */}
       <div className="flex items-center gap-1">
         <button
-          className="text-white text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-white hover:text-[#3B0B24]"
+          className="text-white text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-white hover:text-[#3b0b13]"
           onClick={() => setIsOpen(false)}
         >
           ☰
@@ -766,7 +766,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsCreatePuzzle(false);
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3b0b13]">
           <i className="bi bi-house-door"></i> Nhà
         </button>
 
@@ -777,7 +777,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsCreatingSet("library");
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[##3b0b13]">
           <i className="bi bi-folder2"></i> Thư Viện
         </button>
         <hr className="border-[#FFFFFF]" />
@@ -786,7 +786,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
           onClick={() => {
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3b0b13]">
           <i className="bi bi-plus"></i> Tạo Thư Mục
         </button>
         <hr className="border-[#FFFFFF]" />
@@ -798,7 +798,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setSelectedSet(null);
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3B0B24]">
+          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3b0b13]">
           <i className="bi bi-puzzle"></i> Trò Chơi Ô Chữ
         </button>
       </nav>
@@ -1164,7 +1164,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
         {isEditing && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div
-              className="bg-[#3B0B24] p-6 rounded-lg text-white relative"
+              className="bg-[#3b0b13] p-6 rounded-lg text-white relative"
               style={{ width: screenWidth > 450 ? "450px" : "100%" }} // ✅ Set width logic
             >
               <button className="absolute top-2 right-2 text-xl" onClick={() => setIsEditing(false)}>✖</button>
