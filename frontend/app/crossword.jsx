@@ -9,6 +9,9 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
     const [hoverCol, setHoverCol] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const [hoveredClueNumber, setHoveredClueNumber] = useState(null);
+    const [hoveredDirection, setHoveredDirection] = useState(null);
+
     // Get clue number for a specific grid cell
     const getClueNumber = (row, col) => {
         const match = placedWords.find((entry) => {
@@ -81,7 +84,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
 
         const qnaList = studySet.terms.map((termObj) => ({
             question: termObj.definition,
-            answer: termObj.term.toUpperCase(),
+            answer: termObj.term.toUpperCase().replace(/\s+/g, ""), // ✅ Strip all spaces
         }));
         setQnaList(qnaList); // ✅ THIS LINE IS MISSING
         setPuzzleTitle(studySet.title || "My Puzzle");
@@ -131,7 +134,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
 
             {/* Puzzle look */}
 
-            <div className="bg-black border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700] p-2 rounded-lg w-full flex flex-col gap-2 w-full md:max-w-[750px]">
+            <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] p-2 rounded-lg w-full flex flex-col gap-2 w-full md:max-w-[750px]">
                 {/* ✅ highlight is now scoped inside the render and updates correctly */}
                 {(() => {
                     if (!grid.length || !placedWords.length) return null;
@@ -150,27 +153,42 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                             const { start, direction, answer } = word;
                             const len = answer.length;
 
-                            if (
-                                direction === "across" &&
-                                hoverRow === start.row &&
-                                hoverCol >= start.col &&
-                                hoverCol < start.col + len
-                            ) {
-                                for (let i = 0; i < len; i++) {
-                                    results.push(`${start.row}-${start.col + i}`);
+                            const matches = placedWords.filter(({ start, direction, answer }) => {
+                                if (!start || !answer) return false;
+                                if (direction === "across") {
+                                    return hoverRow === start.row && hoverCol >= start.col && hoverCol < start.col + answer.length;
+                                } else {
+                                    return hoverCol === start.col && hoverRow >= start.row && hoverRow < start.row + answer.length;
+                                }
+                            });
+
+                            if (matches.length > 0) {
+                                // Find the one with shortest distance to the clue origin
+                                let closest = matches[0];
+                                let closestDistance = Infinity;
+
+                                for (let word of matches) {
+                                    const dist = Math.abs(hoverRow - word.start.row) + Math.abs(hoverCol - word.start.col);
+
+                                    if (
+                                        dist < closestDistance ||
+                                        (dist === closestDistance && word.answer.length < closest.answer.length) // 👈 Tie-breaker
+                                    ) {
+                                        closest = word;
+                                        closestDistance = dist;
+                                    }
+                                }
+
+
+                                // Highlight only this word
+                                const { start, direction, answer } = closest;
+                                for (let i = 0; i < answer.length; i++) {
+                                    const r = direction === "across" ? start.row : start.row + i;
+                                    const c = direction === "across" ? start.col + i : start.col;
+                                    results.push(`${r}-${c}`);
                                 }
                             }
 
-                            if (
-                                direction === "down" &&
-                                hoverCol === start.col &&
-                                hoverRow >= start.row &&
-                                hoverRow < start.row + len
-                            ) {
-                                for (let i = 0; i < len; i++) {
-                                    results.push(`${start.row + i}-${start.col}`);
-                                }
-                            }
 
                         });
                         return results;
@@ -213,24 +231,61 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                                                             setHoverRow(row);
                                                             setHoverCol(col);
 
-                                                            // 💡 Auto-focus the first input of the hovered word
                                                             const targetKey = highlighted.find(key => key === `${row}-${col}`);
                                                             if (targetKey && inputRefs.current[targetKey]) {
                                                                 setTimeout(() => {
                                                                     inputRefs.current[targetKey].focus();
                                                                 }, 10);
                                                             }
+
+                                                            // ✅ Find clue number for this cell
+                                                            const matches = placedWords.filter(word => {
+                                                                if (!word?.start || !word?.answer) return false;
+                                                                const { start, direction, answer } = word;
+                                                                const len = answer.length;
+
+                                                                if (
+                                                                    (direction === "across" &&
+                                                                        start.row === row &&
+                                                                        col >= start.col &&
+                                                                        col < start.col + len) ||
+                                                                    (direction === "down" &&
+                                                                        start.col === col &&
+                                                                        row >= start.row &&
+                                                                        row < start.row + len)
+                                                                ) {
+                                                                    return true;
+                                                                }
+                                                                return false;
+                                                            });
+
+                                                            let matchedWord = null;
+                                                            let closestDistance = Infinity;
+
+                                                            for (let word of matches) {
+                                                                const dist = Math.abs(row - word.start.row) + Math.abs(col - word.start.col);
+                                                                if (dist < closestDistance) {
+                                                                    matchedWord = word;
+                                                                    closestDistance = dist;
+                                                                }
+                                                            }
+
+                                                            setHoveredClueNumber(matchedWord?.clueNumber || null); // ✅ set hovered clue number
+                                                            setHoveredDirection(matchedWord?.direction || null);
                                                         }}
 
                                                         onMouseLeave={() => {
                                                             setHoverRow(null);
                                                             setHoverCol(null);
+                                                            setHoveredClueNumber(null); // ✅ clear it
+                                                            setHoveredDirection(null);
+
                                                         }}
 
-                                                        className={`relative z-20 w-6 h-6 rounded-sm flex items-center justify-center text-xs border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] transition-all duration-100
+                                                        className={`relative z-20 w-6 h-6 rounded-sm flex items-center justify-center text-xs  transition-all duration-100
                                                         ${highlighted.includes(`${row}-${col}`)
-                                                                ? 'bg-[#ff7700] text-black font-extrabold border-2 border-[#ff7700]'
-                                                                : 'bg-black text-[#00e0ff]'}
+                                                                ? 'bg-black text-[#ff7700] border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700]'
+                                                                : 'bg-black text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]'}
                                                       `}
                                                     >
                                                         <input
@@ -298,12 +353,16 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                     );
                 })()}
                 {/* Divider Line */}
-                <hr className="border-[#ff7700] shadow-[0_0_20px_#ff7700]" />
+                <hr className="border-[#00e0ff] shadow-[0_0_20px_#00e0ff]" />
 
                 {/* Bottom: Across & Down */}
                 <div className="flex gap-2">
                     <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]  text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
-                        <span className="font-semibold block mb-2">Hàng Ngang</span>
+                        <span className={`font-semibold block mb-2 text-lg transition duration-200
+                            ${hoveredDirection === "across" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-[#00e0ff]"}`}>
+                            Hàng Ngang
+                        </span>
+
                         {placedWords
                             .filter((entry) => entry.direction === "across")
                             .sort((a, b) => a.clueNumber - b.clueNumber)
@@ -311,15 +370,26 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                                 const qna = qnaList[entry.index];
                                 if (!qna) return null;
                                 return (
-                                    <div key={idx} className="mb-2 text-sm">
+                                    <div
+                                        key={idx}
+                                        className={`mb-2 text-sm transition duration-200 
+                                             ${hoveredClueNumber === entry.clueNumber && hoveredDirection === entry.direction
+                                                ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-bold"
+                                                : ""}`}
+                                    >
                                         <strong>{entry.clueNumber}.</strong> {qna.question}
                                     </div>
+
                                 );
                             })}
                     </div>
 
                     <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
-                        <span className="font-semibold block mb-2">Hàng Dọc</span>
+                        <span className={`font-semibold block mb-2 text-lg transition duration-200
+                            ${hoveredDirection === "down" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-[#00e0ff]"}`}>
+                            Hàng Dọc
+                        </span>
+
                         {placedWords
                             .filter((entry) => entry.direction === "down")
                             .sort((a, b) => a.clueNumber - b.clueNumber)
@@ -327,9 +397,16 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                                 const qna = qnaList[entry.index];
                                 if (!qna) return null;
                                 return (
-                                    <div key={idx} className="mb-2 text-sm">
+                                    <div
+                                        key={idx}
+                                        className={`mb-2 text-sm transition duration-200 
+                                              ${hoveredClueNumber === entry.clueNumber && hoveredDirection === entry.direction
+                                                ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-bold"
+                                                : ""}`}
+                                    >
                                         <strong>{entry.clueNumber}.</strong> {qna.question}
                                     </div>
+
                                 );
                             })}
                     </div>
