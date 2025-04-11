@@ -14,7 +14,7 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
 
     const handleSelection = (type, item) => {
         if (!selectedItem || selectedItem.type === type) {
-            setSelectedItem({ ...item, type });        
+            setSelectedItem({ ...item, type });
         } else {
             if (selectedItem.type !== type) {
                 if (
@@ -64,37 +64,51 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
 
             {/* Matching Test Title & Back Button */}
             <div className={`grid grid-cols-2 gap-30 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h3 className="text-xl">Nối Từ</h3>
+                <h3 className="text-xl text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff] font-bold">Nối Từ</h3>
+
                 <button
-                    className="bg-yellow-500 px-4 py-2 text-sm rounded-lg hover:bg-yellow-400 transition duration-300"
-                    onClick={() => {
-                        setShowMatchingTest(false);
-                    }}
+                    className="px-4 py-2 text-sm rounded-lg border border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700] text-[#ff7700] transition duration-300 
+               hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                    onClick={() => setShowMatchingTest(false)}
                 >
                     ← Quay Lại
                 </button>
             </div>
 
+
             {/* Section for displaying matched pairs below the title */}
             <div className={`flex flex-col gap-2 mb-2 ${screenWidth <= 770 ? "w-full px-4" : "w-[60%]"}`}>
                 {matchedPairs.map((pair, index) => (
-                    <div key={index} className="bg-[#522136] p-4 rounded-lg flex items-center justify-between w-full">
-                        <span className="font-semibold w-1/3">{pair.term}</span>
-                        <span className="text-white text-5xl px-1 font-light">|</span> {/* Vertical Line */}
-                        <span className="text-gray-300 w-2/3">{pair.definition}</span>
+                    <div
+                        key={index}
+                        className="bg-black p-4 rounded-lg flex items-center justify-between w-full 
+                 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]"
+                    >
+                        <span className="font-semibold w-1/3 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] drop-shadow-[0_0_6px_#00e0ff]">
+                            {pair.term}
+                        </span>
+                        <span className="text-[#00e0ff] text-5xl px-1 font-light drop-shadow-[0_0_6px_#00e0ff]">
+                            |
+                        </span>
+                        <span className="w-2/3 text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">
+                            {pair.definition}
+                        </span>
                     </div>
                 ))}
 
                 {/* ✅ Show Try Again button only when all matches are done */}
                 {matchedPairs.length === studySet.terms.length && (
                     <button
-                        className="mt-4 bg-yellow-500 px-6 py-2 rounded-lg text-sm hover:bg-yellow-400 transition duration-300"
+                        className="mt-4 px-6 py-2 rounded-lg text-sm border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700] text-[#ff7700] 
+                 hover:bg-[#ff7700] hover:text-black transition duration-300 
+                 shadow-md hover:shadow-[0_0_12px_#ff7700]"
                         onClick={handleRetry}
                     >
                         Thử Lại!
                     </button>
                 )}
             </div>
+
 
 
             {/* Matching Test Layout */}
@@ -106,12 +120,12 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
                         .map((item, index) => (
                             <button
                                 key={index}
-                                className={`bg-[#6A2A3B] px-3 py-5 rounded-lg text-left 
+                                className={`text-[#ff7700] px-3 py-5 rounded-lg text-left 
                         ${screenWidth <= 770 ? "w-full" : "w-[120px]"} 
-                        ${selectedItem?.term === item.term && selectedItem?.type === "term" ? "bg-yellow-500" : ""}
+                        ${selectedItem?.term === item.term && selectedItem?.type === "term" ? "bg-yellow-500 text-black" : ""}
                         ${matchedPairs.some(pair => pair.term === item.term) ? "bg-green-600 pointer-events-none" : ""}
-                        ${incorrectPair?.term === item.term && incorrectPair?.definition ? "bg-red-600" : ""}
-                        ${!disableHover ? "hover:bg-yellow-500 transition duration-200" : ""}
+                        ${incorrectPair?.term === item.term && incorrectPair?.definition ? "bg-red-900 border border-red-900 text-black shadow-[0_0_12px_red-900]" : ""}
+                        ${!disableHover ? "rounded-lg border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700] transition duration-200" : "border border-[#ff7700]"}
                     `}
                                 onClick={() => handleSelection("term", item)}
                             >
@@ -127,12 +141,12 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
                         .map((item, index) => (
                             <button
                                 key={index}
-                                className={`bg-[#6A2A3B] px-4 py-3 rounded-lg text-left 
+                                className={`text-[#00e0ff] px-4 py-3 rounded-lg text-left 
                         ${screenWidth <= 770 ? "w-full" : "w-auto"} 
-                        ${selectedItem?.definition === item.definition && selectedItem?.type === "definition" ? "bg-yellow-500" : ""}
+                        ${selectedItem?.definition === item.definition && selectedItem?.type === "definition" ? "bg-[#38b8c9] text-black" : ""}
                         ${matchedPairs.some(pair => pair.definition === item.definition) ? "bg-green-600 pointer-events-none" : ""} 
-                        ${incorrectPair?.definition === item.definition && incorrectPair?.term ? "bg-red-600" : ""}
-                        ${!disableHover ? "hover:bg-yellow-500 transition duration-200" : ""}
+                        ${incorrectPair?.definition === item.definition && incorrectPair?.term ? "bg-red-900 border border-red-900 text-black shadow-[0_0_12px_red-900]" : ""}
+                        ${!disableHover ? "ounded-lg border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] transition duration-200" : "border border-[#00e0ff]"}
                     `}
                                 onClick={() => handleSelection("definition", item)}
                             >

@@ -117,229 +117,232 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
     return (
         <div className="text-white font-[Itim]">
 
-
-            <div className="flex flex-col md:flex-row flex-wrap gap-2 w-full justify-start">
             <button
-                 className="mb-4 px-4 py-2 bg-[#5A2E44] text-white rounded hover:bg-[#6A2A3B] transition"
-                 onClick={onBack}
-             >
-                 ← Quay lại
-             </button>
-             <h1 className="text-3xl font-bold mb-6">Trò Chơi Ô Chữ</h1>
-                {/* Puzzle look */}
+                className="mb-4 px-4 py-2 rounded border border-[#ff7700] text-[#ff7700] transition duration-300 
+             hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                onClick={onBack}
+            >
+                ← Quay Lại
+            </button>
 
-                <div className="bg-[#522136] p-2 rounded-lg w-full flex flex-col gap-2 w-full md:max-w-[750px]">
-                    {/* ✅ highlight is now scoped inside the render and updates correctly */}
-                    {(() => {
-                        if (!grid.length || !placedWords.length) return null;
+            <h1 className="text-3xl font-bold mb-6 text-[#00e0ff] drop-shadow-[0_0_12px_#00e0ff]">
+                Giải Ô Chữ
+            </h1>
 
-                        // Inline highlight calculation
-                        const highlighted = (() => {
-                            if (hoverRow === null || hoverCol === null) return [];
+            {/* Puzzle look */}
 
-                            const results = [];
+            <div className="bg-black border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700] p-2 rounded-lg w-full flex flex-col gap-2 w-full md:max-w-[750px]">
+                {/* ✅ highlight is now scoped inside the render and updates correctly */}
+                {(() => {
+                    if (!grid.length || !placedWords.length) return null;
 
-                            placedWords.forEach((word) => {
-                                if (!word?.start || !word?.answer) {
-                                    return;
+                    // Inline highlight calculation
+                    const highlighted = (() => {
+                        if (hoverRow === null || hoverCol === null) return [];
+
+                        const results = [];
+
+                        placedWords.forEach((word) => {
+                            if (!word?.start || !word?.answer) {
+                                return;
+                            }
+
+                            const { start, direction, answer } = word;
+                            const len = answer.length;
+
+                            if (
+                                direction === "across" &&
+                                hoverRow === start.row &&
+                                hoverCol >= start.col &&
+                                hoverCol < start.col + len
+                            ) {
+                                for (let i = 0; i < len; i++) {
+                                    results.push(`${start.row}-${start.col + i}`);
                                 }
+                            }
 
-                                const { start, direction, answer } = word;
-                                const len = answer.length;
-
-                                if (
-                                    direction === "across" &&
-                                    hoverRow === start.row &&
-                                    hoverCol >= start.col &&
-                                    hoverCol < start.col + len
-                                ) {
-                                    for (let i = 0; i < len; i++) {
-                                        results.push(`${start.row}-${start.col + i}`);
-                                    }
+                            if (
+                                direction === "down" &&
+                                hoverCol === start.col &&
+                                hoverRow >= start.row &&
+                                hoverRow < start.row + len
+                            ) {
+                                for (let i = 0; i < len; i++) {
+                                    results.push(`${start.row + i}-${start.col}`);
                                 }
+                            }
 
-                                if (
-                                    direction === "down" &&
-                                    hoverCol === start.col &&
-                                    hoverRow >= start.row &&
-                                    hoverRow < start.row + len
-                                ) {
-                                    for (let i = 0; i < len; i++) {
-                                        results.push(`${start.row + i}-${start.col}`);
-                                    }
-                                }
+                        });
+                        return results;
+                    })();
+                    return (
+                        <>
 
-                            });
-                            return results;
-                        })();
-                        return (
-                            <>
-
-                                {/* THE PUZZLE */}
-
+                            {/* THE PUZZLE */}
+                            <div
+                                className="w-full h-[420px] overflow-auto"
+                                style={{
+                                    cursor: isDragging ? "grabbing" : "grab",
+                                    maxWidth: "100%",
+                                    maxHeight: "420px",
+                                    border: "1px solid #00e0ff", // optional for visual clarity
+                                    position: "relative",
+                                }}
+                                ref={containerRef}
+                                onMouseDown={handleMouseDown}
+                                onMouseMove={handleMouseMove}
+                                onMouseUp={handleMouseUp}
+                                onMouseLeave={handleMouseUp}
+                            >
                                 <div
-                                    className="w-full h-[420px] overflow-auto"
+                                    className="flex flex-col items-start gap-px w-fit max-w-full"
                                     style={{
-                                        cursor: isDragging ? "grabbing" : "grab",
-                                        maxWidth: "100%",
-                                        maxHeight: "420px",
-                                        border: "1px solid #fff", // optional for visual clarity
-                                        position: "relative",
+                                        transform: `scale(${grid.length > 20 ? 1 : grid.length > 10 ? 1.2 : 1.5})`,
+                                        transformOrigin: "top left",
                                     }}
-                                    ref={containerRef}
-                                    onMouseDown={handleMouseDown}
-                                    onMouseMove={handleMouseMove}
-                                    onMouseUp={handleMouseUp}
-                                    onMouseLeave={handleMouseUp}
                                 >
-                                    <div
-                                        className="flex flex-col items-start gap-px w-fit max-w-full"
-                                        style={{
-                                            transform: `scale(${grid.length > 20 ? 1 : grid.length > 10 ? 1.2 : 1.5})`,
-                                            transformOrigin: "top left",
-                                        }}
-                                    >
-                                        {grid.map((rowArray, row) => (
-                                            <div key={row} className="flex gap-px">
-                                                {rowArray.map((cell, col) => {
-                                                    const clueNum = getClueNumber(row, col);
+                                    {grid.map((rowArray, row) => (
+                                        <div key={row} className="flex gap-px">
+                                            {rowArray.map((cell, col) => {
+                                                const clueNum = getClueNumber(row, col);
 
-                                                    return cell ? (
-                                                        <div
-                                                            key={`${row}-${col}`}
-                                                            onMouseEnter={() => {
-                                                                setHoverRow(row);
-                                                                setHoverCol(col);
+                                                return cell ? (
+                                                    <div
+                                                        key={`${row}-${col}`}
+                                                        onMouseEnter={() => {
+                                                            setHoverRow(row);
+                                                            setHoverCol(col);
 
-                                                                // 💡 Auto-focus the first input of the hovered word
-                                                                const targetKey = highlighted.find(key => key === `${row}-${col}`);
-                                                                if (targetKey && inputRefs.current[targetKey]) {
-                                                                    setTimeout(() => {
-                                                                        inputRefs.current[targetKey].focus();
-                                                                    }, 10);
+                                                            // 💡 Auto-focus the first input of the hovered word
+                                                            const targetKey = highlighted.find(key => key === `${row}-${col}`);
+                                                            if (targetKey && inputRefs.current[targetKey]) {
+                                                                setTimeout(() => {
+                                                                    inputRefs.current[targetKey].focus();
+                                                                }, 10);
+                                                            }
+                                                        }}
+
+                                                        onMouseLeave={() => {
+                                                            setHoverRow(null);
+                                                            setHoverCol(null);
+                                                        }}
+
+                                                        className={`relative z-20 w-6 h-6 rounded-sm flex items-center justify-center text-xs border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] transition-all duration-100
+                                                        ${highlighted.includes(`${row}-${col}`)
+                                                                ? 'bg-[#ff7700] text-black font-extrabold border-2 border-[#ff7700]'
+                                                                : 'bg-black text-[#00e0ff]'}
+                                                      `}
+                                                    >
+                                                        <input
+                                                            ref={(el) => {
+                                                                if (el) inputRefs.current[`${row}-${col}`] = el;
+                                                            }}
+                                                            type="text"
+                                                            maxLength={1}
+                                                            value={userGrid[row]?.[col] || ""}
+                                                            onChange={(e) => {
+                                                                const val = e.target.value.toUpperCase();
+                                                                handleInputChange(val, row, col);
+
+                                                                if (val && highlighted.length > 0) {
+                                                                    let currentIndex = highlighted.findIndex(cell => cell === `${row}-${col}`);
+
+                                                                    // 🔁 Look for the next empty cell in the highlight path
+                                                                    for (let i = currentIndex + 1; i < highlighted.length; i++) {
+                                                                        const [nextRow, nextCol] = highlighted[i].split("-").map(Number);
+                                                                        if (!userGrid[nextRow][nextCol]) {
+                                                                            const nextKey = `${nextRow}-${nextCol}`;
+                                                                            if (inputRefs.current[nextKey]) {
+                                                                                setTimeout(() => {
+                                                                                    inputRefs.current[nextKey].focus();
+                                                                                }, 10);
+                                                                            }
+                                                                            break;
+                                                                        }
+                                                                    }
                                                                 }
                                                             }}
 
-                                                            onMouseLeave={() => {
-                                                                setHoverRow(null);
-                                                                setHoverCol(null);
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === "Backspace" && !userGrid[row][col]) {
+                                                                    const currentIndex = highlighted.findIndex(cell => cell === `${row}-${col}`);
+                                                                    const prevKey = highlighted[currentIndex - 1];
+                                                                    if (prevKey && inputRefs.current[prevKey]) {
+                                                                        setTimeout(() => {
+                                                                            inputRefs.current[prevKey].focus();
+                                                                        }, 10);
+                                                                    }
+                                                                }
                                                             }}
+                                                            className="w-full h-full text-center bg-transparent outline-none z-10"
+                                                        />
 
-                                                            className={`relative z-20 w-6 h-6 rounded-sm flex items-center justify-center text-xs border transition-all duration-100
-                                                        ${highlighted.includes(`${row}-${col}`)
-                                                                    ? 'bg-yellow-300 text-black font-extrabold border-2 border-black scale-110'
-                                                                    : 'bg-[#522136] text-white'}
-                                                      `}
-                                                        >
-                                                            <input
-                                                                ref={(el) => {
-                                                                    if (el) inputRefs.current[`${row}-${col}`] = el;
-                                                                }}
-                                                                type="text"
-                                                                maxLength={1}
-                                                                value={userGrid[row]?.[col] || ""}
-                                                                onChange={(e) => {
-                                                                    const val = e.target.value.toUpperCase();
-                                                                    handleInputChange(val, row, col);
+                                                        {clueNum && (
+                                                            <span className="absolute top-[1px] left-[1px] text-[8px] text-yellow font-bold z-20 leading-none">
+                                                                {clueNum}
+                                                            </span>
+                                                        )}
+                                                    </div>
 
-                                                                    if (val && highlighted.length > 0) {
-                                                                        let currentIndex = highlighted.findIndex(cell => cell === `${row}-${col}`);
-
-                                                                        // 🔁 Look for the next empty cell in the highlight path
-                                                                        for (let i = currentIndex + 1; i < highlighted.length; i++) {
-                                                                            const [nextRow, nextCol] = highlighted[i].split("-").map(Number);
-                                                                            if (!userGrid[nextRow][nextCol]) {
-                                                                                const nextKey = `${nextRow}-${nextCol}`;
-                                                                                if (inputRefs.current[nextKey]) {
-                                                                                    setTimeout(() => {
-                                                                                        inputRefs.current[nextKey].focus();
-                                                                                    }, 10);
-                                                                                }
-                                                                                break;
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }}
-
-                                                                onKeyDown={(e) => {
-                                                                    if (e.key === "Backspace" && !userGrid[row][col]) {
-                                                                        const currentIndex = highlighted.findIndex(cell => cell === `${row}-${col}`);
-                                                                        const prevKey = highlighted[currentIndex - 1];
-                                                                        if (prevKey && inputRefs.current[prevKey]) {
-                                                                            setTimeout(() => {
-                                                                                inputRefs.current[prevKey].focus();
-                                                                            }, 10);
-                                                                        }
-                                                                    }
-                                                                }}
-                                                                className="w-full h-full text-center bg-transparent outline-none z-10"
-                                                            />
-
-                                                            {clueNum && (
-                                                                <span className="absolute top-[1px] left-[1px] text-[8px] text-yellow font-bold z-20 leading-none">
-                                                                    {clueNum}
-                                                                </span>
-                                                            )}
-                                                        </div>
-
-                                                    ) : (
-                                                        <div key={`${row}-${col}`} className="w-6 h-6" />
-                                                    );
+                                                ) : (
+                                                    <div key={`${row}-${col}`} className="w-6 h-6" />
+                                                );
 
 
-                                                })}
-                                            </div>
-                                        ))}
-                                    </div>
+                                            })}
+                                        </div>
+                                    ))}
                                 </div>
-                            </>
-                        );
-                    })()}
-                    {/* Divider Line */}
-                    <hr className="border-white" />
+                            </div>
+                        </>
+                    );
+                })()}
+                {/* Divider Line */}
+                <hr className="border-[#ff7700] shadow-[0_0_20px_#ff7700]" />
 
-                    {/* Bottom: Across & Down */}
-                    <div className="flex gap-2">
-                        <div className="bg-[#522136] text-white p-4 rounded-md w-1/2 min-h-[150px]">
-                            <span className="font-semibold block mb-2">Hàng Ngang</span>
-                            {placedWords
-                                .filter((entry) => entry.direction === "across")
-                                .sort((a, b) => a.clueNumber - b.clueNumber)
-                                .map((entry, idx) => {
-                                    const qna = qnaList[entry.index];
-                                    if (!qna) return null;
-                                    return (
-                                        <div key={idx} className="mb-2 text-sm">
-                                            <strong>{entry.clueNumber}.</strong> {qna.question}
-                                        </div>
-                                    );
-                                })}
-                        </div>
+                {/* Bottom: Across & Down */}
+                <div className="flex gap-2">
+                    <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]  text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
+                        <span className="font-semibold block mb-2">Hàng Ngang</span>
+                        {placedWords
+                            .filter((entry) => entry.direction === "across")
+                            .sort((a, b) => a.clueNumber - b.clueNumber)
+                            .map((entry, idx) => {
+                                const qna = qnaList[entry.index];
+                                if (!qna) return null;
+                                return (
+                                    <div key={idx} className="mb-2 text-sm">
+                                        <strong>{entry.clueNumber}.</strong> {qna.question}
+                                    </div>
+                                );
+                            })}
+                    </div>
 
-                        <div className="bg-[#522136] text-white p-4 rounded-md w-1/2 min-h-[150px]">
-                            <span className="font-semibold block mb-2">Hàng Dọc</span>
-                            {placedWords
-                                .filter((entry) => entry.direction === "down")
-                                .sort((a, b) => a.clueNumber - b.clueNumber)
-                                .map((entry, idx) => {
-                                    const qna = qnaList[entry.index];
-                                    if (!qna) return null;
-                                    return (
-                                        <div key={idx} className="mb-2 text-sm">
-                                            <strong>{entry.clueNumber}.</strong> {qna.question}
-                                        </div>
-                                    );
-                                })}
-                        </div>
+                    <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
+                        <span className="font-semibold block mb-2">Hàng Dọc</span>
+                        {placedWords
+                            .filter((entry) => entry.direction === "down")
+                            .sort((a, b) => a.clueNumber - b.clueNumber)
+                            .map((entry, idx) => {
+                                const qna = qnaList[entry.index];
+                                if (!qna) return null;
+                                return (
+                                    <div key={idx} className="mb-2 text-sm">
+                                        <strong>{entry.clueNumber}.</strong> {qna.question}
+                                    </div>
+                                );
+                            })}
                     </div>
                 </div>
             </div>
             <button
                 onClick={() => checkAnswers()}
-                className="mt-4 bg-yellow-600 text-white px-6 py-2 rounded hover:bg-green-500 transition"
+                className="mt-4 px-6 py-2 rounded border border-[#ff7700] text-[#ff7700] transition duration-300 
+             hover:bg-[#00ff66] hover:text-black shadow-md hover:shadow-[0_0_12px_#00ff66]"
             >
                 Kiểm tra!
             </button>
+
         </div >
     );
 

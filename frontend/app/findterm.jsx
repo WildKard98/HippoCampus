@@ -27,9 +27,9 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
         <div className="flex flex-col text-white">
             {/* Title & Back Button */}
             <div className={`grid grid-cols-2 gap-50 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h3 className="text-xl">Tìm Từ Khoá</h3>
+                <h3 className="text-xl text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">Tìm Từ Khoá</h3>
                 <button
-                    className="bg-yellow-500 px-4 py-2 text-sm rounded-lg hover:bg-yellow-400 transition duration-300"
+                    className="px-4 py-2 text-sm rounded-lg border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
                     onClick={() => setShowFillTest(false)}
                 >
                     ← Quay Lại
@@ -37,51 +37,63 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
             </div>
 
 
-            {/* Merged Definition & Input Field */}
             <div className={`flex flex-col gap-2 mb-2 ${screenWidth <= 770 ? "w-full px-4" : "w-[60%]"}`}>
                 {studySet.terms.map((item, index) => (
-                    <div key={index} className="bg-[#522136] p-4 rounded-lg flex items-center justify-between">
-                        <span className="text-white">{item.definition}</span>
+                    <div
+                        key={index}
+                        className="bg-black p-4 rounded-lg flex items-center justify-between border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] mb-2"
+                    >
+                        <span className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{item.definition}</span>
 
                         {/* Input Field with Hint Button */}
                         <div className="relative flex items-center w-1/3 min-w-[120px]" style={{ flexShrink: "0" }}>
                             <input
                                 type="text"
-                                className={`bg-[#3B0B24] text-white px-4 py-2 rounded-lg border-2 transition duration-300 w-full
-                                ${answers[`correct-${index}`] ? "border-green-500" : (answers[`wrong-${index}`] ? "border-red-500" : "border-transparent")}
-                                focus:outline-none focus:ring-0`
-                                }
+                                className={`bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full transition duration-300
+          border-2 shadow-[0_0_8px_#00e0ff] focus:outline-[#00e0ff] focus:ring-2 focus:ring-[#00e0ff] 
+          ${answers[`correct-${index}`] ? "border-[#00ff88] text-[#00ff88] shadow-[0_0_12px_#00ff88]" : ""}
+          ${answers[`wrong-${index}`] ? "border-[#ff0033] text-[#ff0033] shadow-[0_0_12px_#ff0033]" : ""}
+        `}
                                 placeholder="Nhập thuật ngữ ..."
                                 value={answers[index] || ""}
                                 onChange={(e) => handleChange(index, e.target.value)}
                                 disabled={answers[`correct-${index}`]}
                             />
 
-                            {/* Hint Button (Lightbulb Icon) */}
+                            {/* Hint Button */}
                             <button
-                                className={`absolute right-2 top-1/2 transform -translate-y-1/2 
-                                    ${answers[`showHints-${index}`] ? "text-yellow-400" : "text-white"} 
-                                    hover:text-yellow-400 active:text-yellow-500`}
-
-                                onClick={() => setAnswers(prev => ({ ...prev, [`showHints-${index}`]: !prev[`showHints-${index}`] }))}
+                                className={`absolute right-2 top-1/2 transform -translate-y-1/2 transition duration-300
+          ${answers[`showHints-${index}`]
+                                        ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+                                        : "text-[#00e0ff] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#00e0ff]"
+                                    }`}
+                                onClick={() =>
+                                    setAnswers((prev) => ({
+                                        ...prev,
+                                        [`showHints-${index}`]: !prev[`showHints-${index}`],
+                                    }))
+                                }
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-lightbulb" viewBox="0 0 16 16">
-                                    <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1" />
-                                </svg>
+                                <i className="bi bi-lightbulb-fill text-xl"></i>
                             </button>
 
                             {/* Hint Box */}
                             {answers[`showHints-${index}`] && (
-                                <div className="absolute top-full left-0 mt-1 bg-[#3B0B24] text-white p-2 rounded-lg shadow-lg w-full z-10 border-2 border-yellow-500">
+                                <div className="absolute top-full left-0 mt-1 bg-black text-[#ff7700] p-2 rounded-lg shadow-[0_0_12px_#ffaa33] w-full z-10 border border-[#ffaa33]">
                                     {studySet.terms
-                                        .filter(hint => !Object.values(answers).some(ans => typeof ans === "string" && ans.toLowerCase() === hint.term.toLowerCase()))
+                                        .filter(
+                                            (hint) =>
+                                                !Object.values(answers).some(
+                                                    (ans) => typeof ans === "string" && ans.toLowerCase() === hint.term.toLowerCase()
+                                                )
+                                        )
                                         .map((hint, hintIndex) => (
                                             <div
                                                 key={hintIndex}
-                                                className="px-4 py-2 hover:bg-[#6A2A3B] cursor-pointer"
+                                                className="px-4 py-2 hover:bg-[#ffaa33] hover:text-black transition cursor-pointer"
                                                 onClick={() => {
                                                     handleChange(index, hint.term);
-                                                    setAnswers(prev => ({ ...prev, [`showHints-${index}`]: false })); // Hide hints after selection
+                                                    setAnswers((prev) => ({ ...prev, [`showHints-${index}`]: false }));
                                                 }}
                                             >
                                                 {hint.term}
@@ -92,15 +104,20 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
                         </div>
                     </div>
                 ))}
+
+                {/* Try Again Button */}
                 {/* Try Again Button */}
                 <button
-                    className={`mt-6 px-6 py-2 rounded-lg transition duration-300 
-        ${allCorrect ? "bg-[#105422] hover:bg-[#0D3B1E]" : "bg-yellow-500 hover:bg-yellow-400"}
-    `}
+                    className={`mt-6 px-6 py-2 rounded-lg transition duration-300 font-semibold
+    ${allCorrect
+                            ? "bg-[#105422] text-[#00ff88] border border-[#00ff88] shadow-[0_0_12px_#00ff88] hover:bg-[#0D3B1E]"
+                            : "bg-black text-[#ff7700] border border-[#ff7700] shadow-[0_0_12px_#ff7700] hover:bg-[#ff7700] hover:text-black"}
+  `}
                     onClick={() => setAnswers({})} // ✅ Reset all inputs
                 >
-                    {allCorrect ? "Chúc mừng! Bạn muốn thử lại?" : "Thử Lại"}
+                    {allCorrect ? "🎉 Chúc mừng! Bạn muốn thử lại?" : "Thử Lại!"}
                 </button>
+
             </div>
         </div>
     );

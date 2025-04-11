@@ -111,54 +111,72 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
     return (
         <div className="text-white font-[Itim]">
             <button
-                className="mb-4 px-4 py-2 bg-[#5A2E44] text-white rounded hover:bg-[#6A2A3B] transition"
+                className="mb-4 px-4 py-2 rounded border border-[#ff7700] text-[#ff7700] transition duration-300 
+             hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                 onClick={onBack}
             >
                 ← Back
             </button>
-            <h1 className="text-3xl font-bold mb-6">Crossword Puzzle</h1>
+
+            <h1 className="text-3xl font-bold mb-6 text-[#00e0ff] drop-shadow-[0_0_12px_#00e0ff]">
+                Crossword Puzzle
+            </h1>
+
             {isEditing ? (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                     <div
-                        className="bg-[#3B0B24] p-6 rounded-lg text-white relative"
-                        style={{ width: screenWidth > 450 ? "450px" : "100%" }} // ✅ Set width logic
+                        className="bg-black p-6 rounded-lg text-white relative border border-[#00e0ff] shadow-[0_0_16px_#00e0ff]"
+                        style={{ width: screenWidth > 450 ? "450px" : "100%" }}
                     >
-                        <button className="absolute top-2 right-2 text-xl" onClick={() => setIsEditing(false)}>✖</button>
-                        <h2 className="text-2xl font-bold mb-4">Edit</h2>
+                        <button
+                            className="absolute top-2 right-2 text-[#ff7700] text-xl hover:scale-110 transition"
+                            onClick={() => setIsEditing(false)}
+                        >
+                            ✖
+                        </button>
 
-                        <label className="block mb-2">Answer:</label>
+                        <h2 className="text-2xl font-bold mb-4 text-[#ff7700]">Edit</h2>
+
+                        <label className="block mb-2 text-[#00e0ff]">Answer:</label>
                         <input
                             type="text"
-                            className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+                            className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 
+                     border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             value={editAnswer}
                             onChange={(e) => setEditAnswer(e.target.value)}
                         />
 
-                        <label className="block mb-2">Question:</label>
+                        <label className="block mb-2 text-[#00e0ff]">Question:</label>
                         <textarea
-                            className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+                            className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 
+                     border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             value={editQuestion}
                             onChange={(e) => setEditQuestion(e.target.value)}
                         />
 
-                        <button onClick={handleSaveEdit} className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105">
+                        <button
+                            onClick={handleSaveEdit}
+                            className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
+                     hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                        >
                             Done
                         </button>
                     </div>
                 </div>
+
             ) : (
                 <div className="flex flex-col md:flex-row gap-2 w-full justify-start">
 
                     {/* Left Column */}
                     <div className={`flex flex-col gap-2 ${screenWidth > 770 ? "w-full md:w-2/5 max-w-[450px]" : "w-full"}`}>
                         {/* Box 1: Title Input + Create Button */}
-                        <div className="bg-[#522136] p-4 rounded-lg">
+                        <div className="bg-black p-4 rounded-lg border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]">
                             <input
                                 type="text"
                                 placeholder="Enter title"
                                 value={puzzleTitle}
                                 onChange={(e) => setPuzzleTitle(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg text-white bg-transparent border border-white focus:outline-none placeholder-white"
+                                className="w-full px-4 py-2 rounded-lg text-[#00e0ff] bg-black placeholder-[#00e0ff] border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
                             <button
                                 onClick={() => {
@@ -176,36 +194,44 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
                                         id: Date.now(),
                                         title: puzzleTitle.trim(),
                                         terms: qnaList.length,
-                                        qnaList: [...qnaList], // ✅ store full data
+                                        qnaList: [...qnaList],
                                     };
                                     localStorage.setItem("myPuzzles", JSON.stringify([...saved, newPuzzle]));
 
-                                    if (onBack) onBack(); // Return to puzzle page
+                                    if (onBack) onBack();
                                 }}
-                                className="w-full mt-4 bg-[#B0913D] text-white py-2 rounded-md hover:bg-[#c5a847] transition duration-300"
+                                className="w-full mt-4 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
+                                  hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                             >
                                 Create
                             </button>
-
                         </div>
 
+
                         {/* Box 2: Question + Answer Input */}
-                        <div className="bg-[#522136] p-4 rounded-lg">
-                            <label className="block mb-2 text-white">Question</label>
+                        <div className="bg-black p-4 rounded-lg border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]">
+                            <label className="block mb-2 text-[#00e0ff]">Question</label>
                             <input
                                 type="text"
                                 value={question}
                                 onChange={(e) => setQuestion(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg text-white bg-transparent border border-white mb-4 focus:outline-none placeholder-white"
+                                placeholder="Enter your clue"
+                                className="w-full px-4 py-2 rounded-lg text-[#ff7700] bg-black placeholder-[#ff7700] border border-[#00e0ff] mb-4 
+                                 shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
-                            <hr className="border-white my-2" />
-                            <label className="block mb-2 text-white">Answer</label>
+
+                            <hr className="border-[#00e0ff] my-2" />
+
+                            <label className="block mb-2 text-[#00e0ff]">Answer</label>
                             <input
                                 type="text"
                                 value={answer}
                                 onChange={(e) => setAnswer(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg text-white bg-transparent border border-white focus:outline-none placeholder-white"
+                                placeholder="Enter the answer"
+                                className="w-full px-4 py-2 rounded-lg text-[#ff7700] bg-black placeholder-[#ff7700] border border-[#00e0ff] 
+                                 shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
+
                             <button
                                 onClick={() => {
                                     const cleanQuestion = question.trim();
@@ -220,75 +246,73 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
                                         return;
                                     }
                                     if (cleanQuestion && cleanAnswer) {
-                                        const updatedList = [
-                                            ...qnaList,
-                                            {
-                                                question: cleanQuestion,
-                                                answer: cleanAnswer,
-                                            },
-                                        ];
-
+                                        const updatedList = [...qnaList, { question: cleanQuestion, answer: cleanAnswer }];
                                         setQnaList(updatedList);
                                         setQuestion("");
                                         setAnswer("");
                                     }
                                 }}
-                                className="mt-4 bg-[#B0913D] text-white px-6 py-2 rounded-md hover:bg-[#c5a847] transition duration-300"
+                                className="mt-4 px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
+                                       hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                             >
                                 Add
                             </button>
                         </div>
 
+
                         {/* Show QnA box */}
-                        <div className="bg-[#522136] p-4 rounded-lg overflow-y-auto">
+                        <div className="bg-black p-4 rounded-lg overflow-y-auto border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]">
                             {qnaList.length === 0 ? (
-                                <p className="text-white-400 text-center py-4">Enter a question and answer above to start</p>
+                                <p className="text-[#00e0ff] text-center py-4">Enter a question and answer above to start</p>
                             ) : (
                                 <div className="flex flex-col gap-2">
                                     {qnaList.map((item, index) => (
                                         <div
                                             key={index}
-                                            className="bg-[#6A2A3B] p-4 rounded-lg flex items-center justify-between w-full"
+                                            className="bg-black p-4 rounded-lg flex items-center justify-between w-full 
+                                                 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]"
                                         >
-
                                             <div className="flex items-center gap-2 w-full">
                                                 {/* Answer (1/3) */}
                                                 <div
-                                                    className="w-1/3 px-1 py-4 text-white font-bold bg-[#6A2A3B] rounded text-center break-words overflow-hidden"
+                                                    className="w-1/3 px-1 py-4 text-[#ff7700] font-bold text-center break-words overflow-hidden"
                                                     style={{
                                                         fontSize: item.answer.length > 10 ? "0.7rem" : "0.9rem",
-                                                        wordBreak: "break-word", // ✅ break at character level if needed
-                                                        lineHeight: "1.2",        // ✅ tighter vertical spacing
-                                                        maxHeight: "3.5rem",      // ✅ limits the vertical stretch
+                                                        wordBreak: "break-word",
+                                                        lineHeight: "1.2",
+                                                        maxHeight: "3.5rem",
                                                     }}
                                                 >
                                                     {item.answer.charAt(0).toUpperCase() + item.answer.slice(1).toLowerCase()}
                                                 </div>
 
                                                 {/* Divider */}
-                                                <div className="w-[2px] h-10 bg-white mx-2 rounded-full opacity-50" />
+                                                <div className="w-[2px] h-10 bg-[#00e0ff] mx-2 rounded-full shadow-[0_0_8px_#00e0ff]" />
 
                                                 {/* Question (2/3) */}
-                                                <div className="w-2/3 px-1 py-4 text-gray-300 text-sm bg-[#6A2A3B] rounded break-words">
+                                                <div className="w-2/3 px-1 py-4 text-[#00e0ff] text-sm break-words"
+                                                >
                                                     {item.question}
                                                 </div>
                                             </div>
 
-
-                                            {/* ✏️ Edit Buttons Container */}
+                                            {/* ✏️ Edit Buttons */}
                                             <div className="relative flex items-center pl-8">
+                                                {/* 🗑️ Trash Button */}
                                                 <button
                                                     onClick={() => {
                                                         const updatedList = qnaList.filter((_, i) => i !== index);
                                                         setQnaList(updatedList);
                                                     }}
-                                                    className="absolute top-0 right-0 text-white transition duration-300 hover:text-red-500 hover:scale-110"
+                                                    className="absolute top-0 right-0 text-[#00e0ff] transition duration-300 hover:text-[#ff0033] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
                                                 >
                                                     <i className="bi bi-trash"></i>
                                                 </button>
+
+                                                {/* ✏️ Pencil Button */}
                                                 <button
                                                     onClick={() => handleEditClick(item, index)}
-                                                    className="absolute bottom-1 right-0 text-white transition duration-300 hover:text-yellow-400 hover:scale-110"
+                                                    className="absolute bottom-1 right-0 text-[#00e0ff] transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
                                                 >
                                                     <i className="bi bi-pencil-fill"></i>
                                                 </button>
@@ -297,21 +321,23 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
                                     ))}
                                 </div>
                             )}
+
+
                         </div>
                     </div>
 
                     {/* Right Column */}
                     {/* Puzzle look */}
-                    <div className={`bg-[#522136] p-2 rounded-lg ${screenWidth > 770 ? "md:w-3/5 flex flex-col gap-2 max-w-[750px]" : "w-full md:w-3/5 flex flex-col gap-2"}`}>
+                    <div className={`bg-black p-2 rounded-lg ${screenWidth > 770 ? "md:w-3/5 flex flex-col border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] gap-2 max-w-[750px]" : "w-full md:w-3/5 flex flex-col  border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] gap-2"}`}>
                         {/* Puzzle Title Box */}
                         <div className="flex justify-center ">
-                            <div className="bg-[#522136] text-white p-2 rounded-md font-semibold text-center">
+                            <div className="bg-black text-[#ff7700] p-2 rounded-md font-semibold text-center">
                                 {puzzleTitle || "Untitled"}
                             </div>
                         </div>
 
                         {/* Divider Line */}
-                        <hr className="border-white" />
+                        <hr className="border-[#00e0ff] shadow-[0_0_20px_#ff7700]" />
 
                         {/* THE PUZZLE */}
 
@@ -321,7 +347,7 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
                                 cursor: isDragging ? "grabbing" : "grab",
                                 maxWidth: "100%",
                                 maxHeight: "420px",
-                                border: "1px solid #fff", // optional for visual clarity
+                                border: "1px solid #00e0ff", // optional for visual clarity
                                 position: "relative",
                             }}
                             ref={containerRef}
@@ -346,11 +372,11 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
                                             return cell ? (
                                                 <div
                                                     key={`${row}-${col}`}
-                                                    className="relative w-6 h-6 bg-[#522136] text-white rounded-sm flex items-center justify-center text-xs border border-white"
+                                                    className="relative w-6 h-6 bg-black  text-[#00e0ff] rounded-sm flex items-center justify-center text-xs  border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]"
                                                 >
                                                     <span className="z-10">{cell}</span>
                                                     {clueNum && (
-                                                        <span className="absolute top-[1px] left-[1px] text-[8px] text-white-400 font-bold z-20 leading-none">
+                                                        <span className="absolute top-[1px] left-[1px] text-[8px] text-[#ff7700 font-bold z-20 leading-none">
                                                             {clueNum}
                                                         </span>
                                                     )}
@@ -365,13 +391,13 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
                         </div>
 
                         {/* Divider Line */}
-                        <hr className="border-white" />
+                        <hr className="border-[#00e0ff] shadow-[0_0_20px_#00e0ff]" />
 
                         {/* Bottom: Across & Down */}
                         <div className="flex gap-2">
 
                             {/* Across Box */}
-                            <div className="bg-[#522136] text-white p-4 rounded-md w-1/2 min-h-[150px]">
+                            <div className="bg-black border-1 border-[#00e0ff] text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
                                 <span className="font-semibold block mb-2">Across</span>
                                 {placedWords
                                     .filter((entry) => entry.direction === "across")
@@ -388,7 +414,7 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
                             </div>
 
                             {/* Down Box */}
-                            <div className="bg-[#522136] text-white p-4 rounded-md w-1/2 min-h-[150px]">
+                            <div className="bg-black  border-1 border-[#00e0ff] text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
                                 <span className="font-semibold block mb-2">Down</span>
                                 {placedWords
                                     .filter((entry) => entry.direction === "down")

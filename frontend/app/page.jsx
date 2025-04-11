@@ -38,20 +38,8 @@ export default function Home() {
         { term: "Cherry", definition: "A small, juicy fruit that grows in bunches and has a single hard pit." },
         { term: "Banana", definition: "A long, curved fruit with yellow skin and soft, sweet flesh." }
       ]
-    },
-    {
-      title: "Anh Em Ben Ngoai",
-      description: "",
-      terms: [
-        { term: "Canh", definition: "Con đầu mệ cảnh" },
-        { term: "Thu", definition: "Con thứ hai mệ cảnh" },
-        { term: "Thuan", definition: "Tui" },
-        { term: "Tham", definition: "Con trai trưởng" },
-        { term: "Thuy", definition: "Con gái út mệ canh" },
-        { term: "Nguyen", definition: "Con út mệ canh" },
-      ]
     }
-    
+
   ]);
 
   // Main Feature variable 
@@ -78,15 +66,15 @@ export default function Home() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen bg-[#3b0b13] text-white flex flex-col">
+      <div className="min-h-screen bg-black text-white flex flex-col">
 
         {/* Unified Header */}
-        <header className="flex justify-between items-center p-4 bg-[#3b0b13] text-white">
+        <header className="flex justify-between items-center p-4 bg-black text-white">
 
           {/* Left: Hamburger & App Name */}
           <div className="flex items-center">
             <button
-              className="text-white text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-white hover:text-[#3b0b13]"
+              className="bg-black text-[#00e0ff] text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-[#00e0ff] hover:text-black"
               onClick={() => {
                 if (window.innerWidth <= 770) {
                   setIsWingPanelOpen(true);  // Open WingPanel if screen width ≤ 770px
@@ -99,10 +87,10 @@ export default function Home() {
             </button>
 
             {/* Web Title (Changes based on screen size) */}
-            <span className={`text-3xl font-bold ml-4 ${screenWidth <= 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
-              WN
+            <span className={`text-3xl bg-black text-[#00e0ff] font-bold ml-4 ${screenWidth <= 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
+              H!Ca:
             </span>
-            <span className={`text-3xl font-bold ml-4 ${screenWidth > 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
+            <span className={`text-3xl bg-black text-[#00e0ff] font-bold ml-4 ${screenWidth > 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
               Hippocampus
             </span>
           </div>
@@ -112,11 +100,14 @@ export default function Home() {
           {screenWidth >= 620 && (
             <div className="w-2/3 flex justify-center">
               <div className="relative w-full max-w-lg">
-                <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white"></i>
+                {/* Neon Blue Search Icon */}
+                <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
+
+                {/* Neon Input Field */}
                 <input
                   type="text"
                   placeholder="Study set, puzzle, news"
-                  className="bg-[#522136] text-white px-10 py-2 rounded-lg w-full"
+                  className="bg-black  text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] shadow-[0_0_8px_#00e0ff] transition"
                 />
               </div>
             </div>
@@ -126,37 +117,39 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => {
-                setIsCreatingSet(true);   // ✅ Open Create Set
-                setIsEditingSet(null);    // ✅ Reset Edit mode
+                setIsCreatingSet(true);
+                setIsEditingSet(null);
               }}
-              className="bg-yellow-500 px-4 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
+              className="bg-black border-2 border-[#ff7700] text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] px-4 py-2 rounded-lg transition duration-300 hover:scale-110 shadow-[0_0_10px_#ff7700] hover:bg-[#1a0b00]"
             >
               +
             </button>
 
-            {/* <button className="bg-[#10B981] px-4 py-2 rounded-lg">Type</button>
-            <button className="bg-[#5A2E44] px-4 py-2 rounded-lg">Draw</button> */}
+
+            {/* Optional: Type / Draw buttons can follow the same Tron theme later */}
 
             <div className="flex items-center gap-2">
-              <div className="bg-gray-500 rounded-full w-10 h-10"></div>
-              <span>Username</span>
+              <div className="bg-[#00e0ff] rounded-full w-10 h-10 shadow-[0_0_6px_#00e0ff]" />
+              <span className=" text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold">Username</span>
             </div>
           </div>
+
         </header>
 
         {/* Search bar adjusts when screen width < 620px */}
         {screenWidth < 620 && (
           <div className="w-full px-4 mt-2 flex justify-center">
             <div className="relative w-full max-w-none">
-              <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white"></i>
+              <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
               <input
                 type="text"
                 placeholder="Study set, puzzle, news"
-                className="bg-[#522136] text-white px-10 py-2 rounded-lg w-full"
+                className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
               />
             </div>
           </div>
         )}
+
 
         {/* WingPanel (Hidden by default, appears when clicking the hamburger) */}
         {isWingPanelOpen && (
@@ -175,7 +168,11 @@ export default function Home() {
         <div className="flex flex-1 relative">
 
           {/* Side Navigation */}
-          <aside className={`bg-[#3b0b13] p-4 transition-all ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"}`}>
+          <aside
+            className={`bg-black p-4 transition-all border-t border-r border-[#00e0ff] shadow-[0_-4px_12px_#00e0ff] rounded-tr-xl ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"
+              }`}
+          >
+
             <nav className="flex flex-col gap-4">
               <button
                 onClick={() => {
@@ -183,37 +180,40 @@ export default function Home() {
                   setIsHome(true);
                   setIsCreatePuzzle(false);
                 }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3b0b13]">
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+              >
                 <i className="bi bi-house-door"></i> {!isMenuCollapsed && "Nhà"}
               </button>
               <button
                 onClick={() => {
-                  setSelectedSet(null);  // ✅ Reset selected study set
+                  setSelectedSet(null);
                   setIsCreatingSet("library");
                 }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3b0b13]"
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
                 <i className="bi bi-folder2"></i> {!isMenuCollapsed && "Thư Viện"}
               </button>
 
-              <hr className="border-[#FFFFFF]" />
-              <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Tệp Của Bạn</p>
-              <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3b0b13]">
+              <hr className="border-[#00e0ff]" />
+              <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>Tệp Của Bạn</p>
+              <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
                 <i className="bi bi-plus"></i> {!isMenuCollapsed && "Tạo Tệp Mới"}
               </button>
-              <hr className="border-[#FFFFFF]" />
-              <p className={`text-sm ${isMenuCollapsed ? "hidden" : "block"}`}>Khám Phá</p>
+              <hr className="border-[#00e0ff]" />
+              <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>Khám Phá</p>
               <button
                 onClick={() => {
                   setIsCreatePuzzle(true);
                   setIsCreatingSet(false);
                   setSelectedSet(null);
                 }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 hover:bg-white hover:text-[#3b0b13]">
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+              >
                 <i className="bi bi-puzzle"></i> {!isMenuCollapsed && "Trò Chơi Ô Chữ "}
               </button>
             </nav>
           </aside>
+
 
           {/* Main Content Area */}
           <main
@@ -257,12 +257,12 @@ export default function Home() {
                   onBack={() => setShowGenerator(false)}
                 />
               ) : (
-              <PuzzlePage
-                screenWidth={screenWidth}
-                setShowGenerator={setShowGenerator}
-                showGenerator={showGenerator}
-                setSelectedPuzzle={setSelectedPuzzle} // ✅ Pass function
-              />
+                <PuzzlePage
+                  screenWidth={screenWidth}
+                  setShowGenerator={setShowGenerator}
+                  showGenerator={showGenerator}
+                  setSelectedPuzzle={setSelectedPuzzle} // ✅ Pass function
+                />
               )
             ) : (
               <HomeContent
@@ -274,12 +274,13 @@ export default function Home() {
           {/* Right Panel (Hidden on small screens OR when creating a set) */}
           {screenWidth > 770 && !isCreatingSet && !isEditing && !isCreatePuzzle && (
             <div className="hidden md:block">
-              <aside className="w-55 bg-[#260516] p-4 absolute right-0 top-0 h-full">
-                <h3 className="text-lg font-semibold">Right Panel</h3>
-                <p className="text-sm text-gray-300">Future content goes here...</p>
+              <aside className="w-55 bg-black p-4 absolute right-0 top-0 h-full border-l border-[#00e0ff] shadow-[0_0_10px_#00e0ff]">
+                <h3 className="text-lg font-semibold  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Right Panel</h3>
+                <p className="text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] opacity-80">Future content goes here...</p>
               </aside>
             </div>
           )}
+
         </div>
       </div>
     </DndProvider>
@@ -294,19 +295,24 @@ export default function Home() {
 function HomeContent({ studySets }) {
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-4">Thư mục gần đây</h2>
+      <h2 className="text-lg font-semibold mb-4  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Thư mục gần đây</h2>
       {studySets.length > 0 ? (
         studySets.map((set, index) => (
-          <div key={index} className="bg-[#522136] p-4 rounded-lg w-1/3 mb-2">
-            📂 {set.title} ({set.terms.length} {set.terms.length === 1 ? "mục" : "mục"})
+          <div
+            key={index}
+            //onClick={() => setSelectedSet(set)} // Optional: makes it clickable like a button
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
+          >
+            <i className="bi bi-folder2"></i> {set.title} ({set.terms.length} {set.terms.length === 1 ? "mục" : "mục"})
           </div>
         ))
       ) : (
-        <p>No recent study sets.</p>
+        <p className=" text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Chưa có thư mục nào.</p>
       )}
     </section>
   );
 }
+
 
 
 
@@ -359,36 +365,39 @@ function CreateSet({ onSave }) {
   };
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Tạo danh sách học mới</h1>
+      <h1 className="text-2xl font-bold mb-4  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Tạo danh sách học mới</h1>
+
       <input
         type="text"
         placeholder="Nhập tiêu đề"
-        className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+        className="bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <textarea
         placeholder="Thêm chú thích"
-        className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+        className="bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
+
       {errorMessage && (
-        <p className="text-red-500 text-lg font-semibold text-center mb-4">
+        <p className="text-[#ff7700] text-lg font-semibold text-center mb-4 animate-pulse-glow">
           {errorMessage}
         </p>
       )}
 
-      {/* Create Button below Add Description */}
+      {/* Neon Orange Create Button */}
       <div className="flex justify-center mb-6">
         <button
           onClick={handleSave}
-          className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
+          className="bg-black text-[#ff7700] border border-[#ff7700] px-6 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black hover:scale-105 shadow-[0_0_12px_#ff7700]"
         >
           Thiết Lập
         </button>
       </div>
+
       {terms.map((item, index) => (
         <DraggableCard
           key={index}
@@ -413,26 +422,26 @@ function CreateSet({ onSave }) {
           <button
             onClick={() => {
               if (alwaysAddOne) {
-                addCard(1); // Automatically add 1 card when the checkbox is checked
+                addCard(1);
               } else {
-                setShowCardDropdown(!showCardDropdown); // Show the dropdown only if not always adding 1 card
+                setShowCardDropdown(!showCardDropdown);
               }
             }}
-            className="bg-[#5A2E44] px-6 py-2 rounded-lg w-full hover:bg-[#6A2A3B] transition duration-300 flex items-center justify-center relative"
+            className="bg-black text-[#00e0ff] border border-[#00e0ff] px-6 py-2 rounded-lg w-full shadow-[0_0_12px_#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 flex items-center justify-center relative"
           >
-            <span>+ Thêm thẻ</span>
+            <span className="font-semibold">+ Thêm thẻ</span>
             {!alwaysAddOne && (
-              <span className="absolute right-4">▼</span>
+              <span className="absolute right-4 text-xl font-bold">▼</span>
             )}
           </button>
 
           {/* Dropdown Appears Inside Button */}
           {!alwaysAddOne && showCardDropdown && (
-            <div className="absolute top-full mt-1 w-full bg-[#522136] text-white rounded-lg shadow-lg z-10">
+            <div className="absolute top-full mt-1 w-full bg-black text-[#00e0ff] border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-10">
               {[1, 2, 3, 4, 5].map((num) => (
                 <div
                   key={num}
-                  className="px-4 py-2 hover:bg-[#6A2A3B] cursor-pointer text-center"
+                  className="px-4 py-2 hover:bg-[#ff7700] hover:text-black cursor-pointer text-center transition duration-200"
                   onClick={() => {
                     setNumCards(num);
                     setShowCardDropdown(false);
@@ -446,15 +455,16 @@ function CreateSet({ onSave }) {
           )}
 
           {/* Checkbox for "Always add 1 card" */}
-          <label className="flex items-center text-sm mt-2 cursor-pointer">
+          <label className="flex items-center text-sm mt-2 cursor-pointer text-[#ff7700]">
             <input
               type="checkbox"
               checked={alwaysAddOne}
               onChange={() => setAlwaysAddOne(!alwaysAddOne)}
-              className="mr-2"
+              className="mr-2 w-5 h-5 rounded border-2 border-[#ff7700] bg-black appearance-none checked:bg-[#ff7700] checked:shadow-[0_0_10px_#ff7700] focus:ring-0 focus:outline-none transition duration-300"
             />
             Luôn thêm 1 thẻ
           </label>
+
         </div>
       </div>
     </div>
@@ -472,6 +482,7 @@ function EditSet({ studySet, onSave, onCancel }) {
   const [alwaysAddOne, setAlwaysAddOne] = useState(false); // Checkbox state
   const [showCardDropdown, setShowCardDropdown] = useState(false); // Toggle dropdown
   const [numCards, setNumCards] = useState(1);  // Default to 1 card
+
   const moveCard = (dragIndex, hoverIndex) => {
     const updatedTerms = [...terms];
     const [removed] = updatedTerms.splice(dragIndex, 1);
@@ -505,24 +516,25 @@ function EditSet({ studySet, onSave, onCancel }) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Edit Your Learning Set</h1>
+      <h1 className="text-2xl font-bold mb-4 text-[#ff7700]">Edit Your Learning Set</h1>
+
       <input
         type="text"
-        placeholder="Enter a title"
-        className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+        placeholder="Nhập tiêu đề"
+        className="bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <textarea
-        placeholder="Add a description"
-        className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+        placeholder="Thêm chú thích"
+        className="bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
 
       {errorMessage && (
-        <p className="text-red-500 text-lg font-semibold text-center mb-4">
+        <p className="text-[#ff7700] text-lg font-semibold text-center mb-4 animate-pulse-glow">
           {errorMessage}
         </p>
       )}
@@ -551,26 +563,26 @@ function EditSet({ studySet, onSave, onCancel }) {
           <button
             onClick={() => {
               if (alwaysAddOne) {
-                addCard(1); // Automatically add 1 card when the checkbox is checked
+                addCard(1);
               } else {
-                setShowCardDropdown(!showCardDropdown); // Show the dropdown only if not always adding 1 card
+                setShowCardDropdown(!showCardDropdown);
               }
             }}
-            className="bg-[#5A2E44] px-6 py-2 rounded-lg w-full hover:bg-[#6A2A3B] transition duration-300 flex items-center justify-center relative"
+            className="bg-black text-[#00e0ff] border border-[#00e0ff] px-6 py-2 rounded-lg w-full shadow-[0_0_12px_#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 flex items-center justify-center relative"
           >
-            <span>+ Thêm Thẻ</span>
+            <span className="font-semibold">+ Thêm thẻ</span>
             {!alwaysAddOne && (
-              <span className="absolute right-4">▼</span>
+              <span className="absolute right-4 text-xl font-bold">▼</span>
             )}
           </button>
 
           {/* Dropdown Appears Inside Button */}
           {!alwaysAddOne && showCardDropdown && (
-            <div className="absolute top-full mt-1 w-full bg-[#522136] text-white rounded-lg shadow-lg z-10">
+            <div className="absolute top-full mt-1 w-full bg-black text-[#00e0ff] border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-10">
               {[1, 2, 3, 4, 5].map((num) => (
                 <div
                   key={num}
-                  className="px-4 py-2 hover:bg-[#6A2A3B] cursor-pointer text-center"
+                  className="px-4 py-2 hover:bg-[#ff7700] hover:text-black cursor-pointer text-center transition duration-200"
                   onClick={() => {
                     setNumCards(num);
                     setShowCardDropdown(false);
@@ -584,15 +596,16 @@ function EditSet({ studySet, onSave, onCancel }) {
           )}
 
           {/* Checkbox for "Always add 1 card" */}
-          <label className="flex items-center text-sm mt-2 cursor-pointer">
+          <label className="flex items-center text-sm mt-2 cursor-pointer text-[#ff7700]">
             <input
               type="checkbox"
               checked={alwaysAddOne}
               onChange={() => setAlwaysAddOne(!alwaysAddOne)}
-              className="mr-2"
+              className="mr-2 w-5 h-5 rounded border-2 border-[#ff7700] bg-black appearance-none checked:bg-[#ff7700] checked:shadow-[0_0_10px_#ff7700] focus:ring-0 focus:outline-none transition duration-300"
             />
-            Luôn tạo thêm 1 thẻ
+            Luôn thêm 1 thẻ
           </label>
+
         </div>
       </div>
 
@@ -600,7 +613,7 @@ function EditSet({ studySet, onSave, onCancel }) {
       <div className="flex justify-center mt-6">
         <button
           onClick={handleSave}
-          className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105"
+          className="bg-black text-[#ff7700] border border-[#ff7700] px-6 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black hover:scale-105 shadow-[0_0_12px_#ff7700]"
         >
           Xong!
         </button>
@@ -636,45 +649,51 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
   });
 
   return (
-    <div ref={(node) => ref(drop(node))} className={`bg-[#522136] p-6 rounded-lg mb-4 ${isDragging ? "opacity-50" : ""}`}>
-      <div className="flex justify-between border-b border-white pb-2 mb-2">
-        <span className="text-lg font-bold">{id}</span>
+    <div ref={(node) => ref(drop(node))} className={`bg-black p-6 rounded-lg mb-4 border-2 border-[#00e0ff] shadow-[0_0_12px_#00e0ff] ${isDragging ? "opacity-50" : ""}`}>
+      <div className="flex justify-between border-b border-[#00e0ff] pb-2 mb-2">
+        {/* 🔸 Box Number in Neon Orange */}
+        <span className="text-lg font-bold text-[#ff7700]">{id}</span>
         <div>
-          <span className="cursor-move mr-2 transition duration-300 hover:text-yellow-500 hover:scale-110">═</span>
+          <span className="cursor-move mr-4 text-[#ff7700] transition duration-300 hover:scale-110">═</span>
           <button
             onClick={onDelete}
-            className="text-white transition duration-300 hover:text-red-500 hover:scale-110"
+            className="text-[#ff7700] transition duration-300 hover:scale-110"
           >
             <i className="bi bi-trash"></i>
           </button>
         </div>
       </div>
-      <div className="flex items-center">
+
+      <div className="flex items-center gap-2">
+        {/* 🔸 Term input - Neon Orange Placeholder */}
         <input
           type="text"
           placeholder="Nhập thuật ngữ"
-          className="w-1/2 px-4 py-2 rounded-lg text-white bg-[#522136]"
+          className="w-1/2 px-4 py-2 rounded-lg text-[#00e0ff] bg-black border border-[#00e0ff] placeholder-[#ff7700] shadow-[0_0_8px_#00e0ff] focus:outline-none"
           value={term}
           onChange={(e) => onTermChange(e.target.value)}
         />
 
-        <span className="text-white text-5xl px-1 font-light">|</span> {/* This is the real vertical line */}
+        <span className="text-[#00e0ff] text-5xl px-1 font-light">|</span>
 
+        {/* 🔸 Definition input - Neon Orange Placeholder */}
         <input
           type="text"
           placeholder="Nhập định nghĩa"
-          className="w-1/2 px-4 py-2 rounded-lg text-white bg-[#522136]"
+          className="w-1/2 px-4 py-2 rounded-lg text-[#00e0ff] bg-black border border-[#00e0ff] placeholder-[#ff7700] shadow-[0_0_8px_#00e0ff] focus:outline-none"
           value={definition}
           onChange={(e) => onDefinitionChange(e.target.value)}
         />
 
         <button
-          className="bg-[#5A2E44] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#7A3E54] hover:scale-105 ml-4"
+          className="bg-black text-[#ff7700] border border-[#ff7700] px-4 py-2 rounded-lg hover:shadow-[0_0_10px_#ff7700] transition duration-300 ml-2"
         >
           <i className="bi bi-image"></i> Thêm ảnh
         </button>
       </div>
     </div>
+
+
   );
 }
 
@@ -714,22 +733,23 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
 
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-4">Thư viện của bạn</h2>
+      <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Thư viện của bạn</h2>
       {studySets.length > 0 ? (
         studySets.map((studySet, index) => (
           <div
             key={index}
-            className="bg-[#522136] p-4 rounded-lg w-1/3 mb-2 cursor-pointer hover:bg-[#6A2A3B]"
-            onClick={() => setSelectedSet(studySet)} // ✅ Clicking opens Flashcard Review
+            onClick={() => setSelectedSet(studySet)} // Makes it clickable like a button
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
           >
-            📂 {studySet.title} ({studySet.terms.length} mục)
+            <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length} mục)
           </div>
         ))
-
       ) : (
-        <p>No study sets available.</p>
+        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Chưa có thư mục nào.</p>
       )}
     </section>
+
+
   );
 }
 
@@ -740,25 +760,29 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
 function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome }) {
   return (
     <motion.aside
-      className="fixed top-0 left-0 h-full w-48 bg-[#3b0b13] p-4 shadow-lg z-50"
+      className="fixed top-0 left-0 h-full w-48 bg-black p-4 shadow-[0_-4px_12px_#00e0ff] z-50 border-t border-r border-[#00e0ff] rounded-tr-xl"
       initial={{ x: -200 }}
       animate={{ x: isOpen ? 0 : -200 }}
       transition={{ duration: 0.3 }}
     >
+
       {/* BigMac Button & Web Title "W" */}
       <div className="flex items-center gap-1">
         <button
-          className="text-white text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-white hover:text-[#3b0b13]"
+          className="text-[#00e0ff] text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:border hover:border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
           onClick={() => setIsOpen(false)}
         >
           ☰
         </button>
 
-        <span className="text-3xl font-bold ml-2" style={{ fontFamily: "'Inknut Antiqua', serif" }}>WN</span>
+
+        <span className="text-3xl font-bold ml-2 text-[#00e0ff]" style={{ fontFamily: "'Inknut Antiqua', serif" }}>
+          H!Ca:
+        </span>
       </div>
 
       {/* Navigation Items */}
-      <nav className="flex flex-col gap-4 mt-9">
+      <nav className="flex flex-col gap-4 mt-6">
         <button
           onClick={() => {
             setIsCreatingSet(false);
@@ -766,31 +790,37 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsCreatePuzzle(false);
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3b0b13]">
+          className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+        >
           <i className="bi bi-house-door"></i> Nhà
         </button>
 
         <button
           onClick={() => {
-            console.log("Resetting to Library View"); // Debugging log
-            setSelectedSet(null);  // ✅ Reset selected study set
+            setSelectedSet(null);
             setIsCreatingSet("library");
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[##3b0b13]">
+          className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+        >
           <i className="bi bi-folder2"></i> Thư Viện
         </button>
-        <hr className="border-[#FFFFFF]" />
-        <p className="text-sm">Thư Mục Của Bạn</p>
+
+        <hr className="border-[#00e0ff]" />
+        <p className="text-sm text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Thư Mục Của Bạn</p>
+
         <button
           onClick={() => {
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3b0b13]">
+          className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+        >
           <i className="bi bi-plus"></i> Tạo Thư Mục
         </button>
-        <hr className="border-[#FFFFFF]" />
-        <p className="text-sm">Khám Phá</p>
+
+        <hr className="border-[#00e0ff]" />
+        <p className="text-sm text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Khám Phá</p>
+
         <button
           onClick={() => {
             setIsCreatePuzzle(true);
@@ -798,7 +828,8 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setSelectedSet(null);
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white hover:text-[#3b0b13]">
+          className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+        >
           <i className="bi bi-puzzle"></i> Trò Chơi Ô Chữ
         </button>
       </nav>
@@ -821,11 +852,11 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
   }
 
   return (
-    <div className="text-white font-[Itim] p-4">
-      <h1 className="text-3xl font-bold mb-4">Trò Chơi Ô Chữ Gần Đây!</h1>
+    <div className="text-[#00e0ff] font-[Itim] p-4">
+      <h1 className="text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-bold mb-4">Trò Chơi Ô Chữ Gần Đây!</h1>
 
       {recentPuzzles.length === 0 ? (
-        <p className="text-gray-400 mb-4">Chưa có ô chữ nào được tạo.</p>
+        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] mb-4">Chưa có ô chữ nào được tạo.</p>
       ) : (
         <ul className="mb-4">
           {recentPuzzles.map((puz, i) => (
@@ -837,26 +868,25 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
 
                 if (selectedData) {
                   setSelectedPuzzle(selectedData);
-                  setShowGenerator("play"); // 🔁 new flag to switch to play mode
-
+                  setShowGenerator("play");
                 }
               }}
-              className="bg-[#522136] p-4 rounded-lg w-1/3 mb-2 cursor-pointer hover:bg-[#6A2A3B] transition"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
             >
-              📂 {puz.title} ({puz.terms} {puz.terms === 1 ? "term" : "terms"})
+              <i className="bi bi-folder2"></i> {puz.title} ({puz.terms} {puz.terms === 1 ? "term" : "terms"})
             </li>
           ))}
         </ul>
-
       )}
 
       <button
         onClick={() => setShowGenerator(true)}
-        className="bg-[#B0913D] text-white px-6 py-2 rounded-md hover:bg-[#c5a847] transition duration-300"
+        className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] bg-black hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
       >
         Create your puzzle
       </button>
     </div>
+
   );
 }
 
@@ -916,9 +946,8 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
   return (
     <div className="flex flex-1">
       {/* Main Flashcard Area */}
-      <div className="flex-1 overflow-hidden"
-            style={{ maxWidth: "100%", overflowX: "hidden" }}>
-        <h2 className="text-3xl font-semibold mb-6 text-left">{studySet.title}</h2>
+      <div className="flex-1 overflow-hidden" style={{ maxWidth: "100%", overflowX: "hidden" }}>
+        <h2 className="text-3xl font-semibold mb-6 text-left text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{studySet.title}</h2>
         {showMatchingTest ? (
           <MatchingCard
             setShowMatchingTest={setShowMatchingTest}
@@ -948,29 +977,32 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
             <div className={`flex gap-4 mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"} `}>
               <button
                 onClick={() => setShowMatchingTest(true)}
-                className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]">
+                className="flex-1 px-4 py-2 text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+              >
                 Nối Từ
               </button>
               <button
-                className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]"
                 onClick={() => setShowFillTest(true)}
+                className="flex-1 px-4 py-2 text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
                 Tìm Từ Khoá
               </button>
               <button
-                className="flex-1 px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B]"
                 onClick={() => setShowCrosswordPuzzle(true)}
+                className="flex-1 px-4 py-2 text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
                 Chơi Ô Chữ
               </button>
             </div>
 
+
             {/* Loop Test Button - Also Inside for Consistent Alignment */}
             <div className={`mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
-              <button className="w-full px-4 py-2 bg-[#522136] text-white rounded-lg hover:bg-[#6A2A3B] flex items-center justify-center gap-2">
+              <button className="w-full px-4 py-2 text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] flex items-center justify-center gap-2 transition duration-300">
                 <i className="bi bi-arrow-repeat"></i> Bài Thi Vòng Lặp
               </button>
             </div>
+
 
             {/* Flashcard scroll Animation */}
             <AnimatePresence mode="wait" initial={false}>
@@ -985,9 +1017,12 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               >
                 {/* Flashcard with Flip Animation */}
                 <motion.div
-                  className={`h-[35vh] flex items-center justify-center p-6 bg-[#522136] rounded-lg text-center text-3xl cursor-pointer select-none relative transition-all duration-300 
-                ${starredTerms[studySet.terms[currentIndex].term] ? "border-2 border-yellow-400" : ""}
-                ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`}
+                  className={`h-[35vh] flex items-center justify-center p-6 bg-black rounded-lg text-center text-3xl cursor-pointer select-none relative transition-all duration-300
+                    ${starredTerms[studySet.terms[currentIndex].term]
+                      ? "border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700]"
+                      : "border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]"}
+                    ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`}
+
                   onClick={() => setFlipped(!flipped)}
                   initial={{ rotateX: 0 }}
                   animate={{ rotateX: flipped ? 180 : 0 }}
@@ -997,12 +1032,21 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                   {/* FRONT SIDE (Definition) */}
                   {!flipped && (
                     <div className="absolute w-full h-full flex items-center justify-center">
-                      {studySet.terms[currentIndex].definition}
+                      <span className={`${starredTerms[studySet.terms[currentIndex].term]
+                        ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+                        : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"}`}>
+                        {studySet.terms[currentIndex].definition} {/* or .term for back side */}
+                      </span>
+
+
 
                       {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
                       <div className="absolute top-2 right-2 flex gap-2 z-10">
                         <button
-                          className="absolute top-0 right-7 text-white text-xl z-10"
+                          className={`absolute top-0 right-7 text-xl z-10 transition duration-300 ${starredTerms[studySet.terms[currentIndex].term]
+                            ? "text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"
+                            : "text-[#00e0ff] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#00e0ff]"
+                            }`}
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent flip when clicking the star
                             toggleStar(studySet.terms[currentIndex].term);
@@ -1016,7 +1060,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                         </button>
 
                         {/* Pencil Icons */}
-                        <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-yellow-400 hover:scale-110"
+                        <button className="absolute top-0 right-0 text-[#00e0ff] text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
                           onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
                           <i className="bi bi-pencil-fill"></i>
                         </button>
@@ -1027,12 +1071,18 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                   {/* BACK SIDE (Term) */}
                   {flipped && (
                     <div className="absolute w-full h-full flex items-center justify-center rotate-x-180">
-                      {studySet.terms[currentIndex].term}
-
+                      <span className={`${starredTerms[studySet.terms[currentIndex].term]
+                        ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+                        : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"}`}>
+                        {studySet.terms[currentIndex].term}
+                      </span>
                       {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
                       <div className="absolute top-2 right-2 flex gap-2 z-10">
                         <button
-                          className="absolute top-0 right-7 text-white text-xl z-10"
+                          className={`absolute top-0 right-7 text-xl z-10 transition duration-300 ${starredTerms[studySet.terms[currentIndex].term]
+                            ? "text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"
+                            : "text-[#00e0ff] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#00e0ff]"
+                            }`}
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent flip when clicking the star
                             toggleStar(studySet.terms[currentIndex].term);
@@ -1046,7 +1096,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                         </button>
 
                         {/* Pencil Icons */}
-                        <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-yellow-400 hover:scale-110"
+                        <button className="absolute top-0 right-0 text-[#00e0ff] text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
                           onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
                           <i className="bi bi-pencil-fill"></i>
                         </button>
@@ -1061,7 +1111,6 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
             {/* Smooth Scroll Slider to Flip Cards Like Chapters */}
             <div className="flex w-[60%]">
               <div className={`flex items-center gap-4 mt-6 ${screenWidth > 770 ? "w-[240px] mx-auto justify-center" : "w-[240px] mx-auto justify-center"}`}>
-
                 <input
                   type="range"
                   min="0"
@@ -1073,50 +1122,63 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                     setFlipped(false);
                     resetScrollPauseTimer();
                   }}
-                  className="w-full accent-white transition-all duration-200 hover:accent-white-400"
+                  className="w-full transition-all duration-300 
+                 accent-[#00e0ff] 
+                 hover:accent-[#ffaa33] 
+                 bg-black 
+                 rounded-lg 
+                 h-2 
+                 appearance-none 
+                 shadow-[0_0_10px_#00e0ff]"
+                  style={{
+                    accentColor: "#00e0ff",
+                  }}
                 />
               </div>
             </div>
 
-
             {/* Navigation Buttons - Centered Under Flashcard */}
             <div className="flex w-full mt-4">
-
               <div className={`flex items-center gap-4 ${screenWidth > 770 ? "flex justify-center w-[60%]" : "w-full justify-center"}`}>
                 <button
                   onClick={prevCard}
-                  className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
+                  className="w-[85px] h-[45px] bg-black text-[#ff7700] border-2 border-[#ff7700] rounded-[35px] text-4xl flex items-center justify-center transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-[0_0_12px_#ff7700]"
                 >
                   ←
                 </button>
-                <span className="text-xl flex items-center justify-center h-[45px]">
+
+                <span className="text-xl text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] flex items-center justify-center h-[45px]">
                   {currentIndex + 1} / {studySet.terms.length}
                 </span>
+
                 <button
                   onClick={nextCard}
-                  className="w-[85px] h-[45px] bg-white rounded-[35px] flex items-center justify-center text-4xl text-black"
+                  className="w-[85px] h-[45px] bg-black text-[#ff7700] border-2 border-[#ff7700] rounded-[35px] text-4xl flex items-center justify-center transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-[0_0_12px_#ff7700]"
                 >
                   →
                 </button>
               </div>
             </div>
+            ˝
 
-            {/* White Line Below the Flashcard */}
-            <div className={`mt-6 h-[2px] bg-white ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}></div>
+
+            {/* Neon Blue Line */}
+            <div className={`mt-6 h-[2px] bg-[#00e0ff] ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}></div>
 
             {/* Term List Below Flashcard */}
             <div className={`mt-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
-              <h3 className="text-lg font-semibold mb-2">Danh sách các mục ({studySet.terms.length})</h3>
+              <h3 className="text-lg text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold mb-2">Danh sách các mục ({studySet.terms.length})</h3>
 
               <div className="flex flex-col gap-2">
                 {studySet.terms.map((item, index) => (
                   <div key={index}
-                    className={`bg-[#522136] p-4 rounded-lg flex items-center justify-between w-full transition-all duration-300
-                  ${starredTerms[item.term] ? "border-1 border-yellow-400" : ""}`}
+                    className={`bg-[#000000] p-4 rounded-lg flex items-center justify-between w-full transition-all duration-300
+                  ${starredTerms[item.term] ? "border-2 border-[#ff7700] shadow-[0_0_12px_#ff7700]"
+                        : "border-2 border-[#00e0ff] shadow-[0_0_12px_#00e0ff]"}`}
                   >
-                    <span className="font-semibold w-1/3">{item.term}</span>
-                    <span className="text-white text-5xl px-1 font-light">|</span> {/* Vertical Line */}
-                    <span className="text-gray-300 w-2/3">{item.definition}</span>
+                    <span className="font-semibold w-1/3 text-[#ff7700]">{item.term}</span>
+                    <span className="text-[#00e0ff] text-5xl px-1 font-light drop-shadow-[0_0_8px_#00e0ff]">|</span> {/* Vertical Line */}
+                    <span className="text-[#00e0ff] w-2/3">{item.definition}</span>
 
                     {/* ⭐ Star & ✏️ Edit Buttons Container */}
                     <div className="relative flex items-center pl-8">
@@ -1126,16 +1188,16 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                         className="absolute bottom-0 right-0 text-white text-xl"
                       >
                         {starredTerms[item.term] ? (
-                          <i className="bi bi-star-fill text-yellow-400"></i>
+                          <i className="bi bi-star-fill text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"></i>
                         ) : (
-                          <i className="bi bi-star"></i>
+                          <i className="bi bi-star text-[#00e0ff] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#00e0ff]"></i>
                         )}
                       </button>
 
                       {/* ✏️ Pencil Icon (Edit Button) - Positioned lower right */}
                       <button
                         onClick={() => handleEditClick(item, index)}
-                        className="absolute top-0 right-0 text-white text-lg transition duration-300 hover:text-yellow-400 hover:scale-110"
+                        className="absolute top-0 right-0 text-[#00e0ff] text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
                       >
                         <i className="bi bi-pencil-fill"></i>
                       </button>
@@ -1151,12 +1213,12 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                     setIsEditingSet(studySet);  // ✅ Set the correct study set
                     setIsCreatingSet(false);    // ✅ Prevent conflict with Create Set mode
                   }}
-                  className="bg-[#6A2E3B] text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-[#8A3E4B] hover:scale-105"
+                  className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
+               hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                 >
                   Thêm hoặc xoá mục
                 </button>
               </div>
-
 
             </div>
           </div>
@@ -1164,33 +1226,46 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
         {isEditing && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div
-              className="bg-[#3b0b13] p-6 rounded-lg text-white relative"
-              style={{ width: screenWidth > 450 ? "450px" : "100%" }} // ✅ Set width logic
+              className="bg-black p-6 rounded-lg text-white relative border border-[#00e0ff] shadow-[0_0_16px_#00e0ff]"
+              style={{ width: screenWidth > 450 ? "450px" : "100%" }}
             >
-              <button className="absolute top-2 right-2 text-xl" onClick={() => setIsEditing(false)}>✖</button>
-              <h2 className="text-2xl font-bold mb-4">Sửa mục</h2>
+              <button
+                className="absolute top-2 right-2 text-[#ff7700] text-xl hover:scale-110 transition"
+                onClick={() => setIsEditing(false)}
+              >
+                ✖
+              </button>
 
-              <label className="block mb-2">Thuật Ngữ:</label>
+              <h2 className="text-2xl font-bold mb-4 text-[#ff7700]">Sửa mục</h2>
+
+              <label className="block mb-2 text-[#00e0ff]">Thuật Ngữ:</label>
               <input
                 type="text"
-                className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+                className="bg-black text-[#ff7700] placeholder-[#00e0ff] px-4 py-2 rounded-lg w-full mb-4 
+                   border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                 value={editTerm}
                 onChange={(e) => setEditTerm(e.target.value)}
               />
 
-              <label className="block mb-2">Định Nghĩa:</label>
+              <label className="block mb-2 text-[#00e0ff]">Định Nghĩa:</label>
               <textarea
-                className="bg-[#522136] text-white px-4 py-2 rounded-lg w-full mb-4"
+                className="bg-black text-[#ff7700] placeholder-[#00e0ff] px-4 py-2 rounded-lg w-full mb-4 
+                   border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                 value={editDefinition}
                 onChange={(e) => setEditDefinition(e.target.value)}
               />
 
-              <button onClick={handleSaveEdit} className="bg-yellow-500 px-6 py-2 rounded-lg transition duration-300 hover:bg-yellow-400 hover:scale-105">
+              <button
+                onClick={handleSaveEdit}
+                className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
+                   hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+              >
                 Xong!
               </button>
             </div>
           </div>
         )}
+
 
       </div>
     </div >
