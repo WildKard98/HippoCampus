@@ -11,6 +11,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [hoveredClueNumber, setHoveredClueNumber] = useState(null);
     const [hoveredDirection, setHoveredDirection] = useState(null);
+    const [cellStatus, setCellStatus] = useState({});
 
     // Get clue number for a specific grid cell
     const getClueNumber = (row, col) => {
@@ -57,23 +58,43 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
     };
 
     const checkAnswers = () => {
-        const incorrect = [];
-
+        const statusMap = {};
+        const newUserGrid = [...userGrid.map((r) => [...r])];
+    
         for (let row = 0; row < grid.length; row++) {
             for (let col = 0; col < grid[row].length; col++) {
                 const expected = grid[row][col];
                 const actual = userGrid[row]?.[col];
-                if (expected && expected !== actual) {
-                    incorrect.push({ row, col });
+    
+                if (expected) {
+                    const key = `${row}-${col}`;
+                    if (actual === expected) {
+                        statusMap[key] = "correct";
+                    } else {
+                        statusMap[key] = "incorrect";
+                    }
                 }
             }
         }
-        if (incorrect.length === 0) {
-            alert("✅ All answers are correct!");
-        } else {
-            alert(`❌ ${incorrect.length} incorrect cells. Try again.`);
-        }
+    
+        setCellStatus(statusMap);
+    
+        // After 2 seconds: clear wrong answers and remove incorrect highlights
+        setTimeout(() => {
+            const updatedGrid = [...userGrid.map((r) => [...r])];
+            Object.entries(statusMap).forEach(([key, value]) => {
+                if (value === "incorrect") {
+                    const [r, c] = key.split("-").map(Number);
+                    updatedGrid[r][c] = "";
+                }
+            });
+    
+            setUserGrid(updatedGrid);
+            setCellStatus({});
+        }, 2000);
     };
+    
+    
     const [grid, setGrid] = useState([]);
     const [placedWords, setPlacedWords] = useState([]);
     const containerRef = React.useRef(null);
@@ -282,11 +303,16 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
 
                                                         }}
 
-                                                        className={`relative z-20 w-6 h-6 rounded-sm flex items-center justify-center text-xs  transition-all duration-100
-                                                        ${highlighted.includes(`${row}-${col}`)
+                                                        className={`relative z-20 w-6 h-6 rounded-sm flex items-center justify-center text-xs transition-all duration-100
+                                                            ${highlighted.includes(`${row}-${col}`)
                                                                 ? 'bg-black text-[#ff7700] border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700]'
-                                                                : 'bg-black text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]'}
-                                                      `}
+                                                                : cellStatus[`${row}-${col}`] === "correct"
+                                                                    ? 'bg-[#052d1b] text-[#00ff88] border-2 border-[#00ff88] shadow-[0_0_10px_#00ff88]'
+                                                                    : cellStatus[`${row}-${col}`] === "incorrect"
+                                                                        ? 'bg-[#330a0a] text-[#ff0033] border-2 border-[#ff0033] shadow-[0_0_10px_#ff0033]'
+                                                                        : 'bg-black text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]'
+                                                            }`}
+                                                            
                                                     >
                                                         <input
                                                             ref={(el) => {
@@ -415,7 +441,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
             <button
                 onClick={() => checkAnswers()}
                 className="mt-4 px-6 py-2 rounded border border-[#ff7700] text-[#ff7700] transition duration-300 
-             hover:bg-[#00ff66] hover:text-black shadow-md hover:shadow-[0_0_12px_#00ff66]"
+             hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
             >
                 Kiểm tra!
             </button>

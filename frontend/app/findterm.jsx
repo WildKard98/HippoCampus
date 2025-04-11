@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
     const [answers, setAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const allCorrect = studySet.terms.every((_, index) => answers[`correct-${index}`]); // ✅ Check if all answers are correct
-
+    const hintRefs = useRef([]); // To track refs for each hint dropdown
     const handleChange = (index, value) => {
         const correctTerm = studySet.terms[index].term.toLowerCase(); // ✅ Correct answer
         const termList = studySet.terms.map(t => t.term.toLowerCase()); // ✅ List of valid terms
@@ -18,6 +18,24 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
             [`wrong-${index}`]: isInTermList && !isCorrect // ✅ Wrong but in term list
         }));
     };
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            hintRefs.current.forEach((ref, i) => {
+                if (ref && !ref.contains(event.target)) {
+                    setAnswers((prev) => {
+                        const updated = { ...prev };
+                        if (updated[`showHints-${i}`]) {
+                            updated[`showHints-${i}`] = false;
+                        }
+                        return updated;
+                    });
+                }
+            });
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const handleSubmit = () => {
         setSubmitted(true);
@@ -41,20 +59,35 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
                 {studySet.terms.map((item, index) => (
                     <div
                         key={index}
-                        className="bg-black p-4 rounded-lg flex items-center justify-between border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] mb-2"
+                        ref={(el) => (hintRefs.current[index] = el)}
+                        className={`p-4 rounded-lg flex items-center justify-between mb-2 transition duration-300
+                        ${answers[`correct-${index}`]
+                                ? "bg-black p-4 rounded-lg flex items-center justify-between border border-[#00ff88] shadow-[0_0_12px_#00ff88] mb-2"
+                                : "bg-black p-4 rounded-lg flex items-center justify-between border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] mb-2"
+                            }`}
                     >
-                        <span className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{item.definition}</span>
+
+                        <span
+                            className={`drop-shadow-[0_0_8px] transition duration-300
+                                    ${answers[`correct-${index}`]
+                                    ? "text-[#00ff88] "
+                                    : "text-[#00e0ff]"
+                                }`}
+                        >
+                            {item.definition}
+                        </span>
+
 
                         {/* Input Field with Hint Button */}
                         <div className="relative flex items-center w-1/3 min-w-[120px]" style={{ flexShrink: "0" }}>
                             <input
                                 type="text"
                                 className={`bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full transition duration-300
-          border-2 shadow-[0_0_8px_#00e0ff] focus:outline-[#00e0ff] focus:ring-2 focus:ring-[#00e0ff] 
-          ${answers[`correct-${index}`] ? "border-[#00ff88] text-[#00ff88] shadow-[0_0_12px_#00ff88]" : ""}
-          ${answers[`wrong-${index}`] ? "border-[#ff0033] text-[#ff0033] shadow-[0_0_12px_#ff0033]" : ""}
-        `}
-                                placeholder="Nhập thuật ngữ ..."
+                                      border-2 shadow-[0_0_8px_#00e0ff] focus:outline-[#00e0ff] focus:ring-2 focus:ring-[#00e0ff] 
+                                     ${answers[`correct-${index}`] ? "border-[#00ff88] text-[#00ff88] shadow-[0_0_12px_#00ff88]" : ""}
+                                     ${answers[`wrong-${index}`] ? "border-[#ff0033] text-[#ff0033] shadow-[0_0_12px_#ff0033]" : ""}
+                                        `}
+                                placeholder="Là..?"
                                 value={answers[index] || ""}
                                 onChange={(e) => handleChange(index, e.target.value)}
                                 disabled={answers[`correct-${index}`]}
@@ -63,7 +96,7 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
                             {/* Hint Button */}
                             <button
                                 className={`absolute right-2 top-1/2 transform -translate-y-1/2 transition duration-300
-          ${answers[`showHints-${index}`]
+                                      ${answers[`showHints-${index}`]
                                         ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
                                         : "text-[#00e0ff] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#00e0ff]"
                                     }`}
@@ -105,7 +138,6 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
                     </div>
                 ))}
 
-                {/* Try Again Button */}
                 {/* Try Again Button */}
                 <button
                     className={`mt-6 px-6 py-2 rounded-lg transition duration-300 font-semibold

@@ -41,6 +41,16 @@ export default function Home() {
     }
 
   ]);
+  const studyTips = [
+    "Did you know your brain may absorb information better right before eating? Try reviewing your study set before a meal.",
+    "Reviewing your notes before sleep can help lock the information into long-term memory..",
+    "Teaching someone else what you learned is a powerful way to reinforce your knowledge.",
+    "Handwriting notes can help you remember better than typing.",
+    "Take short breaks every 25–30 minutes to keep your focus sharp."
+  ];
+
+  const [randomTip, setRandomTip] = useState(studyTips[0]);
+
 
   // Main Feature variable 
   const [shuffledDefinitions, setShuffledDefinitions] = useState([]);
@@ -119,8 +129,13 @@ export default function Home() {
               onClick={() => {
                 setIsCreatingSet(true);
                 setIsEditingSet(null);
+                setIsCreatePuzzle(false);
+                setSelectedSet(null);
+                setIsHome(false);
               }}
-              className="bg-black border-2 border-[#ff7700] text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] px-4 py-2 rounded-lg transition duration-300 hover:scale-110 shadow-[0_0_10px_#ff7700] hover:bg-[#1a0b00]"
+              className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-lg transition duration-300
+               hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+
             >
               +
             </button>
@@ -159,6 +174,7 @@ export default function Home() {
             setIsCreatePuzzle={setIsCreatePuzzle}
             setIsCreatingSet={setIsCreatingSet}
             setSelectedSet={setSelectedSet}
+            setIsEditingSet={setIsEditingSet}
             setIsHome={setIsHome}
           />
         )}
@@ -169,7 +185,7 @@ export default function Home() {
 
           {/* Side Navigation */}
           <aside
-            className={`bg-black p-4 transition-all border-t border-r border-[#00e0ff] shadow-[0_-4px_12px_#00e0ff] rounded-tr-xl ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"
+            className={`bg-black p-4 transition-all border-t border-r border-[#00e0ff] rounded-tr-xl ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"
               }`}
           >
 
@@ -179,24 +195,32 @@ export default function Home() {
                   setIsCreatingSet(false);
                   setIsHome(true);
                   setIsCreatePuzzle(false);
+                  setIsEditingSet(null);
+                  const tip = studyTips[Math.floor(Math.random() * studyTips.length)];
+                  setRandomTip(tip);
+                  setSelectedSet(null);
                 }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
                 <i className="bi bi-house-door"></i> {!isMenuCollapsed && "Nhà"}
               </button>
               <button
                 onClick={() => {
                   setSelectedSet(null);
-                  setIsCreatingSet("library");
+                  if (isCreatingSet !== "library") {
+                    setIsCreatingSet("library");
+                  }
+                  setIsCreatePuzzle(false);
+                  setIsHome(false);
                 }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
                 <i className="bi bi-folder2"></i> {!isMenuCollapsed && "Thư Viện"}
               </button>
 
               <hr className="border-[#00e0ff]" />
               <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>Tệp Của Bạn</p>
-              <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
+              <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
                 <i className="bi bi-plus"></i> {!isMenuCollapsed && "Tạo Tệp Mới"}
               </button>
               <hr className="border-[#00e0ff]" />
@@ -206,8 +230,9 @@ export default function Home() {
                   setIsCreatePuzzle(true);
                   setIsCreatingSet(false);
                   setSelectedSet(null);
+                  setIsHome(false);
                 }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
                 <i className="bi bi-puzzle"></i> {!isMenuCollapsed && "Trò Chơi Ô Chữ "}
               </button>
@@ -217,17 +242,19 @@ export default function Home() {
 
           {/* Main Content Area */}
           <main
-            className="flex-1 p-6 overflow-hidden"
-            style={{ maxWidth: "100%", overflowX: "hidden" }}
+            className="flex-1 p-6 overflow-x-hidden overflow-y-visible relative"
+            style={{ maxWidth: "100%" }}
           >
             {isCreatingSet === "library" ? (
               <LibraryContent
                 studySets={studySets}
                 screenWidth={screenWidth}
                 isEditing={isEditing}
-                setIsEditing={setIsEditing} // 🔹 Pass this down
-                setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop`
+                setIsEditing={setIsEditing}
+                setIsEditingSet={setIsEditingSet}
                 setIsCreatingSet={setIsCreatingSet}
+                selectedSet={selectedSet}
+                setSelectedSet={setSelectedSet}
               />
             ) : isEditingSet ? (
               <EditSet
@@ -239,9 +266,12 @@ export default function Home() {
                     )
                   );
                   setIsEditingSet(null); // Exit edit mode
+                  setIsCreatingSet(false);
+                  setSelectedSet(updatedSet);
                 }}
                 onCancel={() => setIsEditingSet(null)}
               />
+
             ) : isCreatingSet ? (
               <CreateSet
                 onSave={(newSet) => {
@@ -251,35 +281,59 @@ export default function Home() {
               />
             ) : isCreatePuzzle ? (
               showGenerator === "play" && selectedPuzzle ? (
-                <PlayPuzzle
+                <PuzzlePage
                   screenWidth={screenWidth}
-                  selectedPuzzle={selectedPuzzle}
-                  onBack={() => setShowGenerator(false)}
+                  setShowGenerator={setShowGenerator}
+                  showGenerator={showGenerator}
+                  setSelectedPuzzle={setSelectedPuzzle}
+                  studySets={studySets}
+                  setStudySets={setStudySets}
                 />
+
               ) : (
                 <PuzzlePage
                   screenWidth={screenWidth}
                   setShowGenerator={setShowGenerator}
                   showGenerator={showGenerator}
-                  setSelectedPuzzle={setSelectedPuzzle} // ✅ Pass function
+                  setSelectedPuzzle={setSelectedPuzzle}
+                  studySets={studySets} // ✅ correct plural
+                  setStudySets={setStudySets}
                 />
+
               )
             ) : (
               <HomeContent
                 studySets={studySets}
+                screenWidth={screenWidth}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
+                setIsEditingSet={setIsEditingSet}
+                setIsCreatingSet={setIsCreatingSet}
+                selectedSet={selectedSet}
+                setSelectedSet={setSelectedSet}
               />
+
             )}
           </main>
 
           {/* Right Panel (Hidden on small screens OR when creating a set) */}
-          {screenWidth > 770 && !isCreatingSet && !isEditing && !isCreatePuzzle && (
+          {screenWidth > 770 && isHome && (
             <div className="hidden md:block">
-              <aside className="w-55 bg-black p-4 absolute right-0 top-0 h-full border-l border-[#00e0ff] shadow-[0_0_10px_#00e0ff]">
-                <h3 className="text-lg font-semibold  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Right Panel</h3>
-                <p className="text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] opacity-80">Future content goes here...</p>
+              <aside className="w-55 bg-black p-4 absolute right-0 top-0 h-full border-t border-l border-[#00e0ff] shadow-[0_0_10px_#00e0ff] rounded-tl-2xl">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-lightbulb" viewBox="0 0 16 16">
+                    <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1" />
+                  </svg>
+                  Study Tip
+                </h3>
+
+                <p className="text-sm mt-2 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] opacity-80">
+                  {randomTip}
+                </p>
               </aside>
             </div>
           )}
+
 
         </div>
       </div>
@@ -292,24 +346,54 @@ export default function Home() {
 
 
 /* Component: Home Content */
-function HomeContent({ studySets }) {
+function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet }) {
+  const [starredTerms, setStarredTerms] = useState({});
+
+  // Toggle star for terms, syncing with flashcard & list
+  const toggleStar = (term) => {
+    setStarredTerms((prev) => ({
+      ...prev,
+      [term]: !prev[term], // Toggle star state for the term
+    }));
+  };
+
+  // If a set is selected, show flashcard review instead of library
+  if (selectedSet) {
+    return (
+      <FlashcardReview
+        studySets={studySets}
+        studySet={selectedSet}
+        onExit={() => setSelectedSet(null)}
+        screenWidth={screenWidth}
+        starredTerms={starredTerms}
+        toggleStar={toggleStar}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing} // 🔹 Pass this down
+        setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
+        setIsCreatingSet={setIsCreatingSet}
+      />
+    );
+  }
+
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-4  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Thư mục gần đây</h2>
+      <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Thư mục tạo gần đây</h2>
       {studySets.length > 0 ? (
-        studySets.map((set, index) => (
+        studySets.map((studySet, index) => (
           <div
             key={index}
-            //onClick={() => setSelectedSet(set)} // Optional: makes it clickable like a button
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
+            onClick={() => setSelectedSet(studySet)} // Makes it clickable like a button
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border-1 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
           >
-            <i className="bi bi-folder2"></i> {set.title} ({set.terms.length} {set.terms.length === 1 ? "mục" : "mục"})
+            <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length} mục)
           </div>
         ))
       ) : (
-        <p className=" text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Chưa có thư mục nào.</p>
+        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Chưa có thư mục nào.</p>
       )}
     </section>
+
+
   );
 }
 
@@ -441,7 +525,7 @@ function CreateSet({ onSave }) {
               {[1, 2, 3, 4, 5].map((num) => (
                 <div
                   key={num}
-                  className="px-4 py-2 hover:bg-[#ff7700] hover:text-black cursor-pointer text-center transition duration-200"
+                  className="px-4 py-2 hover:bg-[#00e0ff] hover:text-black cursor-pointer text-center transition duration-200"
                   onClick={() => {
                     setNumCards(num);
                     setShowCardDropdown(false);
@@ -477,7 +561,13 @@ function CreateSet({ onSave }) {
 function EditSet({ studySet, onSave, onCancel }) {
   const [title, setTitle] = useState(studySet.title);
   const [description, setDescription] = useState(studySet.description);
-  const [terms, setTerms] = useState([...studySet.terms]);
+  const [terms, setTerms] = useState(() =>
+    studySet.terms.map((term, i) => ({
+      ...term,
+      id: i + 1, // 💡 add id here
+    }))
+  );
+
   const [errorMessage, setErrorMessage] = useState("");
   const [alwaysAddOne, setAlwaysAddOne] = useState(false); // Checkbox state
   const [showCardDropdown, setShowCardDropdown] = useState(false); // Toggle dropdown
@@ -516,19 +606,19 @@ function EditSet({ studySet, onSave, onCancel }) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4 text-[#ff7700]">Edit Your Learning Set</h1>
+      <h1 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">Thay đổi khoá học </h1>
 
       <input
         type="text"
         placeholder="Nhập tiêu đề"
-        className="bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+        className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <textarea
         placeholder="Thêm chú thích"
-        className="bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+        className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
@@ -538,6 +628,16 @@ function EditSet({ studySet, onSave, onCancel }) {
           {errorMessage}
         </p>
       )}
+
+      {/* Done Button */}
+      <div className="flex justify-center mb-5 ">
+        <button
+          onClick={handleSave}
+          className="bg-black text-[#ff7700] border border-[#ff7700] px-6 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black hover:scale-105 shadow-[0_0_12px_#ff7700]"
+        >
+          Xong!
+        </button>
+      </div>
 
       {terms.map((item, index) => (
         <DraggableCard
@@ -582,7 +682,7 @@ function EditSet({ studySet, onSave, onCancel }) {
               {[1, 2, 3, 4, 5].map((num) => (
                 <div
                   key={num}
-                  className="px-4 py-2 hover:bg-[#ff7700] hover:text-black cursor-pointer text-center transition duration-200"
+                  className="px-4 py-2 hover:bg-[#00e0ff] hover:text-black cursor-pointer text-center transition duration-200"
                   onClick={() => {
                     setNumCards(num);
                     setShowCardDropdown(false);
@@ -607,16 +707,6 @@ function EditSet({ studySet, onSave, onCancel }) {
           </label>
 
         </div>
-      </div>
-
-      {/* Done Button */}
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={handleSave}
-          className="bg-black text-[#ff7700] border border-[#ff7700] px-6 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black hover:scale-105 shadow-[0_0_12px_#ff7700]"
-        >
-          Xong!
-        </button>
       </div>
     </div>
   );
@@ -668,8 +758,8 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
         {/* 🔸 Term input - Neon Orange Placeholder */}
         <input
           type="text"
-          placeholder="Nhập thuật ngữ"
-          className="w-1/2 px-4 py-2 rounded-lg text-[#00e0ff] bg-black border border-[#00e0ff] placeholder-[#ff7700] shadow-[0_0_8px_#00e0ff] focus:outline-none"
+          placeholder="Thuật ngữ..."
+          className="w-1/2 px-4 py-2 rounded-lg text-[#ff7700] bg-black border border-[#00e0ff] placeholder-[#ff7700] shadow-[0_0_8px_#00e0ff] focus:outline-none"
           value={term}
           onChange={(e) => onTermChange(e.target.value)}
         />
@@ -679,8 +769,8 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
         {/* 🔸 Definition input - Neon Orange Placeholder */}
         <input
           type="text"
-          placeholder="Nhập định nghĩa"
-          className="w-1/2 px-4 py-2 rounded-lg text-[#00e0ff] bg-black border border-[#00e0ff] placeholder-[#ff7700] shadow-[0_0_8px_#00e0ff] focus:outline-none"
+          placeholder="Định nghĩa..."
+          className="w-1/2 px-4 py-2 rounded-lg text-[#ff7700] bg-black border border-[#00e0ff] placeholder-[#ff7700] shadow-[0_0_8px_#00e0ff] focus:outline-none"
           value={definition}
           onChange={(e) => onDefinitionChange(e.target.value)}
         />
@@ -701,8 +791,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
 
 
 
-function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet }) {
-  const [selectedSet, setSelectedSet] = useState(null);
+function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet }) {
   const [starredTerms, setStarredTerms] = useState({});
 
   // Toggle star for terms, syncing with flashcard & list
@@ -739,7 +828,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
           <div
             key={index}
             onClick={() => setSelectedSet(studySet)} // Makes it clickable like a button
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border-1 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
           >
             <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length} mục)
           </div>
@@ -757,10 +846,10 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
 
 
 
-function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome }) {
+function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome, setIsEditingSet }) {
   return (
     <motion.aside
-      className="fixed top-0 left-0 h-full w-48 bg-black p-4 shadow-[0_-4px_12px_#00e0ff] z-50 border-t border-r border-[#00e0ff] rounded-tr-xl"
+      className="fixed top-0 left-0 h-full w-48 bg-black p-4 z-50 border-t border-r border-[#00e0ff] rounded-tr-xl"
       initial={{ x: -200 }}
       animate={{ x: isOpen ? 0 : -200 }}
       transition={{ duration: 0.3 }}
@@ -788,6 +877,8 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsCreatingSet(false);
             setIsHome(true);
             setIsCreatePuzzle(false);
+            setIsEditingSet(null);
+            setSelectedSet(null);
             setIsOpen(false);
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
@@ -799,6 +890,8 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
           onClick={() => {
             setSelectedSet(null);
             setIsCreatingSet("library");
+            setIsCreatePuzzle(false);
+            setIsHome(false);
             setIsOpen(false);
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
@@ -838,42 +931,59 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
 }
 
 
-function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle }) {
+function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle, studySets, setStudySets }) {
+  const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
+  const [selectedSet, setSelectedSet] = useState(null);
 
-  const [recentPuzzles, setRecentPuzzles] = useState([]);
-
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("myPuzzles")) || [];
-    setRecentPuzzles(saved);
-  }, []);
-
+  // 👉 When creating a new puzzle
   if (showGenerator) {
-    return <GeneratePuzzle screenWidth={screenWidth} onBack={() => setShowGenerator(false)} />;
+    return (
+      <GeneratePuzzle
+        screenWidth={screenWidth}
+        onBack={() => setShowGenerator(false)}
+        onSaveStudySet={(newSet) => {
+          const updatedSets = [...studySets, newSet];
+          localStorage.setItem("myStudySets", JSON.stringify(updatedSets));
+          setStudySets(updatedSets);
+          setShowGenerator(false);
+        }}
+      />
+    );
   }
 
+  // 👉 When playing crossword for a selected set
+  if (showCrosswordPuzzle && selectedSet) {
+    return (
+      <CrosswordPuzzle
+        screenWidth={screenWidth}
+        studySet={selectedSet}
+        onBack={() => {
+          setShowCrosswordPuzzle(false);
+          setSelectedSet(null);
+        }}
+      />
+    );
+  }
+
+  // 👉 Main Puzzle Menu
   return (
     <div className="text-[#00e0ff] font-[Itim] p-4">
-      <h1 className="text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-bold mb-4">Trò Chơi Ô Chữ Gần Đây!</h1>
+      <h1 className="text-3xl font-bold mb-4 drop-shadow-[0_0_8px_#00e0ff]">Chơi ô chữ:</h1>
 
-      {recentPuzzles.length === 0 ? (
-        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] mb-4">Chưa có ô chữ nào được tạo.</p>
+      {studySets.length === 0 ? (
+        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] mb-4">Chưa có thư mục nào được tạo.</p>
       ) : (
-        <ul className="mb-4">
-          {recentPuzzles.map((puz, i) => (
+        <ul className="flex flex-col gap-3 w-1/3">
+          {studySets.map((set, i) => (
             <li
               key={i}
               onClick={() => {
-                const allPuzzleData = JSON.parse(localStorage.getItem("myPuzzlesData") || "{}");
-                const selectedData = allPuzzleData[puz.id];
-
-                if (selectedData) {
-                  setSelectedPuzzle(selectedData);
-                  setShowGenerator("play");
-                }
+                setSelectedSet(set);
+                setShowCrosswordPuzzle(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
-              <i className="bi bi-folder2"></i> {puz.title} ({puz.terms} {puz.terms === 1 ? "term" : "terms"})
+              <i className="bi bi-folder2"></i> {set.title} ({set.terms.length} từ)
             </li>
           ))}
         </ul>
@@ -881,14 +991,16 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
 
       <button
         onClick={() => setShowGenerator(true)}
-        className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] bg-black hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
+        className="mt-6 px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] bg-black hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
       >
-        Create your puzzle
+        ➕ Tạo danh sách mới
       </button>
     </div>
 
   );
 }
+
+
 
 
 

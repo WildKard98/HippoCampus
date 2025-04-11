@@ -2,7 +2,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 
-export default function GeneratePuzzle({ screenWidth, onBack }) {
+export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) {
     const [puzzleTitle, setPuzzleTitle] = React.useState("");
     const [question, setQuestion] = React.useState("");
     const [answer, setAnswer] = React.useState("");
@@ -181,30 +181,35 @@ export default function GeneratePuzzle({ screenWidth, onBack }) {
                             <button
                                 onClick={() => {
                                     if (!puzzleTitle.trim()) {
-                                        alert("Please enter a title before creating.");
+                                        alert("Please enter a title before saving.");
                                         return;
                                     }
                                     if (qnaList.length === 0) {
-                                        alert("Please add at least one word.");
+                                        alert("Add at least one question & answer.");
                                         return;
                                     }
 
-                                    const saved = JSON.parse(localStorage.getItem("myPuzzles")) || [];
-                                    const newPuzzle = {
-                                        id: Date.now(),
+                                    const studySet = {
                                         title: puzzleTitle.trim(),
-                                        terms: qnaList.length,
-                                        qnaList: [...qnaList],
+                                        description: "", // optional
+                                        terms: qnaList.map((qna) => ({
+                                            term: qna.answer,
+                                            definition: qna.question,
+                                        })),
                                     };
-                                    localStorage.setItem("myPuzzles", JSON.stringify([...saved, newPuzzle]));
 
-                                    if (onBack) onBack();
+                                    if (onSaveStudySet) {
+                                        onSaveStudySet(studySet); // ✅ Send to parent
+                                    }
+
+                                    if (onBack) onBack(); // ✅ Go back to main screen
                                 }}
-                                className="w-full mt-4 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
-                                  hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                                className="w-full mt-2 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
+                                      hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                             >
                                 Create
                             </button>
+
                         </div>
 
 
