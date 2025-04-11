@@ -38,7 +38,7 @@ export default function Home() {
         { term: "Cherry", definition: "A small, juicy fruit that grows in bunches and has a single hard pit." },
         { term: "Banana", definition: "A long, curved fruit with yellow skin and soft, sweet flesh." }
       ]
-    },{
+    }, {
       title: "Thành Phố Việt Nam",
       description: "Tên của các thành phố nổi tiếng ở Việt Nam.",
       terms: [
@@ -239,13 +239,21 @@ export default function Home() {
 
               <hr className="border-[#00e0ff]" />
               <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>Tệp Của Bạn</p>
-              <button className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
+              <button
+                onClick={() => {
+                  setIsCreatingSet(false);
+                  setSelectedSet(null);
+                  setIsHome(false);
+                  setIsCreatePuzzle(false);
+                }}
+                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
                 <i className="bi bi-plus"></i> {!isMenuCollapsed && "Tạo Tệp Mới"}
               </button>
               <hr className="border-[#00e0ff]" />
               <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>Khám Phá</p>
               <button
                 onClick={() => {
+
                   setIsCreatePuzzle(true);
                   setIsCreatingSet(false);
                   setSelectedSet(null);
@@ -274,6 +282,7 @@ export default function Home() {
                 setIsCreatingSet={setIsCreatingSet}
                 selectedSet={selectedSet}
                 setSelectedSet={setSelectedSet}
+                setIsHome={setIsHome}
               />
             ) : isEditingSet ? (
               <EditSet
@@ -317,6 +326,7 @@ export default function Home() {
                   setSelectedPuzzle={setSelectedPuzzle}
                   studySets={studySets} // ✅ correct plural
                   setStudySets={setStudySets}
+                  setIsHome = {setIsHome}
                 />
 
               )
@@ -330,6 +340,7 @@ export default function Home() {
                 setIsCreatingSet={setIsCreatingSet}
                 selectedSet={selectedSet}
                 setSelectedSet={setSelectedSet}
+                setIsHome={setIsHome}
               />
 
             )}
@@ -365,7 +376,7 @@ export default function Home() {
 
 
 /* Component: Home Content */
-function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet }) {
+function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome }) {
   const [starredTerms, setStarredTerms] = useState({});
 
   // Toggle star for terms, syncing with flashcard & list
@@ -401,7 +412,11 @@ function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEdi
         studySets.map((studySet, index) => (
           <div
             key={index}
-            onClick={() => setSelectedSet(studySet)} // Makes it clickable like a button
+            onClick={() => {
+              setSelectedSet(studySet);
+              setIsHome(false); // ✅ Hide the right panel
+            }}
+            
             className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border-1 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
           >
             <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length} mục)
@@ -625,7 +640,7 @@ function EditSet({ studySet, onSave, onCancel }) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">Thay đổi khoá học </h1>
+      <h1 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">Chỉnh sửa tệp </h1>
 
       <input
         type="text"
@@ -810,7 +825,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
 
 
 
-function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet }) {
+function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome }) {
   const [starredTerms, setStarredTerms] = useState({});
 
   // Toggle star for terms, syncing with flashcard & list
@@ -846,7 +861,10 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
         studySets.map((studySet, index) => (
           <div
             key={index}
-            onClick={() => setSelectedSet(studySet)} // Makes it clickable like a button
+            onClick={() => {
+              setSelectedSet(studySet);
+              setIsHome(false); // ✅ Ensure panel hides in Library too
+            }}            
             className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border-1 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
           >
             <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length} mục)
