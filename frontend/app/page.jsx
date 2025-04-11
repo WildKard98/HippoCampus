@@ -29,7 +29,7 @@ export default function Home() {
 
   const [studySets, setStudySets] = useState([
     {
-      title: "Hoa Qua",
+      title: "Fruits",
       description: "A study set about different kinds of fruits",
       terms: [
         { term: "Apple", definition: "A small, round fruit that is usually red or black with a hard pit inside." },
@@ -38,8 +38,27 @@ export default function Home() {
         { term: "Cherry", definition: "A small, juicy fruit that grows in bunches and has a single hard pit." },
         { term: "Banana", definition: "A long, curved fruit with yellow skin and soft, sweet flesh." }
       ]
+    },{
+      title: "Thành Phố Việt Nam",
+      description: "Tên của các thành phố nổi tiếng ở Việt Nam.",
+      terms: [
+        { term: "Ha Noi", definition: "Thủ đô của Việt Nam, nổi tiếng với lịch sử và văn hóa." },
+        { term: "Ho Chi Minh", definition: "Thành phố lớn nhất Việt Nam, trung tâm kinh tế lớn." },
+        { term: "Đa Nang", definition: "Thành phố ven biển miền Trung, nổi tiếng với cầu Rồng." },
+        { term: "Hue", definition: "Cố đô của Việt Nam, nổi tiếng với di tích lịch sử và cung đình." },
+        { term: "Can Tho", definition: "Thành phố lớn nhất ở miền Tây Nam Bộ, nổi tiếng với chợ nổi." },
+        { term: "Hoi An", definition: "Phố cổ nổi tiếng với kiến trúc cổ và đèn lồng." }
+      ]
+    }, {
+      title: "中国成语",
+      description: "Các thành ngữ 4 chữ thông dụng trong tiếng Trung",
+      terms: [
+        { term: "自力更生", definition: "Tự lực cánh sinh" },
+        { term: "生生不息", definition: "Sinh sôi không ngừng" },
+        { term: "息息相关", definition: "Có liên quan mật thiết" },
+        { term: "相关问题", definition: "Vấn đề liên quan" },
+      ]
     }
-
   ]);
   const studyTips = [
     "Did you know your brain may absorb information better right before eating? Try reviewing your study set before a meal.",
@@ -739,7 +758,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
   });
 
   return (
-    <div ref={(node) => ref(drop(node))} className={`bg-black p-6 rounded-lg mb-4 border-2 border-[#00e0ff] shadow-[0_0_12px_#00e0ff] ${isDragging ? "opacity-50" : ""}`}>
+    <div ref={(node) => ref(drop(node))} className={`bg-[#1a2e30] p-6 rounded-lg mb-4 border-2 border-[#00e0ff] shadow-[0_0_12px_#00e0ff] ${isDragging ? "opacity-50" : ""}`}>
       <div className="flex justify-between border-b border-[#00e0ff] pb-2 mb-2">
         {/* 🔸 Box Number in Neon Orange */}
         <span className="text-lg font-bold text-[#ff7700]">{id}</span>
@@ -1089,19 +1108,19 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
             <div className={`flex gap-4 mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"} `}>
               <button
                 onClick={() => setShowMatchingTest(true)}
-                className="flex-1 px-4 py-2 text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                className="flex-1 px-4 py-2 bg-[#1a2e30] text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
                 Nối Từ
               </button>
               <button
                 onClick={() => setShowFillTest(true)}
-                className="flex-1 px-4 py-2 text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                className="flex-1 px-4 py-2 bg-[#1a2e30] text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
                 Tìm Từ Khoá
               </button>
               <button
                 onClick={() => setShowCrosswordPuzzle(true)}
-                className="flex-1 px-4 py-2 text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                className="flex-1 px-4 py-2 bg-[#1a2e30] text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
                 Chơi Ô Chữ
               </button>
@@ -1110,7 +1129,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
 
             {/* Loop Test Button - Also Inside for Consistent Alignment */}
             <div className={`mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
-              <button className="w-full px-4 py-2 text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] flex items-center justify-center gap-2 transition duration-300">
+              <button className="w-full px-4 py-2 bg-[#1a2e30] text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] flex items-center justify-center gap-2 transition duration-300">
                 <i className="bi bi-arrow-repeat"></i> Bài Thi Vòng Lặp
               </button>
             </div>
@@ -1284,7 +1303,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               <div className="flex flex-col gap-2">
                 {studySet.terms.map((item, index) => (
                   <div key={index}
-                    className={`bg-[#000000] p-4 rounded-lg flex items-center justify-between w-full transition-all duration-300
+                    className={`bg-[#1a2e30] p-4 rounded-lg flex items-center justify-between w-full transition-all duration-300
                   ${starredTerms[item.term] ? "border-2 border-[#ff7700] shadow-[0_0_12px_#ff7700]"
                         : "border-2 border-[#00e0ff] shadow-[0_0_12px_#00e0ff]"}`}
                   >

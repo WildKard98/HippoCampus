@@ -82,7 +82,13 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
             const res = await fetch("/api/generate-puzzle", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ qnaList })
+                body: JSON.stringify({
+                    qnaList: qnaList.map(qna => ({
+                        question: qna.question,
+                        answer: qna.answer.replace(/\s+/g, "").toUpperCase()  // ✅ strip spaces + uppercase
+                    }))
+                })
+
             });
 
             if (!res.ok) {
@@ -115,11 +121,11 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
              hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                 onClick={onBack}
             >
-                ← Back
+                ← Quay Lại
             </button>
 
             <h1 className="text-3xl font-bold mb-6 text-[#00e0ff] drop-shadow-[0_0_12px_#00e0ff]">
-                Crossword Puzzle
+                Tạo câu đố ô chữ
             </h1>
 
             {isEditing ? (
@@ -135,9 +141,9 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
                             ✖
                         </button>
 
-                        <h2 className="text-2xl font-bold mb-4 text-[#ff7700]">Edit</h2>
+                        <h2 className="text-2xl font-bold mb-4 text-[#ff7700]">Chỉnh Sửa</h2>
 
-                        <label className="block mb-2 text-[#00e0ff]">Answer:</label>
+                        <label className="block mb-2 text-[#00e0ff]">Trả Lời:</label>
                         <input
                             type="text"
                             className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 
@@ -146,7 +152,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
                             onChange={(e) => setEditAnswer(e.target.value)}
                         />
 
-                        <label className="block mb-2 text-[#00e0ff]">Question:</label>
+                        <label className="block mb-2 text-[#00e0ff]">Câu Hỏi:</label>
                         <textarea
                             className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 
                      border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
@@ -159,7 +165,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
                             className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
                      hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                         >
-                            Done
+                            Xong
                         </button>
                     </div>
                 </div>
@@ -173,10 +179,10 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
                         <div className="bg-black p-4 rounded-lg border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]">
                             <input
                                 type="text"
-                                placeholder="Enter title"
+                                placeholder="Nhập chủ đề..."
                                 value={puzzleTitle}
                                 onChange={(e) => setPuzzleTitle(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg text-[#00e0ff] bg-black placeholder-[#00e0ff] border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                                className="w-full px-4 py-2 rounded-lg text-[#00e0ff] bg-black placeholder-[#ff7700] border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
                             <button
                                 onClick={() => {
@@ -207,7 +213,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
                                 className="w-full mt-2 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
                                       hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                             >
-                                Create
+                                Thiết Lập
                             </button>
 
                         </div>
@@ -215,25 +221,25 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
 
                         {/* Box 2: Question + Answer Input */}
                         <div className="bg-black p-4 rounded-lg border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]">
-                            <label className="block mb-2 text-[#00e0ff]">Question</label>
+                            <label className="block mb-2 text-[#00e0ff]">Câu Hỏi:</label>
                             <input
                                 type="text"
                                 value={question}
                                 onChange={(e) => setQuestion(e.target.value)}
-                                placeholder="Enter your clue"
-                                className="w-full px-4 py-2 rounded-lg text-[#ff7700] bg-black placeholder-[#ff7700] border border-[#00e0ff] mb-4 
+                                placeholder="Nhập câu hỏi..."
+                                className="w-full px-4 py-2 rounded-lg text-[#00e0ff] bg-black placeholder-[#ff7700] border border-[#00e0ff] mb-4 
                                  shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
 
                             <hr className="border-[#00e0ff] my-2" />
 
-                            <label className="block mb-2 text-[#00e0ff]">Answer</label>
+                            <label className="block mb-2 text-[#00e0ff]">Đáp Án:</label>
                             <input
                                 type="text"
                                 value={answer}
                                 onChange={(e) => setAnswer(e.target.value)}
-                                placeholder="Enter the answer"
-                                className="w-full px-4 py-2 rounded-lg text-[#ff7700] bg-black placeholder-[#ff7700] border border-[#00e0ff] 
+                                placeholder="Nhập đáp án..."
+                                className="w-full px-4 py-2 rounded-lg text-[#00e0ff] bg-black placeholder-[#ff7700] border border-[#00e0ff] 
                                  shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
 
@@ -260,7 +266,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
                                 className="mt-4 px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
                                        hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                             >
-                                Add
+                                Thêm
                             </button>
                         </div>
 
@@ -268,7 +274,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
                         {/* Show QnA box */}
                         <div className="bg-black p-4 rounded-lg overflow-y-auto border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]">
                             {qnaList.length === 0 ? (
-                                <p className="text-[#00e0ff] text-center py-4">Enter a question and answer above to start</p>
+                                <p className="text-[#00e0ff] text-center py-4">Nhập câu hỏi và đáp án ở trên để bắt đầu</p>
                             ) : (
                                 <div className="flex flex-col gap-2">
                                     {qnaList.map((item, index) => (
@@ -336,10 +342,11 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
                     <div className={`bg-black p-2 rounded-lg ${screenWidth > 770 ? "md:w-3/5 flex flex-col border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] gap-2 max-w-[750px]" : "w-full md:w-3/5 flex flex-col  border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] gap-2"}`}>
                         {/* Puzzle Title Box */}
                         <div className="flex justify-center ">
-                            <div className="bg-black text-[#ff7700] p-2 rounded-md font-semibold text-center">
-                                {puzzleTitle || "Untitled"}
+                            <div className="bg-black text-[#00e0ff] p-2 rounded-md font-semibold text-center text-2xl">
+                                {puzzleTitle || "Tên Chủ Đề?"}
                             </div>
                         </div>
+
 
                         {/* Divider Line */}
                         <hr className="border-[#00e0ff] shadow-[0_0_20px_#ff7700]" />
@@ -403,7 +410,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
 
                             {/* Across Box */}
                             <div className="bg-black border-1 border-[#00e0ff] text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
-                                <span className="font-semibold block mb-2">Across</span>
+                                <span className="font-semibold block mb-2">Hàng Ngang</span>
                                 {placedWords
                                     .filter((entry) => entry.direction === "across")
                                     .sort((a, b) => a.clueNumber - b.clueNumber)
@@ -420,7 +427,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet }) 
 
                             {/* Down Box */}
                             <div className="bg-black  border-1 border-[#00e0ff] text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
-                                <span className="font-semibold block mb-2">Down</span>
+                                <span className="font-semibold block mb-2">Hàng Dọc</span>
                                 {placedWords
                                     .filter((entry) => entry.direction === "down")
                                     .sort((a, b) => a.clueNumber - b.clueNumber)

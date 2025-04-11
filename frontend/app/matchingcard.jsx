@@ -67,7 +67,7 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
                 <h3 className="text-xl text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff] font-bold">Nối Từ</h3>
 
                 <button
-                    className="px-4 py-2 text-sm rounded-lg border border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700] text-[#ff7700] transition duration-300 
+                    className="px-4 py-2  text-sm rounded-lg border border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700] text-[#ff7700] transition duration-300 
                hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                     onClick={() => setShowMatchingTest(false)}
                 >
@@ -125,7 +125,7 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
                         ${selectedItem?.term === item.term && selectedItem?.type === "term" ? "bg-yellow-500 text-black" : ""}
                         ${matchedPairs.some(pair => pair.term === item.term) ? "bg-green-600 pointer-events-none" : ""}
                         ${incorrectPair?.term === item.term && incorrectPair?.definition ? "bg-red-600 border border-red-600 text-black shadow-[0_0_12px_red-600]" : ""}
-                        ${!disableHover ? "rounded-lg border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700] transition duration-200" : "border border-[#ff7700]"}
+                        ${!disableHover ? "rounded-lg bg-[#45311f] border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700] transition duration-200" : "border border-[#ff7700]"}
                     `}
                                 onClick={() => handleSelection("term", item)}
                             >
@@ -146,7 +146,7 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
                         ${selectedItem?.definition === item.definition && selectedItem?.type === "definition" ? "bg-[#38b8c9] text-black" : ""}
                         ${matchedPairs.some(pair => pair.definition === item.definition) ? "bg-green-600 pointer-events-none" : ""} 
                         ${incorrectPair?.definition === item.definition && incorrectPair?.term ? "bg-red-600 border border-red-600 text-black shadow-[0_0_12px_red-600]" : ""}
-                        ${!disableHover ? "ounded-lg border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] transition duration-200" : "border border-[#00e0ff]"}
+                        ${!disableHover ? "ounded-lg bg-[#1a2e30] border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] transition duration-200" : "border border-[#00e0ff]"}
                     `}
                                 onClick={() => handleSelection("definition", item)}
                             >
