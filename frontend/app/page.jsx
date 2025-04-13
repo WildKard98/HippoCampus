@@ -114,18 +114,24 @@ export default function Home() {
             </button>
 
             {/* Web Title (Changes based on screen size) */}
-            <span className={`text-3xl bg-black text-[#00e0ff] font-bold ml-4 ${screenWidth <= 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
-              H!Ca:
-            </span>
-            <span className={`text-3xl bg-black text-[#00e0ff] font-bold ml-4 ${screenWidth > 770 ? "block" : "hidden"}`} style={{ fontFamily: "'Inknut Antiqua', serif" }}>
-              Hippocampus
-            </span>
+            <img
+              src="/logo5.png"
+              alt="Hippocampus Logo"
+              className={`h-10 w-15 object-contain ml-1 ${screenWidth <= 770 ? "block" : "hidden"}`}
+            />
+            <div className="fle px-1">
+            <img
+              src="/logo6.png"
+              alt="Hippocampus Logo"
+              className={`h-14 w-40 object-contain ml-2 ${screenWidth > 770 ? "block" : "hidden"}`}
+            />
+            </div>
           </div>
 
 
           {/* Middle: Search Bar */}
           {screenWidth >= 620 && (
-            <div className="w-2/3 flex justify-center">
+            <div className="w-2/3 flex justify-center px-4">
               <div className="relative w-full max-w-lg">
                 {/* Neon Blue Search Icon */}
                 <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
@@ -133,7 +139,7 @@ export default function Home() {
                 {/* Neon Input Field */}
                 <input
                   type="text"
-                  placeholder="Study set, puzzle, news"
+                  placeholder={t.searchbar}
                   className="bg-black  text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] shadow-[0_0_8px_#00e0ff] transition"
                 />
               </div>
@@ -937,11 +943,11 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
         >
           ☰
         </button>
-
-
-        <span className="text-3xl font-bold ml-2 text-[#00e0ff]" style={{ fontFamily: "'Inknut Antiqua', serif" }}>
-          H!Ca:
-        </span>
+        <img
+              src="/logo5.png"
+              alt="Hippocampus Logo"
+              className={`h-10 w-15 object-contain ml-1`}
+            />
       </div>
 
       {/* Navigation Items */}
