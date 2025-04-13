@@ -10,7 +10,7 @@ import MatchingCard from "./matchingcard";
 import Findterm from "./findterm";
 import CrosswordPuzzle from "./crossword"
 import GeneratePuzzle from "./generatepuzzle";
-import { useLanguage } from "./LanguageContext"
+import { useLanguage } from "./languagecontext"
 
 export default function Home() {
   useEffect(() => {
