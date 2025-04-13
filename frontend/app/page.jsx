@@ -62,7 +62,18 @@ export default function Home() {
       ]
     }
   ]);
-
+  useEffect(() => {
+    const savedSets = localStorage.getItem("myStudySets");
+    if (savedSets) {
+      try {
+        const parsed = JSON.parse(savedSets);
+        setStudySets(parsed);
+      } catch (e) {
+        console.error("Failed to parse saved study sets:", e);
+      }
+    }
+  }, []);
+  
   const [randomTip, setRandomTip] = useState(studyTips[0]);
 
   useEffect(() => {
