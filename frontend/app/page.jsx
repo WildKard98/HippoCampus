@@ -29,6 +29,9 @@ export default function Home() {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const { t, setLang, lang } = useLanguage();
   const studyTips = t.studyTips;
+  useEffect(() => {
+    setIsHome(true);
+  }, []);
   const [studySets, setStudySets] = useState([
     {
       title: "Fruits",
