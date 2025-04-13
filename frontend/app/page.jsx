@@ -10,7 +10,7 @@ import MatchingCard from "./matchingcard";
 import Findterm from "./findterm";
 import CrosswordPuzzle from "./crossword"
 import GeneratePuzzle from "./generatepuzzle";
-
+import { useLanguage } from "./LanguageContext"
 
 export default function Home() {
   useEffect(() => {
@@ -26,7 +26,9 @@ export default function Home() {
   const [showGenerator, setShowGenerator] = useState(false);
   const [isHome, setIsHome] = useState(false);
   const [selectedPuzzle, setSelectedPuzzle] = useState(null);
-
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  const { t, setLang, lang } = useLanguage();
+  const studyTips = t.studyTips;
   const [studySets, setStudySets] = useState([
     {
       title: "Fruits",
@@ -60,17 +62,13 @@ export default function Home() {
       ]
     }
   ]);
-  const studyTips = [
-    "Did you know your brain may absorb information better right before eating? Try reviewing your study set before a meal.",
-    "Reviewing your notes before sleep can help lock the information into long-term memory..",
-    "Teaching someone else what you learned is a powerful way to reinforce your knowledge.",
-    "Handwriting notes can help you remember better than typing.",
-    "Take short breaks every 25–30 minutes to keep your focus sharp."
-  ];
 
   const [randomTip, setRandomTip] = useState(studyTips[0]);
 
-
+  useEffect(() => {
+    const tip = studyTips[Math.floor(Math.random() * studyTips.length)];
+    setRandomTip(tip);
+  }, [t]); // 🔁 update on language change
   // Main Feature variable 
   const [shuffledDefinitions, setShuffledDefinitions] = useState([]);
   const [selectedSet, setSelectedSet] = useState(null);
@@ -162,10 +160,38 @@ export default function Home() {
 
             {/* Optional: Type / Draw buttons can follow the same Tron theme later */}
 
-            <div className="flex items-center gap-2">
-              <div className="bg-[#00e0ff] rounded-full w-10 h-10 shadow-[0_0_6px_#00e0ff]" />
-              <span className=" text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold">Username</span>
+            <div className="relative">
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => setShowLangMenu((prev) => !prev)}
+              >
+                <div className="bg-[#00e0ff] rounded-full w-10 h-10 shadow-[0_0_6px_#00e0ff]" />
+                <div className="min-w-[80px] max-w-[80px] px-2 py-1 bg-black border border-[#00e0ff] rounded-md flex items-center justify-center">
+                  <span className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold text-sm whitespace-nowrap">
+                    {lang === "vi" ? "Tiếng Việt" : "English"}
+                  </span>
+                </div>
+
+              </div>
+
+              {showLangMenu && (
+                <div className="absolute right-0 mt-2 w-32 bg-black border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-50">
+                  <button
+                    onClick={() => { setLang("en"); setShowLangMenu(false); }}
+                    className="w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => { setLang("vi"); setShowLangMenu(false); }}
+                    className="w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
+                  >
+                    Tiếng Việt
+                  </button>
+                </div>
+              )}
             </div>
+
           </div>
 
         </header>
@@ -177,7 +203,7 @@ export default function Home() {
               <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
               <input
                 type="text"
-                placeholder="Study set, puzzle, news"
+                placeholder={t.searchbar}
                 className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
               />
             </div>
@@ -195,6 +221,7 @@ export default function Home() {
             setSelectedSet={setSelectedSet}
             setIsEditingSet={setIsEditingSet}
             setIsHome={setIsHome}
+            t={t}
           />
         )}
 
@@ -221,7 +248,7 @@ export default function Home() {
                 }}
                 className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
-                <i className="bi bi-house-door"></i> {!isMenuCollapsed && "Nhà"}
+                <i className="bi bi-house-door"></i> {!isMenuCollapsed && t.home}
               </button>
               <button
                 onClick={() => {
@@ -234,11 +261,11 @@ export default function Home() {
                 }}
                 className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
-                <i className="bi bi-folder2"></i> {!isMenuCollapsed && "Thư Viện"}
+                <i className="bi bi-folder2"></i> {!isMenuCollapsed && t.library}
               </button>
 
               <hr className="border-[#00e0ff]" />
-              <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>Tệp Của Bạn</p>
+              <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>{t.yourFolders}</p>
               <button
                 onClick={() => {
                   setIsCreatingSet(false);
@@ -247,10 +274,10 @@ export default function Home() {
                   setIsCreatePuzzle(false);
                 }}
                 className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
-                <i className="bi bi-plus"></i> {!isMenuCollapsed && "Tạo Tệp Mới"}
+                <i className="bi bi-plus"></i> {!isMenuCollapsed && t.createfolder}
               </button>
               <hr className="border-[#00e0ff]" />
-              <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>Khám Phá</p>
+              <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>{t.explore}</p>
               <button
                 onClick={() => {
 
@@ -261,7 +288,7 @@ export default function Home() {
                 }}
                 className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
-                <i className="bi bi-puzzle"></i> {!isMenuCollapsed && "Trò Chơi Ô Chữ "}
+                <i className="bi bi-puzzle"></i> {!isMenuCollapsed && t.playcrossword}
               </button>
             </nav>
           </aside>
@@ -283,10 +310,12 @@ export default function Home() {
                 selectedSet={selectedSet}
                 setSelectedSet={setSelectedSet}
                 setIsHome={setIsHome}
+                t={t}
               />
             ) : isEditingSet ? (
               <EditSet
                 studySet={isEditingSet}
+                t={t}
                 onSave={(updatedSet) => {
                   setStudySets(
                     studySets.map((set) =>
@@ -302,6 +331,7 @@ export default function Home() {
 
             ) : isCreatingSet ? (
               <CreateSet
+                t={t}
                 onSave={(newSet) => {
                   setStudySets([...studySets, newSet]);
                   setIsCreatingSet(false);
@@ -316,6 +346,7 @@ export default function Home() {
                   setSelectedPuzzle={setSelectedPuzzle}
                   studySets={studySets}
                   setStudySets={setStudySets}
+                  t={t}
                 />
 
               ) : (
@@ -326,7 +357,8 @@ export default function Home() {
                   setSelectedPuzzle={setSelectedPuzzle}
                   studySets={studySets} // ✅ correct plural
                   setStudySets={setStudySets}
-                  setIsHome = {setIsHome}
+                  setIsHome={setIsHome}
+                  t={t}
                 />
 
               )
@@ -341,6 +373,7 @@ export default function Home() {
                 selectedSet={selectedSet}
                 setSelectedSet={setSelectedSet}
                 setIsHome={setIsHome}
+                t={t}
               />
 
             )}
@@ -354,7 +387,7 @@ export default function Home() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-lightbulb" viewBox="0 0 16 16">
                     <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1" />
                   </svg>
-                  Study Tip
+                  {t.flashcardTip}
                 </h3>
 
                 <p className="text-sm mt-2 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] opacity-80">
@@ -376,7 +409,7 @@ export default function Home() {
 
 
 /* Component: Home Content */
-function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome }) {
+function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, t }) {
   const [starredTerms, setStarredTerms] = useState({});
 
   // Toggle star for terms, syncing with flashcard & list
@@ -401,13 +434,14 @@ function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEdi
         setIsEditing={setIsEditing} // 🔹 Pass this down
         setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
         setIsCreatingSet={setIsCreatingSet}
+        t={t}
       />
     );
   }
 
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Thư mục tạo gần đây</h2>
+      <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.recentfile}</h2>
       {studySets.length > 0 ? (
         studySets.map((studySet, index) => (
           <div
@@ -416,14 +450,14 @@ function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEdi
               setSelectedSet(studySet);
               setIsHome(false); // ✅ Hide the right panel
             }}
-            
+
             className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border-1 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
           >
-            <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length} mục)
+            <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
           </div>
         ))
       ) : (
-        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Chưa có thư mục nào.</p>
+        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.noFolders}</p>
       )}
     </section>
 
@@ -435,7 +469,7 @@ function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEdi
 
 
 /* Component: Create a New Learning Set */
-function CreateSet({ onSave }) {
+function CreateSet({ onSave, t }) {
   const [numCards, setNumCards] = useState(1);  // Default to 1 card
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -472,7 +506,7 @@ function CreateSet({ onSave }) {
   const handleSave = () => {
     const usedTerms = terms.filter((t) => t.term.trim() !== "");
     if (usedTerms.length === 0) {
-      setErrorMessage("You need at least one term to create a study set.");
+      setErrorMessage(t.need1term);
       return;
     }
     setErrorMessage(""); // Clear error message if valid
@@ -482,19 +516,19 @@ function CreateSet({ onSave }) {
 
   };
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Tạo danh sách học mới</h1>
+    <div className="w-full max-w-[750px] px-4">
+      <h1 className="text-2xl font-bold mb-4  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.createnewset}</h1>
 
       <input
         type="text"
-        placeholder="Nhập tiêu đề"
-        className="bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+        placeholder={t.entertitle}
+        className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <textarea
-        placeholder="Thêm chú thích"
+        placeholder={t.enterdescription}
         className="bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
@@ -512,12 +546,13 @@ function CreateSet({ onSave }) {
           onClick={handleSave}
           className="bg-black text-[#ff7700] border border-[#ff7700] px-6 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black hover:scale-105 shadow-[0_0_12px_#ff7700]"
         >
-          Thiết Lập
+          {t.createbtn}
         </button>
       </div>
 
       {terms.map((item, index) => (
         <DraggableCard
+          t={t}
           key={index}
           index={index}
           id={item.id}
@@ -547,7 +582,7 @@ function CreateSet({ onSave }) {
             }}
             className="bg-black text-[#00e0ff] border border-[#00e0ff] px-6 py-2 rounded-lg w-full shadow-[0_0_12px_#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 flex items-center justify-center relative"
           >
-            <span className="font-semibold">+ Thêm thẻ</span>
+            <span className="font-semibold">{t.addcard}</span>
             {!alwaysAddOne && (
               <span className="absolute right-4 text-xl font-bold">▼</span>
             )}
@@ -566,7 +601,7 @@ function CreateSet({ onSave }) {
                     addCard(num);
                   }}
                 >
-                  {num} {num === 1 ? "Card" : "Cards"}
+                  {num} {num === 1 ? t.card : t.cards}
                 </div>
               ))}
             </div>
@@ -580,7 +615,7 @@ function CreateSet({ onSave }) {
               onChange={() => setAlwaysAddOne(!alwaysAddOne)}
               className="mr-2 w-5 h-5 rounded border-2 border-[#ff7700] bg-black appearance-none checked:bg-[#ff7700] checked:shadow-[0_0_10px_#ff7700] focus:ring-0 focus:outline-none transition duration-300"
             />
-            Luôn thêm 1 thẻ
+            {t.alway1card}
           </label>
 
         </div>
@@ -592,7 +627,7 @@ function CreateSet({ onSave }) {
 
 
 
-function EditSet({ studySet, onSave, onCancel }) {
+function EditSet({ studySet, onSave, onCancel, t }) {
   const [title, setTitle] = useState(studySet.title);
   const [description, setDescription] = useState(studySet.description);
   const [terms, setTerms] = useState(() =>
@@ -631,7 +666,7 @@ function EditSet({ studySet, onSave, onCancel }) {
   const handleSave = () => {
     const usedTerms = terms.filter((t) => t.term.trim() !== "");
     if (usedTerms.length === 0) {
-      setErrorMessage("You need at least one term to update this set.");
+      setErrorMessage(t.need1term);
       return;
     }
     setErrorMessage("");
@@ -639,26 +674,26 @@ function EditSet({ studySet, onSave, onCancel }) {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">Chỉnh sửa tệp </h1>
+    <div className="w-full max-w-[750px] px-4">
+      <h1 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.editset}</h1>
 
       <input
         type="text"
-        placeholder="Nhập tiêu đề"
+        placeholder={t.entertitle}
         className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <textarea
-        placeholder="Thêm chú thích"
-        className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+        placeholder={t.enterdescription}
+        className="bg-black text-white placeholder-white px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
 
       {errorMessage && (
-        <p className="text-[#ff7700] text-lg font-semibold text-center mb-4 animate-pulse-glow">
+        <p className="text-red drop-shadow-[0_0_8px_red] text-lg font-semibold text-center mb-4 animate-pulse-glow">
           {errorMessage}
         </p>
       )}
@@ -669,12 +704,13 @@ function EditSet({ studySet, onSave, onCancel }) {
           onClick={handleSave}
           className="bg-black text-[#ff7700] border border-[#ff7700] px-6 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black hover:scale-105 shadow-[0_0_12px_#ff7700]"
         >
-          Xong!
+          {t.donebt}
         </button>
       </div>
 
       {terms.map((item, index) => (
         <DraggableCard
+          t={t}
           key={index}
           index={index}
           id={item.id}
@@ -704,7 +740,7 @@ function EditSet({ studySet, onSave, onCancel }) {
             }}
             className="bg-black text-[#00e0ff] border border-[#00e0ff] px-6 py-2 rounded-lg w-full shadow-[0_0_12px_#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 flex items-center justify-center relative"
           >
-            <span className="font-semibold">+ Thêm thẻ</span>
+            <span className="font-semibold">{t.addcard}</span>
             {!alwaysAddOne && (
               <span className="absolute right-4 text-xl font-bold">▼</span>
             )}
@@ -723,7 +759,7 @@ function EditSet({ studySet, onSave, onCancel }) {
                     addCard(num);
                   }}
                 >
-                  {num} {num === 1 ? "Card" : "Cards"}
+                  {num} {num === 1 ? t.card : t.cards}
                 </div>
               ))}
             </div>
@@ -737,7 +773,7 @@ function EditSet({ studySet, onSave, onCancel }) {
               onChange={() => setAlwaysAddOne(!alwaysAddOne)}
               className="mr-2 w-5 h-5 rounded border-2 border-[#ff7700] bg-black appearance-none checked:bg-[#ff7700] checked:shadow-[0_0_10px_#ff7700] focus:ring-0 focus:outline-none transition duration-300"
             />
-            Luôn thêm 1 thẻ
+            {t.alway1card}
           </label>
 
         </div>
@@ -753,7 +789,7 @@ function EditSet({ studySet, onSave, onCancel }) {
 
 
 /* Draggable Card Component */
-function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTermChange, onDefinitionChange }) {
+function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTermChange, onDefinitionChange, t }) {
   const [{ isDragging }, ref] = useDrag({
     type: "CARD",
     item: { index },
@@ -776,12 +812,12 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
     <div ref={(node) => ref(drop(node))} className={`bg-[#1a2e30] p-6 rounded-lg mb-4 border-2 border-[#00e0ff] shadow-[0_0_12px_#00e0ff] ${isDragging ? "opacity-50" : ""}`}>
       <div className="flex justify-between border-b border-[#00e0ff] pb-2 mb-2">
         {/* 🔸 Box Number in Neon Orange */}
-        <span className="text-lg font-bold text-[#ff7700]">{id}</span>
+        <span className="text-lg font-bold text-white drop-shadow-[0_0_8px_white]">{id}</span>
         <div>
-          <span className="cursor-move mr-4 text-[#ff7700] transition duration-300 hover:scale-110">═</span>
+          <span className="cursor-move mr-4 text-white drop-shadow-[0_0_8px_white] transition duration-300 hover:scale-110">═</span>
           <button
             onClick={onDelete}
-            className="text-[#ff7700] transition duration-300 hover:scale-110"
+            className="text-white drop-shadow-[0_0_8px_white] transition duration-300 hover:scale-110"
           >
             <i className="bi bi-trash"></i>
           </button>
@@ -792,8 +828,8 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
         {/* 🔸 Term input - Neon Orange Placeholder */}
         <input
           type="text"
-          placeholder="Thuật ngữ..."
-          className="w-1/2 px-4 py-2 rounded-lg text-[#ff7700] bg-black border border-[#00e0ff] placeholder-[#ff7700] shadow-[0_0_8px_#00e0ff] focus:outline-none"
+          placeholder={t.enterterm}
+          className="w-1/2 px-4 py-2 rounded-lg text-white bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none"
           value={term}
           onChange={(e) => onTermChange(e.target.value)}
         />
@@ -803,16 +839,16 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
         {/* 🔸 Definition input - Neon Orange Placeholder */}
         <input
           type="text"
-          placeholder="Định nghĩa..."
-          className="w-1/2 px-4 py-2 rounded-lg text-[#ff7700] bg-black border border-[#00e0ff] placeholder-[#ff7700] shadow-[0_0_8px_#00e0ff] focus:outline-none"
+          placeholder={t.enterdefinition}
+          className="w-1/2 px-4 py-2 rounded-lg text-white bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none"
           value={definition}
           onChange={(e) => onDefinitionChange(e.target.value)}
         />
 
         <button
-          className="bg-black text-[#ff7700] border border-[#ff7700] px-4 py-2 rounded-lg hover:shadow-[0_0_10px_#ff7700] transition duration-300 ml-2"
+          className="bg-black text-white border border-white px-4 py-2 rounded-lg hover:shadow-[0_0_10px_white] transition duration-300 ml-2"
         >
-          <i className="bi bi-image"></i> Thêm ảnh
+          <i className="bi bi-image"></i> {t.addimage}
         </button>
       </div>
     </div>
@@ -825,7 +861,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
 
 
 
-function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome }) {
+function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, t }) {
   const [starredTerms, setStarredTerms] = useState({});
 
   // Toggle star for terms, syncing with flashcard & list
@@ -840,6 +876,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
   if (selectedSet) {
     return (
       <FlashcardReview
+        t={t}
         studySets={studySets}
         studySet={selectedSet}
         onExit={() => setSelectedSet(null)}
@@ -856,7 +893,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
 
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Thư viện của bạn</h2>
+      <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.yourlibrary}</h2>
       {studySets.length > 0 ? (
         studySets.map((studySet, index) => (
           <div
@@ -864,14 +901,14 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
             onClick={() => {
               setSelectedSet(studySet);
               setIsHome(false); // ✅ Ensure panel hides in Library too
-            }}            
+            }}
             className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border-1 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
           >
-            <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length} mục)
+            <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
           </div>
         ))
       ) : (
-        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Chưa có thư mục nào.</p>
+        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.noFolders}</p>
       )}
     </section>
 
@@ -883,7 +920,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
 
 
 
-function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome, setIsEditingSet }) {
+function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome, setIsEditingSet, t }) {
   return (
     <motion.aside
       className="fixed top-0 left-0 h-full w-48 bg-black p-4 z-50 border-t border-r border-[#00e0ff] rounded-tr-xl"
@@ -920,7 +957,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
         >
-          <i className="bi bi-house-door"></i> Nhà
+          <i className="bi bi-house-door"></i> {t.home}
         </button>
 
         <button
@@ -933,11 +970,11 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
         >
-          <i className="bi bi-folder2"></i> Thư Viện
+          <i className="bi bi-folder2"></i> {t.library}
         </button>
 
         <hr className="border-[#00e0ff]" />
-        <p className="text-sm text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Thư Mục Của Bạn</p>
+        <p className="text-sm text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.yourFolders}</p>
 
         <button
           onClick={() => {
@@ -945,11 +982,11 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
         >
-          <i className="bi bi-plus"></i> Tạo Thư Mục
+          <i className="bi bi-plus"></i> {t.createfolder}
         </button>
 
         <hr className="border-[#00e0ff]" />
-        <p className="text-sm text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">Khám Phá</p>
+        <p className="text-sm text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.explore}</p>
 
         <button
           onClick={() => {
@@ -960,7 +997,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
           }}
           className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
         >
-          <i className="bi bi-puzzle"></i> Trò Chơi Ô Chữ
+          <i className="bi bi-puzzle"></i> {t.playcrossword}
         </button>
       </nav>
     </motion.aside>
@@ -968,7 +1005,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
 }
 
 
-function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle, studySets, setStudySets }) {
+function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle, studySets, setStudySets, t }) {
   const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
   const [selectedSet, setSelectedSet] = useState(null);
 
@@ -976,6 +1013,7 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
   if (showGenerator) {
     return (
       <GeneratePuzzle
+        t={t}
         screenWidth={screenWidth}
         onBack={() => setShowGenerator(false)}
         onSaveStudySet={(newSet) => {
@@ -992,6 +1030,7 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
   if (showCrosswordPuzzle && selectedSet) {
     return (
       <CrosswordPuzzle
+        t={t}
         screenWidth={screenWidth}
         studySet={selectedSet}
         onBack={() => {
@@ -1005,10 +1044,10 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
   // 👉 Main Puzzle Menu
   return (
     <div className="text-[#00e0ff] font-[Itim] p-4">
-      <h1 className="text-3xl font-bold mb-4 drop-shadow-[0_0_8px_#00e0ff]">Chơi ô chữ:</h1>
+      <h1 className="text-3xl font-bold mb-4 drop-shadow-[0_0_8px_#00e0ff]">{t.playpuzzle}</h1>
 
       {studySets.length === 0 ? (
-        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] mb-4">Chưa có thư mục nào được tạo.</p>
+        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] mb-4">{t.nopuzzle}</p>
       ) : (
         <ul className="flex flex-col gap-3 w-1/3">
           {studySets.map((set, i) => (
@@ -1020,7 +1059,7 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
               }}
               className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
-              <i className="bi bi-folder2"></i> {set.title} ({set.terms.length} từ)
+              <i className="bi bi-folder2"></i> {set.title} ({set.terms.length} {set.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
             </li>
           ))}
         </ul>
@@ -1030,7 +1069,7 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
         onClick={() => setShowGenerator(true)}
         className="mt-6 px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] bg-black hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
       >
-        ➕ Tạo danh sách mới
+        {t.createpuzzle}
       </button>
     </div>
 
@@ -1042,7 +1081,7 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
 
 
 
-function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setSelectedSet }) {
+function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setSelectedSet, t }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [editTerm, setEditTerm] = useState("");
@@ -1099,6 +1138,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
         <h2 className="text-3xl font-semibold mb-6 text-left text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{studySet.title}</h2>
         {showMatchingTest ? (
           <MatchingCard
+            t={t}
             setShowMatchingTest={setShowMatchingTest}
             screenWidth={screenWidth}
             setSelectedSet={setSelectedSet}
@@ -1106,6 +1146,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
           />
         ) : showFillTest ? (
           <Findterm
+            t={t}
             screenWidth={screenWidth}
             setSelectedSet={setSelectedSet}
             studySet={studySet} // ✅ Corrected to `studySet`
@@ -1113,6 +1154,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
           />
         ) : showCrosswordPuzzle ? (
           <CrosswordPuzzle
+            t={t}
             screenWidth={screenWidth}
             setSelectedSet={setSelectedSet}
             studySet={studySet} // ✅ Corrected to `studySet`
@@ -1128,19 +1170,19 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                 onClick={() => setShowMatchingTest(true)}
                 className="flex-1 px-4 py-2 bg-[#1a2e30] text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
-                Nối Từ
+                {t.matchingcard}
               </button>
               <button
                 onClick={() => setShowFillTest(true)}
                 className="flex-1 px-4 py-2 bg-[#1a2e30] text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
-                Tìm Từ Khoá
+                {t.fillIn}
               </button>
               <button
                 onClick={() => setShowCrosswordPuzzle(true)}
                 className="flex-1 px-4 py-2 bg-[#1a2e30] text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
               >
-                Chơi Ô Chữ
+                {t.puzzle}
               </button>
             </div>
 
@@ -1148,7 +1190,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
             {/* Loop Test Button - Also Inside for Consistent Alignment */}
             <div className={`mb-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
               <button className="w-full px-4 py-2 bg-[#1a2e30] text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] rounded-lg hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] flex items-center justify-center gap-2 transition duration-300">
-                <i className="bi bi-arrow-repeat"></i> Bài Thi Vòng Lặp
+                <i className="bi bi-arrow-repeat"></i> {t.loopTest}
               </button>
             </div>
 
@@ -1166,10 +1208,10 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               >
                 {/* Flashcard with Flip Animation */}
                 <motion.div
-                  className={`h-[35vh] flex items-center justify-center p-6 bg-black rounded-lg text-center text-3xl cursor-pointer select-none relative transition-all duration-300
+                  className={`h-[35vh] flex items-center justify-center p-6 rounded-lg text-center text-3xl cursor-pointer select-none relative transition-all duration-300
                     ${starredTerms[studySet.terms[currentIndex].term]
-                      ? "border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700]"
-                      : "border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]"}
+                      ? "bg-[#45311f] border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700]"
+                      : "bg-[#474747] border-2 border-white shadow-[0_0_20px_white]"}
                     ${screenWidth <= 770 ? "w-full mx-auto" : "w-[60%] ml-0"}`}
 
                   onClick={() => setFlipped(!flipped)}
@@ -1183,7 +1225,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                     <div className="absolute w-full h-full flex items-center justify-center">
                       <span className={`${starredTerms[studySet.terms[currentIndex].term]
                         ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-                        : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"}`}>
+                        : "text-white drop-shadow-[0_0_8px_white]"}`}>
                         {studySet.terms[currentIndex].definition} {/* or .term for back side */}
                       </span>
 
@@ -1194,7 +1236,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                         <button
                           className={`absolute top-0 right-7 text-xl z-10 transition duration-300 ${starredTerms[studySet.terms[currentIndex].term]
                             ? "text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"
-                            : "text-[#00e0ff] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#00e0ff]"
+                            : "text-white hover:text-[#ffaa33] drop-shadow-[0_0_8px_white]"
                             }`}
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent flip when clicking the star
@@ -1209,7 +1251,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                         </button>
 
                         {/* Pencil Icons */}
-                        <button className="absolute top-0 right-0 text-[#00e0ff] text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
+                        <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_white]"
                           onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
                           <i className="bi bi-pencil-fill"></i>
                         </button>
@@ -1222,7 +1264,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                     <div className="absolute w-full h-full flex items-center justify-center rotate-x-180">
                       <span className={`${starredTerms[studySet.terms[currentIndex].term]
                         ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-                        : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"}`}>
+                        : "text-white drop-shadow-[0_0_8px_white]"}`}>
                         {studySet.terms[currentIndex].term}
                       </span>
                       {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
@@ -1230,7 +1272,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                         <button
                           className={`absolute top-0 right-7 text-xl z-10 transition duration-300 ${starredTerms[studySet.terms[currentIndex].term]
                             ? "text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"
-                            : "text-[#00e0ff] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#00e0ff]"
+                            : "text-white hover:text-[#ffaa33] drop-shadow-[0_0_8px_white]"
                             }`}
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent flip when clicking the star
@@ -1245,7 +1287,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                         </button>
 
                         {/* Pencil Icons */}
-                        <button className="absolute top-0 right-0 text-[#00e0ff] text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
+                        <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_white]"
                           onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
                           <i className="bi bi-pencil-fill"></i>
                         </button>
@@ -1291,18 +1333,18 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
               <div className={`flex items-center gap-4 ${screenWidth > 770 ? "flex justify-center w-[60%]" : "w-full justify-center"}`}>
                 <button
                   onClick={prevCard}
-                  className="w-[85px] h-[45px] bg-black text-[#ff7700] border-2 border-[#ff7700] rounded-[35px] text-4xl flex items-center justify-center transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-[0_0_12px_#ff7700]"
+                  className="w-[85px] h-[45px] bg-black text-white border-2 border-white rounded-[35px] text-4xl flex items-center justify-center transition duration-300 hover:bg-white hover:text-black shadow-[0_0_12px_white]"
                 >
                   ←
                 </button>
 
-                <span className="text-xl text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] flex items-center justify-center h-[45px]">
+                <span className="text-xl text-white drop-shadow-[0_0_8px_white] flex items-center justify-center h-[45px]">
                   {currentIndex + 1} / {studySet.terms.length}
                 </span>
 
                 <button
                   onClick={nextCard}
-                  className="w-[85px] h-[45px] bg-black text-[#ff7700] border-2 border-[#ff7700] rounded-[35px] text-4xl flex items-center justify-center transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-[0_0_12px_#ff7700]"
+                  className="w-[85px] h-[45px] bg-black text-white border-2 border-white rounded-[35px] text-4xl flex items-center justify-center transition duration-300 hover:bg-white hover:text-black shadow-[0_0_12px_white]"
                 >
                   →
                 </button>
@@ -1316,7 +1358,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
 
             {/* Term List Below Flashcard */}
             <div className={`mt-4 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
-              <h3 className="text-lg text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold mb-2">Danh sách các mục ({studySet.terms.length})</h3>
+              <h3 className="text-lg text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold mb-2">{t.terminset} ({studySet.terms.length})</h3>
 
               <div className="flex flex-col gap-2">
                 {studySet.terms.map((item, index) => (
@@ -1325,7 +1367,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                   ${starredTerms[item.term] ? "border-2 border-[#ff7700] shadow-[0_0_12px_#ff7700]"
                         : "border-2 border-[#00e0ff] shadow-[0_0_12px_#00e0ff]"}`}
                   >
-                    <span className="font-semibold w-1/3 text-[#ff7700]">{item.term}</span>
+                    <span className="font-semibold w-1/3 text-white">{item.term}</span>
                     <span className="text-[#00e0ff] text-5xl px-1 font-light drop-shadow-[0_0_8px_#00e0ff]">|</span> {/* Vertical Line */}
                     <span className="text-[#00e0ff] w-2/3">{item.definition}</span>
 
@@ -1346,7 +1388,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                       {/* ✏️ Pencil Icon (Edit Button) - Positioned lower right */}
                       <button
                         onClick={() => handleEditClick(item, index)}
-                        className="absolute top-0 right-0 text-[#00e0ff] text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
+                        className="absolute top-0 right-0 text-[#00e0ff] text-xl transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
                       >
                         <i className="bi bi-pencil-fill"></i>
                       </button>
@@ -1365,7 +1407,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                   className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
                hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                 >
-                  Thêm hoặc xoá mục
+                  {t.addorremove}
                 </button>
               </div>
 
@@ -1375,9 +1417,10 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
         {isEditing && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div
-              className="bg-black p-6 rounded-lg text-white relative border border-[#00e0ff] shadow-[0_0_16px_#00e0ff]"
+              className="bg-black p-6 rounded-lg text-white relative border border-[#00e0ff] shadow-[0_0_16px_#00e0ff] z-50"
               style={{ width: screenWidth > 450 ? "450px" : "100%" }}
             >
+
               <button
                 className="absolute top-2 right-2 text-[#ff7700] text-xl hover:scale-110 transition"
                 onClick={() => setIsEditing(false)}
@@ -1385,9 +1428,9 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                 ✖
               </button>
 
-              <h2 className="text-2xl font-bold mb-4 text-[#ff7700]">Sửa mục</h2>
+              <h2 className="text-2xl font-bold mb-4 text-[#ff7700]">{t.editterm}</h2>
 
-              <label className="block mb-2 text-[#00e0ff]">Thuật Ngữ:</label>
+              <label className="block mb-2 text-[#00e0ff]">{t.term}</label>
               <input
                 type="text"
                 className="bg-black text-[#ff7700] placeholder-[#00e0ff] px-4 py-2 rounded-lg w-full mb-4 
@@ -1396,7 +1439,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                 onChange={(e) => setEditTerm(e.target.value)}
               />
 
-              <label className="block mb-2 text-[#00e0ff]">Định Nghĩa:</label>
+              <label className="block mb-2 text-[#00e0ff]">{t.definition}</label>
               <textarea
                 className="bg-black text-[#ff7700] placeholder-[#00e0ff] px-4 py-2 rounded-lg w-full mb-4 
                    border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
@@ -1409,7 +1452,7 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
                 className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
                    hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
               >
-                Xong!
+                {t.donebt}
               </button>
             </div>
           </div>

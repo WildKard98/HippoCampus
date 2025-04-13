@@ -2,7 +2,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 
-export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
+export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
     const [puzzleTitle, setPuzzleTitle] = React.useState("");
     const [qnaList, setQnaList] = React.useState([]);
     const [hoverRow, setHoverRow] = useState(null);
@@ -60,12 +60,12 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
     const checkAnswers = () => {
         const statusMap = {};
         const newUserGrid = [...userGrid.map((r) => [...r])];
-    
+
         for (let row = 0; row < grid.length; row++) {
             for (let col = 0; col < grid[row].length; col++) {
                 const expected = grid[row][col];
                 const actual = userGrid[row]?.[col];
-    
+
                 if (expected) {
                     const key = `${row}-${col}`;
                     if (actual === expected) {
@@ -76,9 +76,9 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                 }
             }
         }
-    
+
         setCellStatus(statusMap);
-    
+
         // After 2 seconds: clear wrong answers and remove incorrect highlights
         setTimeout(() => {
             const updatedGrid = [...userGrid.map((r) => [...r])];
@@ -88,13 +88,13 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                     updatedGrid[r][c] = "";
                 }
             });
-    
+
             setUserGrid(updatedGrid);
             setCellStatus({});
         }, 2000);
     };
-    
-    
+
+
     const [grid, setGrid] = useState([]);
     const [placedWords, setPlacedWords] = useState([]);
     const containerRef = React.useRef(null);
@@ -141,17 +141,18 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
     return (
         <div className="text-white font-[Itim]">
 
-            <button
-                className="mb-4 px-4 py-2 rounded border border-[#ff7700] text-[#ff7700] transition duration-300 
-             hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
-                onClick={onBack}
-            >
-                ← Quay Lại
-            </button>
+            {/* Matching Test Title & Back Button */}
+            <div className={`grid grid-cols-2 gap-30 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
+                <h2 className="text-xl justify-start text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff] font-bold">{t.puzzle}</h2>
 
-            <h1 className="text-3xl font-bold mb-6 text-[#00e0ff] drop-shadow-[0_0_12px_#00e0ff]">
-                Giải Ô Chữ
-            </h1>
+                <button
+                    className="mb-4 px-4 py-2 justify-end rounded border border-white text-white transition duration-300 
+             hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
+                    onClick={onBack}
+                >
+                    {t.backbtn}
+                </button>
+            </div>
 
             {/* Puzzle look */}
 
@@ -312,7 +313,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                                                                         ? 'bg-[#330a0a] text-[#ff0033] border-2 border-[#ff0033] shadow-[0_0_10px_#ff0033]'
                                                                         : 'bg-black text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]'
                                                             }`}
-                                                            
+
                                                     >
                                                         <input
                                                             ref={(el) => {
@@ -385,8 +386,8 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
                 <div className="flex gap-2">
                     <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]  text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
                         <span className={`font-semibold block mb-2 text-lg transition duration-200
-                            ${hoveredDirection === "across" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-[#00e0ff]"}`}>
-                            Hàng Ngang
+                            ${hoveredDirection === "across" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-white drop-shadow-[0_0_10px_white]"}`}>
+                            {t.across}
                         </span>
 
                         {placedWords
@@ -412,8 +413,8 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
 
                     <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
                         <span className={`font-semibold block mb-2 text-lg transition duration-200
-                            ${hoveredDirection === "down" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-[#00e0ff]"}`}>
-                            Hàng Dọc
+                            ${hoveredDirection === "down" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-white drop-shadow-[0_0_10px_white]"}`}>
+                            {t.down}
                         </span>
 
                         {placedWords
@@ -440,10 +441,10 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet }) {
             </div>
             <button
                 onClick={() => checkAnswers()}
-                className="mt-4 px-6 py-2 rounded border border-[#ff7700] text-[#ff7700] transition duration-300 
-             hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                className="mt-4 px-6 py-2 rounded border border-white text-white transition duration-300 
+             hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
             >
-                Kiểm tra!
+                {t.checkanswer}
             </button>
 
         </div >

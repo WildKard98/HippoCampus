@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
+export default function Findterm({ studySet, setShowFillTest, screenWidth,t }) {
     const [answers, setAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const allCorrect = studySet.terms.every((_, index) => answers[`correct-${index}`]); // ✅ Check if all answers are correct
@@ -45,12 +45,12 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
         <div className="flex flex-col text-white">
             {/* Title & Back Button */}
             <div className={`grid grid-cols-2 gap-50 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h3 className="text-xl text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">Tìm Từ Khoá</h3>
+                <h3 className="text-xl text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">{t.fillIn}</h3>
                 <button
-                    className="px-4 py-2 text-sm rounded-lg border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                    className="px-4 py-2 text-sm rounded-lg border border-white text-white hover:bg-white hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_white]"
                     onClick={() => setShowFillTest(false)}
                 >
-                    ← Quay Lại
+                    {t.backbtn}
                 </button>
             </div>
 
@@ -87,7 +87,7 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
                                      ${answers[`correct-${index}`] ? "border-[#00ff88] text-[#00ff88] shadow-[0_0_12px_#00ff88]" : ""}
                                      ${answers[`wrong-${index}`] ? "border-[#ff0033] text-[#ff0033] shadow-[0_0_12px_#ff0033]" : ""}
                                         `}
-                                placeholder="Là..?"
+                                placeholder={t.whatterm}
                                 value={answers[index] || ""}
                                 onChange={(e) => handleChange(index, e.target.value)}
                                 disabled={answers[`correct-${index}`]}
@@ -141,13 +141,13 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth }) {
                 {/* Try Again Button */}
                 <button
                     className={`mt-6 px-6 py-2 rounded-lg transition duration-300 font-semibold
-    ${allCorrect
+                              ${allCorrect
                             ? "bg-[#105422] text-[#00ff88] border border-[#00ff88] shadow-[0_0_12px_#00ff88] hover:bg-[#0D3B1E]"
-                            : "bg-black text-[#ff7700] border border-[#ff7700] shadow-[0_0_12px_#ff7700] hover:bg-[#ff7700] hover:text-black"}
-  `}
+                            : "bg-black text-white border border-white shadow-[0_0_12px_white] hover:bg-white hover:text-black"}
+                             `}
                     onClick={() => setAnswers({})} // ✅ Reset all inputs
                 >
-                    {allCorrect ? "🎉 Chúc mừng! Bạn muốn thử lại?" : "Thử Lại!"}
+                    {allCorrect ? t.congradbtn : t.tryagainbtn}
                 </button>
 
             </div>
