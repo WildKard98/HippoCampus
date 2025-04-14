@@ -114,7 +114,7 @@ export async function POST(req) {
     // Helper to generate mutations from connections
     function generateMutationsFromConnections(cluster, allConnections) {
         const mutations = []; // Store all valid mutation paths
-        const MAX_MUTATIONS = 5000;
+        const MAX_MUTATIONS = 10000;
         function dfs(path, used, visitedSet) {
             if (mutations.length >= MAX_MUTATIONS) return;
             const lastWord = path[path.length - 1]; // Get the last word in the current path
@@ -563,7 +563,7 @@ export async function POST(req) {
         let bestArea = Infinity;
         let attempts = 0;
         for (const mutation of mutations) {
-            if (attempts++ > 5000) break;
+            if (attempts++ > 10000) break;
 
             // Determine offset: center for first cluster, offset for next clusters
             const offset = combinedGrid ? getNextClusterOffset(combinedGrid) : null;

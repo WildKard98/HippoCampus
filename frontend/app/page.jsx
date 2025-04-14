@@ -63,7 +63,54 @@ export default function Home() {
         { term: "息息相关", definition: "Có liên quan mật thiết" },
         { term: "相关问题", definition: "Vấn đề liên quan" },
       ]
+    }, {
+      title: "Human Brain Functions",
+      description: "A study set about key parts of the human brain and their functions.",
+      terms: [
+        { term: "Left", definition: "Hemisphere side that controls the right side of the body and is responsible for logic, language, and analytical thinking." },
+        { term: "Right", definition: "Hemisphere side that controls the left side of the body and is associated with creativity, emotions, and spatial awareness." },
+        { term: "Prefrontal Cortex", definition: "Involved in decision making, planning, personality expression, and moderating social behavior." },
+        { term: "Amygdala", definition: "Plays a key role in processing emotions such as fear and pleasure." },
+        { term: "Hippocampus", definition: "Essential for forming and organizing new memories." },
+        { term: "Cerebellum", definition: "Coordinates voluntary movements such as posture, balance, and coordination." },
+        { term: "Brainstem", definition: "Controls automatic functions like breathing, heart rate, and blood pressure." },
+        { term: "Corpus Callosum", definition: "A bundle of nerve fibers that connects the left and right hemispheres of the brain." },
+        { term: "Occipital", definition: "A lobe responsible for visual processing and interpretation." },
+        { term: "Temporal", definition: "A lobe renvolved in processing auditory information and encoding memory." }
+      ]
+    }, {
+      title: "Mon An Viet Nam",
+      description: "10 món ăn đặc trưng của Việt Nam, thử thách khả năng nhận biết từ mô tả phức tạp.",
+      terms: [
+        { term: "Pho", definition: "Món nước sử dụng nước dùng trong được hầm từ xương bò và nhiều loại gia vị như quế, hồi, gừng nướng." },
+        { term: "Banh Mi", definition: "Loại bánh kẹp giòn ruộm, bên trong là sự kết hợp giữa protein, rau sống, và nước sốt đậm đà." },
+        { term: "Bun Bo", definition: "Món ăn cay nồng của miền Trung, sử dụng sợi bún to và nước dùng có màu đỏ đặc trưng từ sa tế." },
+        { term: "Com Tam", definition: "Hạt gạo vỡ được hấp chín, ăn kèm với sườn nướng, trứng ốp la và đồ chua." },
+        { term: "Goi Cuon", definition: "Cuốn bánh tráng trong suốt chứa rau sống, bún, thịt luộc hoặc tôm, ăn kèm nước chấm đậm đà." },
+        { term: "Banh Xeo", definition: "Loại bánh mỏng được chiên vàng giòn, nhân gồm tôm, thịt và giá đỗ, ăn kèm rau sống và nước mắm chua ngọt." },
+        { term: "Hu Tieu", definition: "Món ăn phổ biến ở miền Nam với sợi mì hoặc hủ tiếu dai, ăn cùng nước dùng trong từ xương heo." },
+        { term: "Cha Gio", definition: "Cuốn chiên giòn có nhân làm từ thịt băm, mộc nhĩ, miến, và gia vị, thường ăn với rau sống." },
+        { term: "Mi Quang", definition: "Món mì trộn khô đặc trưng Quảng Nam, sử dụng nước dùng ít, đi kèm bánh tráng mè và đậu phộng." },
+        { term: "Chao Long", definition: "Món ăn sáng hoặc tối được nấu từ gạo và nội tạng heo, ăn kèm hành phi, tiêu và rau thơm." }
+      ]
+    },{
+      title: "Famous Singers",
+      description: "Guess the artist from their hit songs. Terms are puzzle-friendly.",
+      terms: [
+        { term: "TaylorSwift", definition: "Anti-Hero, Blank Space, Love Story, Cruel Summer" },
+        { term: "ArianaGrande", definition: "7 rings, Into You, Thank U Next, No Tears Left to Cry" },
+        { term: "BillieEilish", definition: "bad guy, Ocean Eyes, Happier Than Ever, Everything I Wanted" },
+        { term: "OliviaRodrigo", definition: "drivers license, good 4 u, deja vu, vampire" },
+        { term: "BrunoMars", definition: "24K Magic, Uptown Funk, That's What I Like, Just The Way You Are" },
+        { term: "MileyCyrus", definition: "Flowers, Wrecking Ball, Party In The USA, Midnight Sky" },
+        { term: "DojaCat", definition: "Say So, Woman, Kiss Me More, Paint The Town Red" },
+        { term: "TheWeeknd", definition: "Blinding Lights, Save Your Tears, Starboy, The Hills" },
+        { term: "DuaLipa", definition: "Levitating, Don't Start Now, New Rules, Physical" },
+        { term: "HarryStyles", definition: "As It Was, Watermelon Sugar, Adore You, Falling" }
+      ]
     }
+    
+  
   ]);
   useEffect(() => {
     const savedSets = localStorage.getItem("myStudySets");
@@ -76,7 +123,7 @@ export default function Home() {
       }
     }
   }, []);
-  
+
   const [randomTip, setRandomTip] = useState(studyTips[0]);
 
   useEffect(() => {
@@ -134,11 +181,11 @@ export default function Home() {
               className={`h-10 w-15 object-contain ml-1 ${screenWidth <= 770 ? "block" : "hidden"}`}
             />
             <div className="fle px-1">
-            <img
-              src="/logo6.png"
-              alt="Hippocampus Logo"
-              className={`h-14 w-40 object-contain ml-2 ${screenWidth > 770 ? "block" : "hidden"}`}
-            />
+              <img
+                src="/logo6.png"
+                alt="Hippocampus Logo"
+                className={`h-14 w-40 object-contain ml-2 ${screenWidth > 770 ? "block" : "hidden"}`}
+              />
             </div>
           </div>
 
@@ -958,10 +1005,10 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
           ☰
         </button>
         <img
-              src="/logo5.png"
-              alt="Hippocampus Logo"
-              className={`h-10 w-15 object-contain ml-1`}
-            />
+          src="/logo5.png"
+          alt="Hippocampus Logo"
+          className={`h-10 w-15 object-contain ml-1`}
+        />
       </div>
 
       {/* Navigation Items */}
