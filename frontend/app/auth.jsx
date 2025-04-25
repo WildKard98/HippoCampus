@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
-import api from "./api";
 
 export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername }) {
     const [isLogin, setIsLogin] = useState(true);
