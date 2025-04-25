@@ -8,10 +8,11 @@ import { motion, AnimatePresence } from "framer-motion"; // 🔹 Import motion a
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import MatchingCard from "./matchingcard";
 import Findterm from "./findterm";
-import CrosswordPuzzle from "./crossword"
+import CrosswordPuzzle from "./crossword";
 import GeneratePuzzle from "./generatepuzzle";
-import { useLanguage } from "./languagecontext"
-
+import { useLanguage } from "./languagecontext";
+import AuthForm from "./auth";
+import { useRouter } from "next/navigation";
 export default function Home() {
   useEffect(() => {
     document.body.style.fontFamily = "Itim, sans-serif";
@@ -28,6 +29,13 @@ export default function Home() {
   const [selectedPuzzle, setSelectedPuzzle] = useState(null);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const { t, setLang, lang } = useLanguage();
+  const [isAuth, setIsAuth] = useState(false);
+  const [username, setUsername] = useState(""); // ← Get this from login response
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+
+
   const studyTips = t.studyTips;
   useEffect(() => {
     setIsHome(true);
@@ -93,7 +101,7 @@ export default function Home() {
         { term: "Mi Quang", definition: "Món mì trộn khô đặc trưng Quảng Nam, sử dụng nước dùng ít, đi kèm bánh tráng mè và đậu phộng." },
         { term: "Chao Long", definition: "Món ăn sáng hoặc tối được nấu từ gạo và nội tạng heo, ăn kèm hành phi, tiêu và rau thơm." }
       ]
-    },{
+    }, {
       title: "Famous Singers",
       description: "Guess the artist from their hit songs. Terms are puzzle-friendly.",
       terms: [
@@ -109,8 +117,8 @@ export default function Home() {
         { term: "HarryStyles", definition: "As It Was, Watermelon Sugar, Adore You, Falling" }
       ]
     }
-    
-  
+
+
   ]);
   useEffect(() => {
     const savedSets = localStorage.getItem("myStudySets");
@@ -121,6 +129,16 @@ export default function Home() {
       } catch (e) {
         console.error("Failed to parse saved study sets:", e);
       }
+    }
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const savedUsername = localStorage.getItem("username");
+
+    if (token && savedUsername) {
+      setIsAuth(true);
+      setUsername(savedUsername);
     }
   }, []);
 
@@ -154,319 +172,358 @@ export default function Home() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen bg-black text-white flex flex-col">
+      {showLogin ? (
+        <AuthForm
+          screenWidth={screenWidth}
+          onBack={() => setShowLogin(false)} // ✅ JUST close login screen, no need to check token
+          setIsAuth={setIsAuth}
+          setUsername={setUsername}
+          setShowLogin={setShowLogin} // ✅ Pass setShowLogin to AuthForm
+        />
+      ) : (
+        <div className="min-h-screen bg-black text-white flex flex-col">
 
-        {/* Unified Header */}
-        <header className="flex justify-between items-center p-4 bg-black text-white">
+          {/* Unified Header */}
+          <header className="flex justify-between items-center p-4 bg-black text-white">
 
-          {/* Left: Hamburger & App Name */}
-          <div className="flex items-center">
-            <button
-              className="bg-black text-[#00e0ff] text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-[#00e0ff] hover:text-black"
-              onClick={() => {
-                if (window.innerWidth <= 770) {
-                  setIsWingPanelOpen(true);  // Open WingPanel if screen width ≤ 770px
-                } else {
-                  setIsMenuCollapsed(!isMenuCollapsed); // Otherwise, toggle side panel
-                }
-              }}
-            >
-              ☰
-            </button>
+            {/* Left: Hamburger & App Name */}
+            <div className="flex items-center">
+              <button
+                className="bg-black text-[#00e0ff] text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-[#00e0ff] hover:text-black"
+                onClick={() => {
+                  if (window.innerWidth <= 770) {
+                    setIsWingPanelOpen(true);  // Open WingPanel if screen width ≤ 770px
+                  } else {
+                    setIsMenuCollapsed(!isMenuCollapsed); // Otherwise, toggle side panel
+                  }
+                }}
+              >
+                ☰
+              </button>
 
-            {/* Web Title (Changes based on screen size) */}
-            <img
-              src="/logo5.png"
-              alt="Hippocampus Logo"
-              className={`h-10 w-15 object-contain ml-1 ${screenWidth <= 770 ? "block" : "hidden"}`}
-            />
-            <div className="fle px-1">
+              {/* Web Title (Changes based on screen size) */}
               <img
-                src="/logo6.png"
+                src="/logo5.png"
                 alt="Hippocampus Logo"
-                className={`h-14 w-40 object-contain ml-2 ${screenWidth > 770 ? "block" : "hidden"}`}
+                className={`h-10 w-15 object-contain ml-1 ${screenWidth <= 770 ? "block" : "hidden"}`}
               />
+              <div className="fle px-1">
+                <img
+                  src="/logo6.png"
+                  alt="Hippocampus Logo"
+                  className={`h-14 w-40 object-contain ml-2 ${screenWidth > 770 ? "block" : "hidden"}`}
+                />
+              </div>
             </div>
-          </div>
 
 
-          {/* Middle: Search Bar */}
-          {screenWidth >= 620 && (
-            <div className="w-2/3 flex justify-center px-4">
-              <div className="relative w-full max-w-lg">
-                {/* Neon Blue Search Icon */}
+            {/* Middle: Search Bar */}
+            {screenWidth >= 620 && (
+              <div className="w-2/3 flex justify-center px-4">
+                <div className="relative w-full max-w-lg">
+                  {/* Neon Blue Search Icon */}
+                  <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
+
+                  {/* Neon Input Field */}
+                  <input
+                    type="text"
+                    placeholder={t.searchbar}
+                    className="bg-black  text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] shadow-[0_0_8px_#00e0ff] transition"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Right: Plus Button, Type/Draw Toggle, User Info */}
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => {
+                  setIsCreatingSet(true);
+                  setIsEditingSet(null);
+                  setIsCreatePuzzle(false);
+                  setSelectedSet(null);
+                  setIsHome(false);
+                }}
+                className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-lg transition duration-300
+               hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+
+              >
+                +
+              </button>
+
+
+              {/* user name, login */}
+              {!isAuth ? (
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className="bg-[#00e0ff] text-black px-4 py-2 rounded-full font-semibold hover:bg-[#00bfff] transition"
+                >
+                  Login
+                </button>
+              ) : (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowDropdown(!showDropdown)}
+                    className="bg-[#00e0ff] text-black px-4 py-2 rounded-full font-semibold hover:bg-[#00bfff] transition"
+                  >
+                    {username}
+                  </button>
+                  {showDropdown && (
+                     <div className="absolute right-0 mt-2 w-20 bg-black border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-50">
+                      <button
+                        onClick={() => {
+                          setIsAuth(false);
+                          setUsername("");
+                          localStorage.removeItem("token");
+                          localStorage.removeItem("username");
+                        }}
+                        className="block w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="relative">
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => setShowLangMenu((prev) => !prev)}
+                >
+                  <div className="min-w-[80px] max-w-[80px] px-2 py-1 bg-black border border-[#00e0ff] rounded-md flex items-center justify-center">
+                    <span className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold text-sm whitespace-nowrap">
+                      {lang === "vi" ? "Tiếng Việt" : "English"}
+                    </span>
+                  </div>
+
+                </div>
+
+                {showLangMenu && (
+                  <div className="absolute right-0 mt-2 w-32 bg-black border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-50">
+                    <button
+                      onClick={() => { setLang("en"); setShowLangMenu(false); }}
+                      className="w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
+                    >
+                      English
+                    </button>
+                    <button
+                      onClick={() => { setLang("vi"); setShowLangMenu(false); }}
+                      className="w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
+                    >
+                      Tiếng Việt
+                    </button>
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+          </header>
+
+          {/* Search bar adjusts when screen width < 620px */}
+          {screenWidth < 620 && (
+            <div className="w-full px-4 mt-2 flex justify-center">
+              <div className="relative w-full max-w-none">
                 <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
-
-                {/* Neon Input Field */}
                 <input
                   type="text"
                   placeholder={t.searchbar}
-                  className="bg-black  text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] shadow-[0_0_8px_#00e0ff] transition"
+                  className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                 />
               </div>
             </div>
           )}
 
-          {/* Right: Plus Button, Type/Draw Toggle, User Info */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => {
-                setIsCreatingSet(true);
-                setIsEditingSet(null);
-                setIsCreatePuzzle(false);
-                setSelectedSet(null);
-                setIsHome(false);
-              }}
-              className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-lg transition duration-300
-               hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
 
+          {/* WingPanel (Hidden by default, appears when clicking the hamburger) */}
+          {isWingPanelOpen && (
+            <WingPanel
+              isOpen={isWingPanelOpen}
+              setIsOpen={setIsWingPanelOpen}
+              setIsCreatePuzzle={setIsCreatePuzzle}
+              setIsCreatingSet={setIsCreatingSet}
+              setSelectedSet={setSelectedSet}
+              setIsEditingSet={setIsEditingSet}
+              setIsHome={setIsHome}
+              t={t}
+            />
+          )}
+
+
+          {/* Main Container with Sidebar & Content */}
+          <div className="flex flex-1 relative">
+
+            {/* Side Navigation */}
+            <aside
+              className={`bg-black p-4 transition-all border-t border-r border-[#00e0ff] rounded-tr-xl ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"
+                }`}
             >
-              +
-            </button>
+
+              <nav className="flex flex-col gap-4">
+                <button
+                  onClick={() => {
+                    setIsCreatingSet(false);
+                    setIsHome(true);
+                    setIsCreatePuzzle(false);
+                    setIsEditingSet(null);
+                    const tip = studyTips[Math.floor(Math.random() * studyTips.length)];
+                    setRandomTip(tip);
+                    setSelectedSet(null);
+                  }}
+                  className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                >
+                  <i className="bi bi-house-door"></i> {!isMenuCollapsed && t.home}
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedSet(null);
+                    if (isCreatingSet !== "library") {
+                      setIsCreatingSet("library");
+                    }
+                    setIsCreatePuzzle(false);
+                    setIsHome(false);
+                  }}
+                  className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                >
+                  <i className="bi bi-folder2"></i> {!isMenuCollapsed && t.library}
+                </button>
+
+                <hr className="border-[#00e0ff]" />
+                <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>{t.yourFolders}</p>
+                <button
+                  onClick={() => {
+                    setIsCreatingSet(false);
+                    setSelectedSet(null);
+                    setIsHome(false);
+                    setIsCreatePuzzle(false);
+                  }}
+                  className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
+                  <i className="bi bi-plus"></i> {!isMenuCollapsed && t.createfolder}
+                </button>
+                <hr className="border-[#00e0ff]" />
+                <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>{t.explore}</p>
+                <button
+                  onClick={() => {
+
+                    setIsCreatePuzzle(true);
+                    setIsCreatingSet(false);
+                    setSelectedSet(null);
+                    setIsHome(false);
+                  }}
+                  className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                >
+                  <i className="bi bi-puzzle"></i> {!isMenuCollapsed && t.playcrossword}
+                </button>
+              </nav>
+            </aside>
 
 
-            {/* Optional: Type / Draw buttons can follow the same Tron theme later */}
-
-            <div className="relative">
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => setShowLangMenu((prev) => !prev)}
-              >
-                <div className="bg-[#00e0ff] rounded-full w-10 h-10 shadow-[0_0_6px_#00e0ff]" />
-                <div className="min-w-[80px] max-w-[80px] px-2 py-1 bg-black border border-[#00e0ff] rounded-md flex items-center justify-center">
-                  <span className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold text-sm whitespace-nowrap">
-                    {lang === "vi" ? "Tiếng Việt" : "English"}
-                  </span>
-                </div>
-
-              </div>
-
-              {showLangMenu && (
-                <div className="absolute right-0 mt-2 w-32 bg-black border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-50">
-                  <button
-                    onClick={() => { setLang("en"); setShowLangMenu(false); }}
-                    className="w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
-                  >
-                    English
-                  </button>
-                  <button
-                    onClick={() => { setLang("vi"); setShowLangMenu(false); }}
-                    className="w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
-                  >
-                    Tiếng Việt
-                  </button>
-                </div>
-              )}
-            </div>
-
-          </div>
-
-        </header>
-
-        {/* Search bar adjusts when screen width < 620px */}
-        {screenWidth < 620 && (
-          <div className="w-full px-4 mt-2 flex justify-center">
-            <div className="relative w-full max-w-none">
-              <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
-              <input
-                type="text"
-                placeholder={t.searchbar}
-                className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
-              />
-            </div>
-          </div>
-        )}
-
-
-        {/* WingPanel (Hidden by default, appears when clicking the hamburger) */}
-        {isWingPanelOpen && (
-          <WingPanel
-            isOpen={isWingPanelOpen}
-            setIsOpen={setIsWingPanelOpen}
-            setIsCreatePuzzle={setIsCreatePuzzle}
-            setIsCreatingSet={setIsCreatingSet}
-            setSelectedSet={setSelectedSet}
-            setIsEditingSet={setIsEditingSet}
-            setIsHome={setIsHome}
-            t={t}
-          />
-        )}
-
-
-        {/* Main Container with Sidebar & Content */}
-        <div className="flex flex-1 relative">
-
-          {/* Side Navigation */}
-          <aside
-            className={`bg-black p-4 transition-all border-t border-r border-[#00e0ff] rounded-tr-xl ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"
-              }`}
-          >
-
-            <nav className="flex flex-col gap-4">
-              <button
-                onClick={() => {
-                  setIsCreatingSet(false);
-                  setIsHome(true);
-                  setIsCreatePuzzle(false);
-                  setIsEditingSet(null);
-                  const tip = studyTips[Math.floor(Math.random() * studyTips.length)];
-                  setRandomTip(tip);
-                  setSelectedSet(null);
-                }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
-              >
-                <i className="bi bi-house-door"></i> {!isMenuCollapsed && t.home}
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedSet(null);
-                  if (isCreatingSet !== "library") {
-                    setIsCreatingSet("library");
-                  }
-                  setIsCreatePuzzle(false);
-                  setIsHome(false);
-                }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
-              >
-                <i className="bi bi-folder2"></i> {!isMenuCollapsed && t.library}
-              </button>
-
-              <hr className="border-[#00e0ff]" />
-              <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>{t.yourFolders}</p>
-              <button
-                onClick={() => {
-                  setIsCreatingSet(false);
-                  setSelectedSet(null);
-                  setIsHome(false);
-                  setIsCreatePuzzle(false);
-                }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
-                <i className="bi bi-plus"></i> {!isMenuCollapsed && t.createfolder}
-              </button>
-              <hr className="border-[#00e0ff]" />
-              <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>{t.explore}</p>
-              <button
-                onClick={() => {
-
-                  setIsCreatePuzzle(true);
-                  setIsCreatingSet(false);
-                  setSelectedSet(null);
-                  setIsHome(false);
-                }}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
-              >
-                <i className="bi bi-puzzle"></i> {!isMenuCollapsed && t.playcrossword}
-              </button>
-            </nav>
-          </aside>
-
-
-          {/* Main Content Area */}
-          <main
-            className="flex-1 p-6 overflow-x-hidden overflow-y-visible relative"
-            style={{ maxWidth: "100%" }}
-          >
-            {isCreatingSet === "library" ? (
-              <LibraryContent
-                studySets={studySets}
-                screenWidth={screenWidth}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                setIsEditingSet={setIsEditingSet}
-                setIsCreatingSet={setIsCreatingSet}
-                selectedSet={selectedSet}
-                setSelectedSet={setSelectedSet}
-                setIsHome={setIsHome}
-                t={t}
-              />
-            ) : isEditingSet ? (
-              <EditSet
-                studySet={isEditingSet}
-                t={t}
-                onSave={(updatedSet) => {
-                  setStudySets(
-                    studySets.map((set) =>
-                      set.title === isEditingSet.title ? updatedSet : set
-                    )
-                  );
-                  setIsEditingSet(null); // Exit edit mode
-                  setIsCreatingSet(false);
-                  setSelectedSet(updatedSet);
-                }}
-                onCancel={() => setIsEditingSet(null)}
-              />
-
-            ) : isCreatingSet ? (
-              <CreateSet
-                t={t}
-                onSave={(newSet) => {
-                  setStudySets([...studySets, newSet]);
-                  setIsCreatingSet(false);
-                }}
-              />
-            ) : isCreatePuzzle ? (
-              showGenerator === "play" && selectedPuzzle ? (
-                <PuzzlePage
-                  screenWidth={screenWidth}
-                  setShowGenerator={setShowGenerator}
-                  showGenerator={showGenerator}
-                  setSelectedPuzzle={setSelectedPuzzle}
+            {/* Main Content Area */}
+            <main
+              className="flex-1 p-6 overflow-x-hidden overflow-y-visible relative"
+              style={{ maxWidth: "100%" }}
+            >
+              {isCreatingSet === "library" ? (
+                <LibraryContent
                   studySets={studySets}
-                  setStudySets={setStudySets}
+                  screenWidth={screenWidth}
+                  isEditing={isEditing}
+                  setIsEditing={setIsEditing}
+                  setIsEditingSet={setIsEditingSet}
+                  setIsCreatingSet={setIsCreatingSet}
+                  selectedSet={selectedSet}
+                  setSelectedSet={setSelectedSet}
+                  setIsHome={setIsHome}
                   t={t}
                 />
+              ) : isEditingSet ? (
+                <EditSet
+                  studySet={isEditingSet}
+                  t={t}
+                  onSave={(updatedSet) => {
+                    setStudySets(
+                      studySets.map((set) =>
+                        set.title === isEditingSet.title ? updatedSet : set
+                      )
+                    );
+                    setIsEditingSet(null); // Exit edit mode
+                    setIsCreatingSet(false);
+                    setSelectedSet(updatedSet);
+                  }}
+                  onCancel={() => setIsEditingSet(null)}
+                />
 
+              ) : isCreatingSet ? (
+                <CreateSet
+                  t={t}
+                  onSave={(newSet) => {
+                    setStudySets([...studySets, newSet]);
+                    setIsCreatingSet(false);
+                  }}
+                />
+              ) : isCreatePuzzle ? (
+                showGenerator === "play" && selectedPuzzle ? (
+                  <PuzzlePage
+                    screenWidth={screenWidth}
+                    setShowGenerator={setShowGenerator}
+                    showGenerator={showGenerator}
+                    setSelectedPuzzle={setSelectedPuzzle}
+                    studySets={studySets}
+                    setStudySets={setStudySets}
+                    t={t}
+                  />
+
+                ) : (
+                  <PuzzlePage
+                    screenWidth={screenWidth}
+                    setShowGenerator={setShowGenerator}
+                    showGenerator={showGenerator}
+                    setSelectedPuzzle={setSelectedPuzzle}
+                    studySets={studySets} // ✅ correct plural
+                    setStudySets={setStudySets}
+                    setIsHome={setIsHome}
+                    t={t}
+                  />
+
+                )
               ) : (
-                <PuzzlePage
+                <HomeContent
+                  studySets={studySets}
                   screenWidth={screenWidth}
-                  setShowGenerator={setShowGenerator}
-                  showGenerator={showGenerator}
-                  setSelectedPuzzle={setSelectedPuzzle}
-                  studySets={studySets} // ✅ correct plural
-                  setStudySets={setStudySets}
+                  isEditing={isEditing}
+                  setIsEditing={setIsEditing}
+                  setIsEditingSet={setIsEditingSet}
+                  setIsCreatingSet={setIsCreatingSet}
+                  selectedSet={selectedSet}
+                  setSelectedSet={setSelectedSet}
                   setIsHome={setIsHome}
                   t={t}
                 />
 
-              )
-            ) : (
-              <HomeContent
-                studySets={studySets}
-                screenWidth={screenWidth}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                setIsEditingSet={setIsEditingSet}
-                setIsCreatingSet={setIsCreatingSet}
-                selectedSet={selectedSet}
-                setSelectedSet={setSelectedSet}
-                setIsHome={setIsHome}
-                t={t}
-              />
+              )}
+            </main>
 
+            {/* Right Panel (Hidden on small screens OR when creating a set) */}
+            {screenWidth > 770 && isHome && (
+              <div className="hidden md:block">
+                <aside className="w-55 bg-black p-4 absolute right-0 top-0 h-full border-t border-l border-[#00e0ff] shadow-[0_0_10px_#00e0ff] rounded-tl-2xl">
+                  <h3 className="flex items-center gap-2 text-lg font-semibold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-lightbulb" viewBox="0 0 16 16">
+                      <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1" />
+                    </svg>
+                    {t.flashcardTip}
+                  </h3>
+
+                  <p className="text-sm mt-2 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] opacity-80">
+                    {randomTip}
+                  </p>
+                </aside>
+              </div>
             )}
-          </main>
-
-          {/* Right Panel (Hidden on small screens OR when creating a set) */}
-          {screenWidth > 770 && isHome && (
-            <div className="hidden md:block">
-              <aside className="w-55 bg-black p-4 absolute right-0 top-0 h-full border-t border-l border-[#00e0ff] shadow-[0_0_10px_#00e0ff] rounded-tl-2xl">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-lightbulb" viewBox="0 0 16 16">
-                    <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1" />
-                  </svg>
-                  {t.flashcardTip}
-                </h3>
-
-                <p className="text-sm mt-2 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] opacity-80">
-                  {randomTip}
-                </p>
-              </aside>
-            </div>
-          )}
-
-
+          </div>
         </div>
-      </div>
+      )}
     </DndProvider>
   );
 }
