@@ -2,44 +2,45 @@
 import { useState } from "react";
 import axios from "axios";
 
-export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername }) {
+export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, reloadAuthInfo }) {
+
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState("");
     const [inputUsername, setInputUsername] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
+   const handleSubmit = async (e) => {
+    e.preventDefault();
+    const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
 
-        try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-            const res = await axios.post(`${apiUrl}${endpoint}`, {
-                username: inputUsername,
-                email,
-                password,
-            });
+    try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+        const payload = isLogin
+            ? { email, password }
+            : { username: inputUsername, email, password };
 
-            if (isLogin) {
-                localStorage.setItem("username", res.data.user.username);
-                localStorage.setItem("token", res.data.token);
-                setMessage("✅ Login successful!");
-                setIsAuth(true);
-                setUsername(res.data.user.username);
-                onBack();
-                setTimeout(() => {
-                    onBack();
-                }, 800);
-            } else {
-                setMessage("✅ Registered successfully. You can now login.");
-                setIsLogin(true); // Switch to login form after registration
-            }
-        } catch (err) {
-            console.error("❌ Auth error:", err.response?.data || err.message);
-            setMessage(err.response?.data?.message || "Something went wrong.");
-        }
-    };
+        const res = await axios.post(`${apiUrl}${endpoint}`, payload);
+
+        console.log("🔥 API response data:", res.data);
+
+        // Always set username and token
+        localStorage.setItem("username", res.data.user.username);
+        localStorage.setItem("token", res.data.token);
+
+        setMessage(isLogin ? "✅ Login successful!" : "✅ Registered successfully.");
+        reloadAuthInfo(); 
+        onBack();
+        setTimeout(() => {
+            onBack();
+        }, 800);
+
+    } catch (err) {
+        console.error("❌ Auth error:", err.response?.data || err.message);
+        setMessage(err.response?.data?.message || "Something went wrong.");
+    }
+};
+
 
 
     return (

@@ -12,7 +12,10 @@ import CrosswordPuzzle from "./crossword";
 import GeneratePuzzle from "./generatepuzzle";
 import { useLanguage } from "./languagecontext";
 import AuthForm from "./auth";
-import { useRouter } from "next/navigation";
+import { createStudySet } from './api';
+import { updateStudySet } from './api';
+import { getStudySets } from './api';
+
 export default function Home() {
   useEffect(() => {
     document.body.style.fontFamily = "Itim, sans-serif";
@@ -34,127 +37,50 @@ export default function Home() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-
-
+  const [shuffledDefinitions, setShuffledDefinitions] = useState([]);
+  const [selectedSet, setSelectedSet] = useState(null);
   const studyTips = t.studyTips;
-  useEffect(() => {
-    setIsHome(true);
-  }, []);
-  const [studySets, setStudySets] = useState([
-    {
-      title: "Fruits",
-      description: "A study set about different kinds of fruits",
-      terms: [
-        { term: "Apple", definition: "A small, round fruit that is usually red or black with a hard pit inside." },
-        { term: "Grape", definition: "A small, round fruit that grows in bunches and is often used to make wine." },
-        { term: "Lemon", definition: "A sour, yellow citrus fruit used for juice and flavoring." },
-        { term: "Cherry", definition: "A small, juicy fruit that grows in bunches and has a single hard pit." },
-        { term: "Banana", definition: "A long, curved fruit with yellow skin and soft, sweet flesh." }
-      ]
-    }, {
-      title: "Thành Phố Việt Nam",
-      description: "Tên của các thành phố nổi tiếng ở Việt Nam.",
-      terms: [
-        { term: "Ha Noi", definition: "Thủ đô của Việt Nam, nổi tiếng với lịch sử và văn hóa." },
-        { term: "Ho Chi Minh", definition: "Thành phố lớn nhất Việt Nam, trung tâm kinh tế lớn." },
-        { term: "Đa Nang", definition: "Thành phố ven biển miền Trung, nổi tiếng với cầu Rồng." },
-        { term: "Hue", definition: "Cố đô của Việt Nam, nổi tiếng với di tích lịch sử và cung đình." },
-        { term: "Can Tho", definition: "Thành phố lớn nhất ở miền Tây Nam Bộ, nổi tiếng với chợ nổi." },
-        { term: "Hoi An", definition: "Phố cổ nổi tiếng với kiến trúc cổ và đèn lồng." }
-      ]
-    }, {
-      title: "中国成语",
-      description: "Các thành ngữ 4 chữ thông dụng trong tiếng Trung",
-      terms: [
-        { term: "自力更生", definition: "Tự lực cánh sinh" },
-        { term: "生生不息", definition: "Sinh sôi không ngừng" },
-        { term: "息息相关", definition: "Có liên quan mật thiết" },
-        { term: "相关问题", definition: "Vấn đề liên quan" },
-      ]
-    }, {
-      title: "Human Brain Functions",
-      description: "A study set about key parts of the human brain and their functions.",
-      terms: [
-        { term: "Left", definition: "Hemisphere side that controls the right side of the body and is responsible for logic, language, and analytical thinking." },
-        { term: "Right", definition: "Hemisphere side that controls the left side of the body and is associated with creativity, emotions, and spatial awareness." },
-        { term: "Prefrontal Cortex", definition: "Involved in decision making, planning, personality expression, and moderating social behavior." },
-        { term: "Amygdala", definition: "Plays a key role in processing emotions such as fear and pleasure." },
-        { term: "Hippocampus", definition: "Essential for forming and organizing new memories." },
-        { term: "Cerebellum", definition: "Coordinates voluntary movements such as posture, balance, and coordination." },
-        { term: "Brainstem", definition: "Controls automatic functions like breathing, heart rate, and blood pressure." },
-        { term: "Corpus Callosum", definition: "A bundle of nerve fibers that connects the left and right hemispheres of the brain." },
-        { term: "Occipital", definition: "A lobe responsible for visual processing and interpretation." },
-        { term: "Temporal", definition: "A lobe renvolved in processing auditory information and encoding memory." }
-      ]
-    }, {
-      title: "Mon An Viet Nam",
-      description: "10 món ăn đặc trưng của Việt Nam, thử thách khả năng nhận biết từ mô tả phức tạp.",
-      terms: [
-        { term: "Pho", definition: "Món nước sử dụng nước dùng trong được hầm từ xương bò và nhiều loại gia vị như quế, hồi, gừng nướng." },
-        { term: "Banh Mi", definition: "Loại bánh kẹp giòn ruộm, bên trong là sự kết hợp giữa protein, rau sống, và nước sốt đậm đà." },
-        { term: "Bun Bo", definition: "Món ăn cay nồng của miền Trung, sử dụng sợi bún to và nước dùng có màu đỏ đặc trưng từ sa tế." },
-        { term: "Com Tam", definition: "Hạt gạo vỡ được hấp chín, ăn kèm với sườn nướng, trứng ốp la và đồ chua." },
-        { term: "Goi Cuon", definition: "Cuốn bánh tráng trong suốt chứa rau sống, bún, thịt luộc hoặc tôm, ăn kèm nước chấm đậm đà." },
-        { term: "Banh Xeo", definition: "Loại bánh mỏng được chiên vàng giòn, nhân gồm tôm, thịt và giá đỗ, ăn kèm rau sống và nước mắm chua ngọt." },
-        { term: "Hu Tieu", definition: "Món ăn phổ biến ở miền Nam với sợi mì hoặc hủ tiếu dai, ăn cùng nước dùng trong từ xương heo." },
-        { term: "Cha Gio", definition: "Cuốn chiên giòn có nhân làm từ thịt băm, mộc nhĩ, miến, và gia vị, thường ăn với rau sống." },
-        { term: "Mi Quang", definition: "Món mì trộn khô đặc trưng Quảng Nam, sử dụng nước dùng ít, đi kèm bánh tráng mè và đậu phộng." },
-        { term: "Chao Long", definition: "Món ăn sáng hoặc tối được nấu từ gạo và nội tạng heo, ăn kèm hành phi, tiêu và rau thơm." }
-      ]
-    }, {
-      title: "Famous Singers",
-      description: "Guess the artist from their hit songs. Terms are puzzle-friendly.",
-      terms: [
-        { term: "TaylorSwift", definition: "Anti-Hero, Blank Space, Love Story, Cruel Summer" },
-        { term: "ArianaGrande", definition: "7 rings, Into You, Thank U Next, No Tears Left to Cry" },
-        { term: "BillieEilish", definition: "bad guy, Ocean Eyes, Happier Than Ever, Everything I Wanted" },
-        { term: "OliviaRodrigo", definition: "drivers license, good 4 u, deja vu, vampire" },
-        { term: "BrunoMars", definition: "24K Magic, Uptown Funk, That's What I Like, Just The Way You Are" },
-        { term: "MileyCyrus", definition: "Flowers, Wrecking Ball, Party In The USA, Midnight Sky" },
-        { term: "DojaCat", definition: "Say So, Woman, Kiss Me More, Paint The Town Red" },
-        { term: "TheWeeknd", definition: "Blinding Lights, Save Your Tears, Starboy, The Hills" },
-        { term: "DuaLipa", definition: "Levitating, Don't Start Now, New Rules, Physical" },
-        { term: "HarryStyles", definition: "As It Was, Watermelon Sugar, Adore You, Falling" }
-      ]
-    }
-
-
-  ]);
-  useEffect(() => {
-    const savedSets = localStorage.getItem("myStudySets");
-    if (savedSets) {
-      try {
-        const parsed = JSON.parse(savedSets);
-        setStudySets(parsed);
-      } catch (e) {
-        console.error("Failed to parse saved study sets:", e);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
+  const [randomTip, setRandomTip] = useState(studyTips[0]);
+  const reloadAuthInfo = () => {
     const token = localStorage.getItem("token");
     const savedUsername = localStorage.getItem("username");
 
     if (token && savedUsername) {
       setIsAuth(true);
       setUsername(savedUsername);
+
+      getStudySets(savedUsername)
+        .then((sets) => setStudySets(sets))
+        .catch((err) => console.error('Failed to refresh study sets after login:', err));
+    }
+  };
+
+  useEffect(() => {
+    setIsHome(true);
+  }, []);
+  const [studySets, setStudySets] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const savedUsername = localStorage.getItem("username");
+
+    if (token && savedUsername) {   // 👈 only check token and username now
+      // after login success
+      setIsAuth(true);
+      setUsername(savedUsername);
+      setShowLogin(false);
+
+      getStudySets(savedUsername)
+        .then((sets) => setStudySets(sets))
+        .catch((err) => console.error('Failed to refresh study sets after login:', err));
+
     }
   }, []);
-
-  const [randomTip, setRandomTip] = useState(studyTips[0]);
 
   useEffect(() => {
     const tip = studyTips[Math.floor(Math.random() * studyTips.length)];
     setRandomTip(tip);
   }, [t]); // 🔁 update on language change
-  // Main Feature variable 
-  const [shuffledDefinitions, setShuffledDefinitions] = useState([]);
-  const [selectedSet, setSelectedSet] = useState(null);
-
-  useEffect(() => {
-    setShuffledDefinitions([...studySets[0].terms].sort(() => Math.random() - 0.5));
-  }, [studySets]); // Shuffle definitions only once when studySets change
 
   useEffect(() => {
     const handleResize = () => {
@@ -170,16 +96,31 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".user-dropdown")) {
+        setShowDropdown(false);
+      }
+      if (!e.target.closest(".lang-menu")) {
+        setShowLangMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <DndProvider backend={HTML5Backend}>
       {showLogin ? (
         <AuthForm
           screenWidth={screenWidth}
-          onBack={() => setShowLogin(false)} // ✅ JUST close login screen, no need to check token
-          setIsAuth={setIsAuth}
-          setUsername={setUsername}
-          setShowLogin={setShowLogin} // ✅ Pass setShowLogin to AuthForm
+          onBack={() => setShowLogin(false)}
+          reloadAuthInfo={reloadAuthInfo}
         />
+
       ) : (
         <div className="min-h-screen bg-black text-white flex flex-col">
 
@@ -262,31 +203,36 @@ export default function Home() {
                 </button>
               ) : (
                 <div className="relative">
-                  <button
-                    onClick={() => setShowDropdown(!showDropdown)}
-                    className="bg-[#00e0ff] text-black px-4 py-2 rounded-full font-semibold hover:bg-[#00bfff] transition"
-                  >
-                    {username}
-                  </button>
-                  {showDropdown && (
-                     <div className="absolute right-0 mt-2 w-20 bg-black border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-50">
-                      <button
-                        onClick={() => {
-                          setIsAuth(false);
-                          setUsername("");
-                          localStorage.removeItem("token");
-                          localStorage.removeItem("username");
-                        }}
-                        className="block w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
+                  <div className="relative user-dropdown">
+                    <button
+                      onClick={() => setShowDropdown(!showDropdown)}
+                      className="bg-[#00e0ff] text-black px-4 py-2 rounded-full font-semibold hover:bg-[#00bfff] transition"
+                    >
+                      {username}
+                    </button>
+                    {showDropdown && (
+                      <div className="absolute right-0 mt-2 w-20 bg-black border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-50">
+                        <button
+                          onClick={() => {
+                            setIsAuth(false);
+                            setUsername("");
+                            setStudySets([]);
+                            setShowDropdown(false); // 👈 CLOSE DROPDOWN ON LOGOUT TOO
+                            localStorage.removeItem("token");
+                            localStorage.removeItem("username");
+                          }}
+                          className="block w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               )}
 
-              <div className="relative">
+              <div className="relative lang-menu">
                 <div
                   className="flex items-center gap-2 cursor-pointer"
                   onClick={() => setShowLangMenu((prev) => !prev)}
@@ -296,7 +242,6 @@ export default function Home() {
                       {lang === "vi" ? "Tiếng Việt" : "English"}
                     </span>
                   </div>
-
                 </div>
 
                 {showLangMenu && (
@@ -316,9 +261,7 @@ export default function Home() {
                   </div>
                 )}
               </div>
-
             </div>
-
           </header>
 
           {/* Search bar adjusts when screen width < 620px */}
@@ -532,6 +475,7 @@ export default function Home() {
 
 
 
+
 /* Component: Home Content */
 function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, t }) {
   const [starredTerms, setStarredTerms] = useState({});
@@ -627,18 +571,31 @@ function CreateSet({ onSave, t }) {
     setTerms(terms.filter((_, i) => i !== index).map((t, i) => ({ ...t, id: i + 1 })));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const usedTerms = terms.filter((t) => t.term.trim() !== "");
     if (usedTerms.length === 0) {
       setErrorMessage(t.need1term);
       return;
     }
     setErrorMessage(""); // Clear error message if valid
-    if (title.trim() !== "") {
-      onSave({ title, description, terms: usedTerms });
-    }
 
+    if (title.trim() !== "") {
+      const newStudySet = {
+        username: localStorage.getItem('username'),  // ✅ correct field name
+        title,
+        description,
+        terms: usedTerms,
+      };
+
+      try {
+        const savedSet = await createStudySet(newStudySet);
+        onSave(savedSet);
+      } catch (error) {
+        console.error("Failed to save study set:", error);
+      }
+    }
   };
+
   return (
     <div className="w-full max-w-[750px] px-4">
       <h1 className="text-2xl font-bold mb-4  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.createnewset}</h1>
@@ -787,14 +744,26 @@ function EditSet({ studySet, onSave, onCancel, t }) {
     setTerms(terms.filter((_, i) => i !== index).map((t, i) => ({ ...t, id: i + 1 })));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const usedTerms = terms.filter((t) => t.term.trim() !== "");
     if (usedTerms.length === 0) {
       setErrorMessage(t.need1term);
       return;
     }
     setErrorMessage("");
-    onSave({ title, description, terms: usedTerms });
+
+    const updatedSet = {
+      title,
+      description,
+      terms: usedTerms,
+    };
+
+    try {
+      const savedSet = await updateStudySet(studySet._id, updatedSet);
+      onSave(savedSet);
+    } catch (error) {
+      console.error('Failed to update study set:', error);
+    }
   };
 
   return (
@@ -953,7 +922,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
         <input
           type="text"
           placeholder={t.enterterm}
-          className="w-1/2 px-4 py-2 rounded-lg text-white bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none"
+          className="w-1/2 px-4 py-2 rounded-lg text-[#00e0ff] bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none"
           value={term}
           onChange={(e) => onTermChange(e.target.value)}
         />
@@ -964,7 +933,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
         <input
           type="text"
           placeholder={t.enterdefinition}
-          className="w-1/2 px-4 py-2 rounded-lg text-white bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none"
+          className="w-1/2 px-4 py-2 rounded-lg text-[#00e0ff] bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none"
           value={definition}
           onChange={(e) => onDefinitionChange(e.target.value)}
         />
