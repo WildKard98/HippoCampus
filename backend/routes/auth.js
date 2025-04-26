@@ -69,4 +69,23 @@ router.post('/login', async (req, res) => {
     }
 });
 
+router.post('/check-availability', async (req, res) => {
+    const { username, email } = req.body;
+  
+    try {
+      if (username) {
+        const user = await User.findOne({ username });
+        if (user) return res.json({ usernameTaken: true });
+      }
+      if (email) {
+        const user = await User.findOne({ email });
+        if (user) return res.json({ emailTaken: true });
+      }
+      return res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Server error' });
+    }
+  });
+  
 module.exports = router;

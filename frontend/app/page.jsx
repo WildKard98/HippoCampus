@@ -543,6 +543,11 @@ function CreateSet({ onSave, t }) {
   const [description, setDescription] = useState("");
   const [alwaysAddOne, setAlwaysAddOne] = useState(false); // Checkbox state
   const [showCardDropdown, setShowCardDropdown] = useState(false); // Toggle dropdown
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState(""); // user input
+  const [aiNumTerms, setAiNumTerms] = useState(10);  // default 10 terms
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const [terms, setTerms] = useState([
     { id: 1, term: "", definition: "" },
     { id: 2, term: "", definition: "" },
@@ -598,19 +603,32 @@ function CreateSet({ onSave, t }) {
 
   return (
     <div className="w-full max-w-[750px] px-4">
-      <h1 className="text-2xl font-bold mb-4  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.createnewset}</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">
+          {t.createnewset}
+        </h1>
+        <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_16px_#ff00ff]">
+          <button
+            onClick={() => setShowAiModal(true)}
+            className="w-full px-6 py-2 rounded-full font-bold bg-black text-yellow-500 transition duration-500
+      hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"
+          >
+            Ask AI ✨
+          </button>
+        </div>
+      </div>
 
       <input
         type="text"
         placeholder={t.entertitle}
-        className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+        className="bg-black text-[#ff7700] placeholder-white px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <textarea
         placeholder={t.enterdescription}
-        className="bg-black text-[#00e0ff] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+        className="bg-black text-[#00e0ff] placeholder-white px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
@@ -701,6 +719,124 @@ function CreateSet({ onSave, t }) {
 
         </div>
       </div>
+      {showAiModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          {/* Rainbow Border around the Modal */}
+          <div className="relative p-[3px] rounded-lg bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_20px_#ff00ff] w-[450px]">
+            <div className="bg-black p-6 rounded-lg text-white w-full h-full">
+
+              {/* Close Button */}
+              <button
+                className="absolute top-2 right-2 text-[#ff7700] text-xl hover:scale-110 transition"
+                onClick={() => setShowAiModal(false)}
+              >
+                ✖
+              </button>
+
+              {/* Title */}
+              <h2 className="text-2xl font-bold mb-4 text-white drop-shadow-[0_0_8px_white]">Ask AI to Create a Set</h2>
+
+              {/* Topic Input */}
+              <label className="block mb-2 text-[#00e0ff]">Topic</label>
+              <input
+                type="text"
+                placeholder="e.g., Computer Science Basics"
+                className="bg-black text-[#ff7700] placeholder-white px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+              />
+
+              {/* Number of Terms */}
+              <label className="block mb-2 text-[#00e0ff]">Number of Terms</label>
+              <div className="flex justify-between items-center gap-4">
+
+                {/* Select Dropdown */}
+                <select
+                  value={aiNumTerms}
+                  onChange={(e) => setAiNumTerms(e.target.value)}
+                  className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] 
+             shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] 
+             hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-1/2
+             scrollbar-thin scrollbar-thumb-[#00e0ff] scrollbar-track-black"
+                >
+                  {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
+                    <option key={num} value={num} className="bg-black text-[#00e0ff]">
+                      {num}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Generate Button */}
+                <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_16px_#ff00ff] w-1/2">
+                  <button
+                    onClick={async () => {
+                      setIsGenerating(true);
+                      try {
+                        const response = await fetch('http://localhost:5001/api/ai', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            topic: aiPrompt,
+                            numTerms: aiNumTerms,
+                          }),
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                          console.log("Generated terms:", data.terms || data.studySet);
+
+                          setTerms((data.terms || data.studySet).map((item, index) => ({
+                            id: index + 1,
+                            term: item.term,
+                            definition: item.definition,
+                          })));
+                          setTitle(aiPrompt); // Fill in the title automatically
+                          setShowAiModal(false);
+                        } else {
+                          console.error("Error generating set:", data.error);
+                        }
+                      } catch (err) {
+                        console.error("Failed to call AI API:", err);
+                      } finally {
+                        setIsGenerating(false);
+                      }
+                    }}
+                    disabled={isGenerating} // disable button while loading
+                    className={`w-full px-6 py-2 rounded-full font-bold bg-black text-yellow-500 transition duration-500
+              ${isGenerating ? "" : "hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"}`}
+                  >
+                    {isGenerating ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-5 w-5 text-[#ff7700]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                          ></path>
+                        </svg>
+                        <span>Generating...</span>
+                      </div>
+                    ) : (
+                      "Generate"
+                    )}
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -900,6 +1036,24 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
       }
     },
   });
+  const termRef = useRef(null);
+  const defRef = useRef(null);
+
+  // Auto-expand term field
+  useEffect(() => {
+    if (termRef.current) {
+      termRef.current.style.height = "auto";
+      termRef.current.style.height = termRef.current.scrollHeight + "px";
+    }
+  }, [term]);
+
+  // Auto-expand definition field
+  useEffect(() => {
+    if (defRef.current) {
+      defRef.current.style.height = "auto";
+      defRef.current.style.height = defRef.current.scrollHeight + "px";
+    }
+  }, [definition]);
 
   return (
     <div ref={(node) => ref(drop(node))} className={`bg-[#1a2e30] p-6 rounded-lg mb-4 border-2 border-[#00e0ff] shadow-[0_0_12px_#00e0ff] ${isDragging ? "opacity-50" : ""}`}>
@@ -918,25 +1072,26 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
       </div>
 
       <div className="flex items-center gap-2">
-        {/* 🔸 Term input - Neon Orange Placeholder */}
-        <input
-          type="text"
+        {/* 🔸 Term input (now textarea) */}
+        <textarea
+          ref={termRef}
           placeholder={t.enterterm}
-          className="w-1/2 px-4 py-2 rounded-lg text-[#00e0ff] bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none"
+          className="w-2/6 px-4 py-2 rounded-lg text-[#ff7700] bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none min-h-[40px] overflow-hidden resize-none"
           value={term}
           onChange={(e) => onTermChange(e.target.value)}
         />
 
         <span className="text-[#00e0ff] text-5xl px-1 font-light">|</span>
 
-        {/* 🔸 Definition input - Neon Orange Placeholder */}
-        <input
-          type="text"
+        {/* 🔸 Definition input (now textarea) */}
+        <textarea
+          ref={defRef}
           placeholder={t.enterdefinition}
-          className="w-1/2 px-4 py-2 rounded-lg text-[#00e0ff] bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none"
+          className="w-4/6 px-4 py-2 rounded-lg text-[#ff7700] bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none min-h-[40px] overflow-hidden resize-none"
           value={definition}
           onChange={(e) => onDefinitionChange(e.target.value)}
         />
+
 
         <button
           className="bg-black text-white border border-white px-4 py-2 rounded-lg hover:shadow-[0_0_10px_white] transition duration-300 ml-2"
@@ -944,6 +1099,7 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
           <i className="bi bi-image"></i> {t.addimage}
         </button>
       </div>
+
     </div>
 
 
