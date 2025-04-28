@@ -29,7 +29,12 @@ const StudySetSchema = new mongoose.Schema({
     isPrivate: {
         type: String,
         required: true,
+    },
+    likes: {
+        type: [String], 
+        default: []
     }
+    
 }, { timestamps: true });
 
 module.exports = mongoose.model('StudySet', StudySetSchema);

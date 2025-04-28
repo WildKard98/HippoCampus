@@ -49,5 +49,15 @@ export const getPublicSets = async () => {
     }
 };
 
+export const toggleLikeSet = async (id, username) => {
+    try {
+        const response = await api.put(`/studysets/${id}/like`, { username });
+        return response.data;
+    } catch (error) {
+        console.error('Error toggling like:', error);
+        throw error;
+    }
+};
+
 
 export default api;

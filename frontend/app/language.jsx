@@ -90,8 +90,10 @@ export const translations = {
         whatterm: "Term ?",
 
         // puzzle page 14
-        playpuzzle: "Play crossword puzzle",
-        nopuzzle: "No puzzle created yet.",
+        playpuzzle: "Play Crossword Puzzle",
+        nopuzzle: "You have no puzzle created yet",
+        otherpuzzle: "Other People's Puzzle",
+        nootherpuzzle: "No other people puzzle created yet",
         across: "Across",
         down: "Down",
         checkanswer: "Check Answer!",
@@ -204,6 +206,8 @@ export const translations = {
         // puzzle page 14
         playpuzzle: "Chơi ô chữ",
         nopuzzle: "Chưa có câu đố nào được tạo",
+        otherpuzzle: "Câu Đố Của Mọi Người",
+        nootherpuzzle: "Chưa có câu đố nào được tạo",
         across: "Ngang",
         down: "Dọc",
         checkanswer: "Kiểm tra!",

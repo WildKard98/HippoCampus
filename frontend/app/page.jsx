@@ -16,7 +16,7 @@ import { createStudySet } from './api';
 import { updateStudySet } from './api';
 import { getStudySets } from './api';
 import { getPublicSets } from './api';
-import { getAllSets } from './api';
+import { toggleLikeSet } from './api';
 import axios from 'axios';
 
 export default function Home() {
@@ -432,18 +432,22 @@ export default function Home() {
                     studySets={studySets}
                     setStudySets={setStudySets}
                     t={t}
+                    publicSets={publicSets}
+                    username={username}
+                    setPublicSets={setPublicSets}
                   />
-
                 ) : (
                   <PuzzlePage
                     screenWidth={screenWidth}
                     setShowGenerator={setShowGenerator}
                     showGenerator={showGenerator}
                     setSelectedPuzzle={setSelectedPuzzle}
-                    studySets={studySets} // ✅ correct plural
+                    studySets={studySets}
                     setStudySets={setStudySets}
-                    setIsHome={setIsHome}
                     t={t}
+                    publicSets={publicSets}
+                    username={username}
+                    setPublicSets={setPublicSets}
                   />
 
                 )
@@ -459,6 +463,8 @@ export default function Home() {
                   selectedSet={selectedSet}
                   setSelectedSet={setSelectedSet}
                   setIsHome={setIsHome}
+                  username={username}
+                  setPublicSets={setPublicSets}
                   t={t}
                 />
 
@@ -495,9 +501,10 @@ export default function Home() {
 
 
 /* Component: Home Content */
-function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
+function HomeContent({ setPublicSets, username, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
   const [starredTerms, setStarredTerms] = useState({});
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+  const [clickedHeartId, setClickedHeartId] = useState(null);
 
   // Toggle star for terms, syncing with flashcard & list
   const toggleStar = (term) => {
@@ -569,12 +576,64 @@ function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEdi
                 setSelectedSet(publicSet);
                 setIsHome(false);
               }}
-              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="relative flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
-              <div className="flex items-center gap-2">
-                <i className="bi bi-folder2"></i> {publicSet.title} ({publicSet.terms.length}{publicSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+              {/* ❤️ Heart Absolute */}
+              <div
+                className="absolute top-1/2 right-2 flex items-center gap-2 text-2xl cursor-pointer transition-all duration-300 transform -translate-y-1/2"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  setClickedHeartId(publicSet._id);
+                  setTimeout(() => setClickedHeartId(null), 200);
+
+                  try {
+                    await toggleLikeSet(publicSet._id, username);
+                    const updatedPublicSets = await getPublicSets();
+                    setPublicSets(updatedPublicSets);
+                  } catch (error) {
+                    console.error('Error toggling like:', error);
+                  }
+                }}
+              >
+                <div
+                  className={`flex items-center justify-center rounded-full p-2 border-2 ${publicSet.likes && publicSet.likes.includes(username)
+                    ? "border-red-500"
+                    : "border-[#ff7700]"
+                    } ${clickedHeartId === publicSet._id ? "scale-125" : "scale-100"} 
+    transition-transform duration-200`}
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                  }}
+                >
+                  <i
+                    className={`bi ${publicSet.likes && publicSet.likes.includes(username)
+                      ? "bi-heart-fill text-red-500 drop-shadow-[0_0_8px_red]"
+                      : "bi-heart text-[#ff7700]"
+                      }`}
+                    style={{
+                      paddingTop: "3px",
+                    }}
+                  ></i>
+                </div>
+                <span
+                  className={`text-sm ${publicSet.likes && publicSet.likes.includes(username)
+                    ? "text-red-500"
+                    : "text-[#ff7700]"
+                    }`}
+                >
+                  {publicSet.likes ? publicSet.likes.length : 0}
+                </span>
               </div>
 
+
+              {/* 📂 Folder Title */}
+              <div className="flex items-center gap-2">
+                <i className="bi bi-folder2"></i>
+                {publicSet.title} ({publicSet.terms.length}{publicSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+              </div>
+
+              {/* 👤 Username */}
               <div className="text-sm pl-6">
                 <span className="text-white font-semibold">Created by:</span>{" "}
                 <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
@@ -586,9 +645,10 @@ function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEdi
         </div>
       ) : (
         <p className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.nopublicsets}</p>
-      )}
+      )
+      }
       {/* Display All Study Sets */}
-    </section>
+    </section >
   );
 }
 
@@ -1272,10 +1332,27 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
                   setIsHome(false);
                 }
               }}
-              className="flex items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="relative flex items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
+              {/* ❤️ Heart inside Folder */}
+              <div
+                className="absolute top-1/2 right-2 flex items-center gap-1 text-xl transform -translate-y-1/2"
+              >
+                <i
+                  className={`bi ${studySet.likes && studySet.likes.length > 0
+                    ? "bi-heart-fill text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
+                    : "bi-heart text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
+                    }`}
+                  style={{ paddingTop: "2px" }}
+                ></i>
+                <span className="text-xs text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">
+                  {studySet.likes ? studySet.likes.length : 0}
+                </span>
+              </div>
+              {/* 📂 Title and Terms */}
               <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
             </div>
+
 
             {/* Manage Buttons */}
             {isManaging && (
@@ -1292,11 +1369,11 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
                 <button
                   onClick={() => togglePrivatePublic(index)}
                   className={`flex items-center justify-center w-20 h-10 rounded-lg border transition duration-300 hover:scale-110 font-bold
-    ${studySet.isPrivate === "Private"
+                     ${studySet.isPrivate === "Private"
                       ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
                       : "border-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_yellow]"
                     }
-  `}
+                 `}
                 >
                   {studySet.isPrivate === "Private" ? "Private" : "Public"}
                 </button>
@@ -1400,11 +1477,11 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
 }
 
 
-function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle, studySets, setStudySets, t }) {
+function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle, studySets, setStudySets, publicSets, setPublicSets, username, t }) {
   const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
   const [selectedSet, setSelectedSet] = useState(null);
+  const [clickedHeartId, setClickedHeartId] = useState(null);
 
-  // 👉 When creating a new puzzle
   if (showGenerator) {
     return (
       <GeneratePuzzle
@@ -1421,7 +1498,6 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
     );
   }
 
-  // 👉 When playing crossword for a selected set
   if (showCrosswordPuzzle && selectedSet) {
     return (
       <CrosswordPuzzle
@@ -1436,40 +1512,137 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
     );
   }
 
-  // 👉 Main Puzzle Menu
   return (
-    <div className="text-[#00e0ff] font-[Itim] p-4">
-      <h1 className="text-3xl font-bold mb-4 drop-shadow-[0_0_8px_#00e0ff]">{t.playpuzzle}</h1>
+    <section>
+      {/* Your Puzzle Section */}
+      <div className="flex items-center gap-5 mb-4">
+        <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.playpuzzle}</h2>
+        <button
+          onClick={() => setShowGenerator(true)}
+          className="px-4 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
+        >
+          {t.createyourpuzzle}
+        </button>
+      </div>
 
-      {studySets.length === 0 ? (
-        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] mb-4">{t.nopuzzle}</p>
-      ) : (
-        <ul className="flex flex-col gap-3 w-1/3">
-          {studySets.map((set, i) => (
-            <li
-              key={i}
+      {/* Your Created Puzzle Sets */}
+      {studySets.length > 0 ? (
+        <div className="flex flex-col gap-4"> {/* 🔥 Add this flex column with gap */}
+          {studySets.map((studySet, index) => (
+            <div
+              key={index}
               onClick={() => {
-                setSelectedSet(set);
-                setShowCrosswordPuzzle(true);
+                setSelectedSet(studySet);
+                setIsHome(false);
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
-              <i className="bi bi-folder2"></i> {set.title} ({set.terms.length} {set.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
-            </li>
+              <div className="flex items-center gap-2">
+                <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+              </div>
+
+              {/* 🔥 Glow white text + orange username */}
+              <div className="text-sm pl-6">
+                <span className="text-white  font-semibold">Created by:</span>{" "}
+                <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
+                  {studySet.username}
+                </span>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
+      ) : (
+        <p className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.nopuzzle}</p>
       )}
 
-      <button
-        onClick={() => setShowGenerator(true)}
-        className="mt-6 px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] bg-black hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
-      >
-        {t.createpuzzle}
-      </button>
-    </div>
+      {/* Other People's Puzzle Section */}
+      <h2 className="text-lg font-semibold mt-10 mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.otherpuzzle}</h2>
 
+      {publicSets.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          {publicSets.map((publicSet, index) => (
+            <div
+              key={index}
+              onClick={() => {
+                setSelectedSet(publicSet);
+                setIsHome(false);
+              }}
+              className="relative flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+            >
+              {/* ❤️ Heart Absolute */}
+              <div
+                className="absolute top-1/2 right-2 flex items-center gap-2 text-2xl cursor-pointer transition-all duration-300 transform -translate-y-1/2"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  setClickedHeartId(publicSet._id);
+                  setTimeout(() => setClickedHeartId(null), 200);
+
+                  try {
+                    await toggleLikeSet(publicSet._id, username);
+                    const updatedPublicSets = await getPublicSets();
+                    setPublicSets(updatedPublicSets);
+                  } catch (error) {
+                    console.error('Error toggling like:', error);
+                  }
+                }}
+              >
+                <div
+                  className={`flex items-center justify-center rounded-full p-2 border-2 ${publicSet.likes && publicSet.likes.includes(username)
+                    ? "border-red-500"
+                    : "border-[#ff7700]"
+                    } ${clickedHeartId === publicSet._id ? "scale-125" : "scale-100"} 
+    transition-transform duration-200`}
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                  }}
+                >
+                  <i
+                    className={`bi ${publicSet.likes && publicSet.likes.includes(username)
+                      ? "bi-heart-fill text-red-500 drop-shadow-[0_0_8px_red]"
+                      : "bi-heart text-[#ff7700]"
+                      }`}
+                    style={{
+                      paddingTop: "3px",
+                    }}
+                  ></i>
+                </div>
+                <span
+                  className={`text-sm ${publicSet.likes && publicSet.likes.includes(username)
+                    ? "text-red-500"
+                    : "text-[#ff7700]"
+                    }`}
+                >
+                  {publicSet.likes ? publicSet.likes.length : 0}
+                </span>
+              </div>
+
+
+              {/* 📂 Folder Title */}
+              <div className="flex items-center gap-2">
+                <i className="bi bi-folder2"></i>
+                {publicSet.title} ({publicSet.terms.length}{publicSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+              </div>
+
+              {/* 👤 Username */}
+              <div className="text-sm pl-6">
+                <span className="text-white font-semibold">Created by:</span>{" "}
+                <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
+                  {publicSet.username}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.nootherpuzzle}</p>
+      )
+      }
+      {/* Display All Study Sets */}
+    </section >
   );
 }
+
 
 
 

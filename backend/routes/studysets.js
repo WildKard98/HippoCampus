@@ -5,29 +5,16 @@ const StudySet = require('../models/StudySet');
 // GET all public study sets
 router.get('/public', async (req, res) => {
     try {
-        console.log("🔵 Fetching all PUBLIC study sets...");
-
         const publicSets = await StudySet.find({ isPrivate: "Public" });
-
-        console.log(`🟢 Found ${publicSets.length} public set(s)`);
-        console.log("🧩 Public sets found:", publicSets);
-
         res.json(publicSets);
     } catch (error) {
-        console.error("❌ Failed to fetch public study sets:", error);
         res.status(500).json({ error: 'Failed to fetch public study sets' });
     }
 });
 // GET all study sets for a user (by username now)
 router.get('/:username', async (req, res) => {
     try {
-        console.log("🔵 Incoming request to fetch study sets for username:", req.params.username);
-
         const studySets = await StudySet.find({ username: req.params.username });
-
-        console.log(`🟢 Found ${studySets.length} study set(s) for username: ${req.params.username}`);
-        console.log("🧩 Study sets found:", studySets);
-
         res.json(studySets);
     } catch (error) {
         console.error("❌ Failed to fetch study sets for username:", req.params.username, error);
@@ -44,7 +31,6 @@ router.post('/', async (req, res) => {
         if (!username) {
             return res.status(400).json({ error: 'Username is required.' });
         }
-
         const newStudySet = new StudySet({
             username,
             title,
@@ -61,6 +47,33 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Toggle like/unlike for a study set
+router.put('/:id/like', async (req, res) => {
+    const { username } = req.body; // Who is liking (passed from frontend)
+    try {
+        const studySet = await StudySet.findById(req.params.id);
+
+        if (!studySet) {
+            return res.status(404).json({ error: 'Study set not found' });
+        }
+
+        if (studySet.likes.includes(username)) {
+            // If already liked, remove like (unlike)
+            studySet.likes = studySet.likes.filter(user => user !== username);
+        } else {
+            // If not liked yet, add like
+            studySet.likes.push(username);
+        }
+
+        await studySet.save();
+        res.json(studySet);  // Send back the updated study set
+    } catch (error) {
+        console.error("❌ Failed to like/unlike set:", error);
+        res.status(500).json({ error: 'Failed to toggle like' });
+    }
+});
+
+
 // PUT update a study set
 router.put('/:id', async (req, res) => {
     try {
@@ -73,9 +86,7 @@ router.put('/:id', async (req, res) => {
             { isPrivate: isPrivate },
             { new: true }
         );
-
         console.log("✅ Updated set:", updatedSet);
-
         res.json(updatedSet);
     } catch (error) {
         console.error("❌ Update failed:", error);
@@ -95,10 +106,4 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-
-
-
 module.exports = router;
-
-
-//res.json(publicSets); // Send the public sets as a response
