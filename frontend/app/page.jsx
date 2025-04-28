@@ -15,6 +15,9 @@ import AuthForm from "./auth";
 import { createStudySet } from './api';
 import { updateStudySet } from './api';
 import { getStudySets } from './api';
+import { getPublicSets } from './api';
+import { getAllSets } from './api';
+import axios from 'axios';
 
 export default function Home() {
   useEffect(() => {
@@ -44,7 +47,6 @@ export default function Home() {
   const reloadAuthInfo = () => {
     const token = localStorage.getItem("token");
     const savedUsername = localStorage.getItem("username");
-
     if (token && savedUsername) {
       setIsAuth(true);
       setUsername(savedUsername);
@@ -55,16 +57,14 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    setIsHome(true);
-  }, []);
+  // fetch username studyset
   const [studySets, setStudySets] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const savedUsername = localStorage.getItem("username");
 
-    if (token && savedUsername) {   // 👈 only check token and username now
+    if (token && savedUsername) {
       // after login success
       setIsAuth(true);
       setUsername(savedUsername);
@@ -75,6 +75,21 @@ export default function Home() {
         .catch((err) => console.error('Failed to refresh study sets after login:', err));
 
     }
+  }, []);
+
+  // fetch public set
+  const [publicSets, setPublicSets] = useState([]);
+  useEffect(() => {
+    async function fetchPublicSets() {
+      try {
+        const response = await getPublicSets();  // Fetch public sets from the backend
+        console.log("Public Sets: ", response);
+        setPublicSets(response);
+      } catch (err) {
+        console.error("Failed to fetch public sets:", err);
+      }
+    }
+    fetchPublicSets();
   }, []);
 
   useEffect(() => {
@@ -370,6 +385,7 @@ export default function Home() {
               {isCreatingSet === "library" ? (
                 <LibraryContent
                   studySets={studySets}
+                  setStudySets={setStudySets}
                   screenWidth={screenWidth}
                   isEditing={isEditing}
                   setIsEditing={setIsEditing}
@@ -383,6 +399,7 @@ export default function Home() {
               ) : isEditingSet ? (
                 <EditSet
                   studySet={isEditingSet}
+                  setStudySets={setStudySets}
                   t={t}
                   onSave={(updatedSet) => {
                     setStudySets(
@@ -433,6 +450,7 @@ export default function Home() {
               ) : (
                 <HomeContent
                   studySets={studySets}
+                  publicSets={publicSets}
                   screenWidth={screenWidth}
                   isEditing={isEditing}
                   setIsEditing={setIsEditing}
@@ -477,8 +495,9 @@ export default function Home() {
 
 
 /* Component: Home Content */
-function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, t }) {
+function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
   const [starredTerms, setStarredTerms] = useState({});
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
   // Toggle star for terms, syncing with flashcard & list
   const toggleStar = (term) => {
@@ -511,25 +530,65 @@ function HomeContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEdi
     <section>
       <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.recentfile}</h2>
       {studySets.length > 0 ? (
-        studySets.map((studySet, index) => (
-          <div
-            key={index}
-            onClick={() => {
-              setSelectedSet(studySet);
-              setIsHome(false); // ✅ Hide the right panel
-            }}
+        <div className="flex flex-col gap-4"> {/* 🔥 Add this flex column with gap */}
+          {studySets.map((studySet, index) => (
+            <div
+              key={index}
+              onClick={() => {
+                setSelectedSet(studySet);
+                setIsHome(false);
+              }}
+              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+              </div>
 
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border-1 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
-          >
-            <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
-          </div>
-        ))
+              {/* 🔥 Glow white text + orange username */}
+              <div className="text-sm pl-6">
+                <span className="text-white  font-semibold">Created by:</span>{" "}
+                <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
+                  {studySet.username}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
-        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.noFolders}</p>
+        <p className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.noFolders}</p>
       )}
+
+      {/* 🟡 Public Sets Section */}
+      <h2 className="text-lg font-semibold mt-10 mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.otherpeopleset}</h2>
+      {publicSets.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          {publicSets.map((publicSet, index) => (
+            <div
+              key={index}
+              onClick={() => {
+                setSelectedSet(publicSet);
+                setIsHome(false);
+              }}
+              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <i className="bi bi-folder2"></i> {publicSet.title} ({publicSet.terms.length}{publicSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+              </div>
+
+              <div className="text-sm pl-6">
+                <span className="text-white font-semibold">Created by:</span>{" "}
+                <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
+                  {publicSet.username}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.nopublicsets}</p>
+      )}
+      {/* Display All Study Sets */}
     </section>
-
-
   );
 }
 
@@ -590,6 +649,7 @@ function CreateSet({ onSave, t }) {
         title,
         description,
         terms: usedTerms,
+        isPrivate: "Private",
       };
 
       try {
@@ -844,7 +904,7 @@ function CreateSet({ onSave, t }) {
 
 
 
-function EditSet({ studySet, onSave, onCancel, t }) {
+function EditSet({ studySet, setStudySets, onSave, onCancel, t }) {
   const [title, setTitle] = useState(studySet.title);
   const [description, setDescription] = useState(studySet.description);
   const [terms, setTerms] = useState(() =>
@@ -881,24 +941,35 @@ function EditSet({ studySet, onSave, onCancel, t }) {
   };
 
   const handleSave = async () => {
-    const usedTerms = terms.filter((t) => t.term.trim() !== "");
+    const usedTerms = terms.filter((t) => t.term.trim() !== "").map((t, i) => ({
+      ...(t._id ? { _id: t._id } : {}), // Keep _id if it exists
+      term: t.term,
+      definition: t.definition,
+    }));
+
     if (usedTerms.length === 0) {
-      setErrorMessage(t.need1term);
+      setErrorMessage(t.need1term); // You already handle this with errorMessage state
       return;
     }
-    setErrorMessage("");
+    setErrorMessage(""); // Clear error message if valid
 
     const updatedSet = {
+      username: studySet.username,
       title,
       description,
       terms: usedTerms,
+      isPrivate: studySet.isPrivate,
     };
 
     try {
-      const savedSet = await updateStudySet(studySet._id, updatedSet);
-      onSave(savedSet);
+      const savedSet = await updateStudySet(studySet._id, updatedSet); // Use the ID for updating
+      const username = localStorage.getItem("username");
+      const sets = await getStudySets(username); // Reload updated sets
+      setStudySets(sets); // Update state with fresh data
+
+      onSave(savedSet); // Call the onSave prop to update the parent component
     } catch (error) {
-      console.error('Failed to update study set:', error);
+      console.error("Failed to update study set:", error);
     }
   };
 
@@ -1110,8 +1181,10 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
 
 
 
-function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, t }) {
+function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, setStudySets, t }) {
   const [starredTerms, setStarredTerms] = useState({});
+  const [isManaging, setIsManaging] = useState(false);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
   // Toggle star for terms, syncing with flashcard & list
   const toggleStar = (term) => {
@@ -1120,6 +1193,40 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
       [term]: !prev[term], // Toggle star state for the term
     }));
   };
+
+  const handleDeleteStudySet = async (index) => {
+    const studySetId = studySets[index]._id;  // You have _id in each studySet
+    try {
+      await axios.delete(`${API_URL}/api/studysets/${studySetId}`);
+      // After successful delete, update local studySets
+      const updatedSets = [...studySets];
+      updatedSets.splice(index, 1);
+      setStudySets(updatedSets);
+    } catch (error) {
+      console.error('Failed to delete study set:', error);
+    }
+  };
+
+  const togglePrivatePublic = async (index) => {
+    try {
+      const updatedSets = [...studySets];
+
+      // Switch between "Private" and "Public"
+      updatedSets[index].isPrivate = updatedSets[index].isPrivate === "Private" ? "Public" : "Private";
+      setStudySets(updatedSets); // 🔥 Instant frontend update
+
+      const studySet = updatedSets[index];
+
+      const payload = {
+        isPrivate: studySet.isPrivate,
+      };
+
+      const response = await updateStudySet(studySet._id, payload);
+    } catch (error) {
+      console.error("❌ Failed to update isPrivate:", error);
+    }
+  };
+
 
   // If a set is selected, show flashcard review instead of library
   if (selectedSet) {
@@ -1139,29 +1246,68 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
       />
     );
   }
-
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.yourlibrary}</h2>
+      <div className="flex items-center gap-4 mb-4">
+        <h2 className="text-lg font-semibold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">
+          {t.yourlibrary}
+        </h2>
+
+        <button
+          onClick={() => setIsManaging(!isManaging)}
+          className="px-4 py-2 border-2 border-[#00e0ff] text-[#00e0ff] rounded-lg hover:bg-[#00e0ff] hover:text-black shadow-[0_0_8px_#00e0ff] hover:shadow-[0_0_12px_#00e0ff] transition duration-300 font-bold"
+        >
+          {isManaging ? t.doneManaging : t.manageLibrary}
+        </button>
+
+      </div>
       {studySets.length > 0 ? (
         studySets.map((studySet, index) => (
-          <div
-            key={index}
-            onClick={() => {
-              setSelectedSet(studySet);
-              setIsHome(false); // ✅ Ensure panel hides in Library too
-            }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border-1 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer w-1/3 mb-2"
-          >
-            <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+          <div key={index} className="flex items-center justify-start gap-2 w-full max-w-[600px] mb-4">
+            {/* Folder Box */}
+            <div
+              onClick={() => {
+                if (!isManaging) {
+                  setSelectedSet(studySet);
+                  setIsHome(false);
+                }
+              }}
+              className="flex items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+            >
+              <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+            </div>
+
+            {/* Manage Buttons */}
+            {isManaging && (
+              <div className="flex gap-2">
+                {/* Trash Box */}
+                <button
+                  onClick={() => handleDeleteStudySet(index)}
+                  className="flex items-center justify-center w-10 h-10 rounded-lg border border-red-500 text-red-500 drop-shadow-[0_0_8px_red] transition duration-300 hover:scale-110"
+                >
+                  <i className="bi bi-trash"></i>
+                </button>
+
+                {/* Lock/Unlock Box */}
+                <button
+                  onClick={() => togglePrivatePublic(index)}
+                  className={`flex items-center justify-center w-20 h-10 rounded-lg border transition duration-300 hover:scale-110 font-bold
+    ${studySet.isPrivate === "Private"
+                      ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
+                      : "border-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_yellow]"
+                    }
+  `}
+                >
+                  {studySet.isPrivate === "Private" ? "Private" : "Public"}
+                </button>
+              </div>
+            )}
           </div>
         ))
       ) : (
         <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.noFolders}</p>
       )}
     </section>
-
-
   );
 }
 

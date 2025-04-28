@@ -30,7 +30,7 @@ export const updateStudySet = async (id, updatedData) => {
 
 export const getStudySets = async (username) => {
     try {
-        const response = await api.get(`/studysets/${username}`); // 🔥 NO /user/ anymore
+        const response = await api.get(`/studysets/${username}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching study sets:', error);
@@ -38,6 +38,16 @@ export const getStudySets = async (username) => {
     }
 };
 
+// Function to fetch public study sets
+export const getPublicSets = async () => {
+    try {
+        const response = await api.get('/studysets/public');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching public study sets:', error);
+        throw error;
+    }
+};
 
-// 3. Export the base api instance if you want to reuse later
+
 export default api;

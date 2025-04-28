@@ -13,6 +13,40 @@ export const translations = {
         tryagainbtn: "Try again?",
         congradbtn: "Congratuation!, Want to try it again?",
 
+        // login, register
+        logout: "Logout",
+        login: "Login",
+        password: "Password",
+        noaccount: "Don't have an account?",
+        register: "Register",
+        username: "Username",
+        haveaccount: "Already have an account?",
+        somethingwrong: "Something went wrong.",
+        usernametaken: "Username already taken.",
+        emailtaken: "Email already registered.",
+        loading: "Loading...",
+
+        // homepage more feature
+        otherpeopleset: "Other People's Sets",
+        createby: "Created by:",
+        nopublicsets: "No public sets yet.",
+
+        // yourlibrary more feature
+        doneManaging: "Done",
+        manageLibrary: "Manage Library",
+        setpublic: "Public",
+        setprivate: "Private",
+
+        // AI feature
+        askai: "Ask AI",
+        aicreate: "Ask AI to create a set",
+        topic: "Topic",
+        topiceg: "e.g., brands, famous singers, planets",
+        numterm: "Number of Terms",
+        generatebtn: "Generate",
+        genwait: "Generating...",
+
+
         // search bar 1
         searchbar: "Study set, puzzle, news",
 
@@ -90,6 +124,40 @@ export const translations = {
         backbtn: "← Quay lại",
         tryagainbtn: "Thử lại?",
         congradbtn: "Chúc mừng! Bạn muốn thử lại không?",
+
+        // login, register
+        logout: "Đăng xuất",
+        login: "Đăng nhập",
+        password: "Mật khẩu",
+        noaccount: "Chưa có tài khoản?",
+        register: "Đăng ký",
+        username: "Tên người dùng",
+        haveaccount: "Đã có tài khoản?",
+        somethingwrong: "Đã xảy ra lỗi.",
+        usernametaken: "Tên người dùng đã được sử dụng.",
+        emailtaken: "Email đã được đăng ký.",
+        loading: "Đang tải...",
+
+        // homepage more feature
+        otherpeopleset: "Bộ thẻ của người khác",
+        createby: "Được tạo bởi:",
+        nopublicsets: "Chưa có bộ thẻ công khai nào.",
+
+        // yourlibrary more feature
+        doneManaging: "Hoàn tất",
+        manageLibrary: "Quản lý thư viện",
+        setpublic: "Công khai",
+        setprivate: "Riêng tư",
+
+        // AI feature
+        askai: "Hỏi AI",
+        aicreate: "Yêu cầu AI tạo bộ thẻ",
+        topic: "Chủ đề",
+        topiceg: "ví dụ: thương hiệu, ca sĩ nổi tiếng, hành tinh",
+        numterm: "Số lượng thuật ngữ",
+        generatebtn: "Tạo",
+        genwait: "Đang tạo...",
+
 
         // search bar 1
         searchbar: "Tệp học, ô chữ, tin tức",
