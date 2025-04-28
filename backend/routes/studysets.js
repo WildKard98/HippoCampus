@@ -77,13 +77,12 @@ router.put('/:id/like', async (req, res) => {
 // PUT update a study set
 router.put('/:id', async (req, res) => {
     try {
-        const { isPrivate } = req.body;
-        console.log("🔧 Updating isPrivate to:", isPrivate); // Good debug line
+        const { title, description, terms, isPrivate } = req.body;
+        console.log("🔧 Updating study set:", req.body);
 
-        // ✅ Use ONLY ONE: findByIdAndUpdate
         const updatedSet = await StudySet.findByIdAndUpdate(
             req.params.id,
-            { isPrivate: isPrivate },
+            { title, description, terms, isPrivate },
             { new: true }
         );
         console.log("✅ Updated set:", updatedSet);
@@ -93,6 +92,7 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({ error: 'Failed to update study set' });
     }
 });
+
 
 
 // DELETE a study set

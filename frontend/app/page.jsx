@@ -412,6 +412,7 @@ export default function Home() {
                   studySet={isEditingSet}
                   setStudySets={setStudySets}
                   t={t}
+                  setSelectedSet={setSelectedSet}
                   onSave={(updatedSet) => {
                     setStudySets(
                       studySets.map((set) =>
@@ -480,6 +481,7 @@ export default function Home() {
                   setPublicSets={setPublicSets}
                   needLogin={needLogin}
                   t={t}
+                  setStudySets={setStudySets}
                 />
 
               )}
@@ -547,7 +549,7 @@ export default function Home() {
 
 
 /* Component: Home Content */
-function HomeContent({ needLogin, setPublicSets, username, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
+function HomeContent({ setStudySets, needLogin, setPublicSets, username, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
   const [starredTerms, setStarredTerms] = useState({});
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
   const [clickedHeartId, setClickedHeartId] = useState(null);
@@ -564,6 +566,7 @@ function HomeContent({ needLogin, setPublicSets, username, studySets, screenWidt
   if (selectedSet) {
     return (
       <FlashcardReview
+        t={t}
         studySets={studySets}
         studySet={selectedSet}
         onExit={() => setSelectedSet(null)}
@@ -574,7 +577,7 @@ function HomeContent({ needLogin, setPublicSets, username, studySets, screenWidt
         setIsEditing={setIsEditing} // 🔹 Pass this down
         setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
         setIsCreatingSet={setIsCreatingSet}
-        t={t}
+        setStudySets={setStudySets}
       />
     );
   }
@@ -1012,7 +1015,7 @@ function CreateSet({ onSave, t }) {
 
 
 
-function EditSet({ studySet, setStudySets, onSave, onCancel, t }) {
+function EditSet({ studySet, setStudySets, setSelectedSet, onSave, onCancel, t }) {
   const [title, setTitle] = useState(studySet.title);
   const [description, setDescription] = useState(studySet.description);
   const [terms, setTerms] = useState(() =>
@@ -1076,6 +1079,7 @@ function EditSet({ studySet, setStudySets, onSave, onCancel, t }) {
       setStudySets(sets); // Update state with fresh data
 
       onSave(savedSet); // Call the onSave prop to update the parent component
+      setSelectedSet(null); // 🔥 clear selected set so it reloads
     } catch (error) {
       console.error("Failed to update study set:", error);
     }
@@ -1351,6 +1355,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
         setIsEditing={setIsEditing} // 🔹 Pass this down
         setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
         setIsCreatingSet={setIsCreatingSet}
+        setStudySets={setStudySets}
       />
     );
   }
@@ -1702,7 +1707,7 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
 
 
 
-function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setSelectedSet, t }) {
+function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setSelectedSet, t }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [editTerm, setEditTerm] = useState("");
@@ -1712,6 +1717,8 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
   const [showFillTest, setShowFillTest] = useState(false);
   const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
   const scrollPauseTimerRef = useRef(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [copyError, setCopyError] = useState(false);
 
   const resetScrollPauseTimer = () => {
     if (scrollPauseTimerRef.current) clearTimeout(scrollPauseTimerRef.current);
@@ -1743,20 +1750,118 @@ function FlashcardReview({ studySets, studySet, onExit, screenWidth, starredTerm
   };
 
   // Save changes
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingIndex !== null) {
-      const updatedTerms = [...studySet.terms]; // Copy the terms array
-      updatedTerms[editingIndex] = { term: editTerm, definition: editDefinition }; // Update the specific term
-      studySet.terms = updatedTerms; // Save changes
+      const updatedTerms = [...studySet.terms];
+      updatedTerms[editingIndex] = { term: editTerm, definition: editDefinition };
+      studySet.terms = updatedTerms; // Update locally too
+
+      try {
+        const updatedSet = {
+          ...studySet,
+          terms: updatedTerms,
+        };
+        await updateStudySet(studySet._id, updatedSet);  // 🔥 Send to backend
+        console.log("✅ Term saved to MongoDB!");
+      } catch (error) {
+        console.error("❌ Failed to save term edit:", error);
+      }
     }
-    setIsEditing(false); // Close modal
+    setIsEditing(false); // Close the modal
   };
+
+  const handleCopySet = async () => {
+    try {
+      const username = localStorage.getItem("username");
+      if (!username) {
+        setShowNeedLogin(true); // Reuse your login popup if not logged in
+        return;
+      }
+
+      const copiedSet = {
+        username,
+        title: studySet.title + " (Copy)",
+        description: studySet.description,
+        terms: studySet.terms.map(term => ({
+          term: term.term,
+          definition: term.definition
+        })),
+        isPrivate: "Copy"
+      };
+
+      const response = await createStudySet(copiedSet);
+      console.log("✅ Copied set:", response);
+
+      setCopySuccess(true); // 🟠 show success popup
+    } catch (error) {
+      console.error("❌ Failed to copy set:", error);
+      setCopyError(true); // 🔴 show error popup
+    }
+  };
+
+
 
   return (
     <div className="flex flex-1">
       {/* Main Flashcard Area */}
       <div className="flex-1 overflow-hidden" style={{ maxWidth: "100%", overflowX: "hidden" }}>
-        <h2 className="text-3xl font-semibold mb-6 text-left text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{studySet.title}</h2>
+        {copySuccess && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+            <div className="bg-black p-6 rounded-lg text-white border border-[#00e0ff] shadow-[0_0_16px_#00e0ff] w-[350px]">
+              <h2 className="text-2xl font-bold mb-4 text-[#00e0ff] text-center drop-shadow-[0_0_8px_#00e0ff]">Set Copied!</h2>
+              <p className="text-center text-[#00e0ff] mb-6">
+                Your copy has been created. Go to your Library to edit it!
+              </p>
+              <div className="flex justify-center">
+                <button
+                  className="px-6 py-2 rounded-lg border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  onClick={() => {
+                    setCopySuccess(false);
+                    onExit(); // Go back to library view
+                  }}
+                >
+                  Go to Library
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {copyError && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+            <div className="bg-black p-6 rounded-lg text-white border border-[#ff0000] shadow-[0_0_16px_red] w-[350px]">
+              <h2 className="text-2xl font-bold mb-4 text-[#ff0000] text-center drop-shadow-[0_0_8px_red]">Copy Failed!</h2>
+              <p className="text-center text-[#ff0000] mb-6">
+                Something went wrong. Please try again later.
+              </p>
+              <div className="flex justify-center">
+                <button
+                  className="px-6 py-2 rounded-lg border border-[#ff0000] text-[#ff0000] hover:bg-[#ff0000] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_red]"
+                  onClick={() => setCopyError(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className={`flex items-center justify-between mb-6 ${screenWidth > 770 ? "w-[60%]" : "w-full"}`}>
+          <h2 className="text-3xl font-semibold text-left text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">
+            {studySet.title}
+          </h2>
+          {studySet.username !== localStorage.getItem("username") && (
+            <button
+              onClick={handleCopySet}
+              className="flex items-center gap-2 px-4 py-2 bg-black text-[#00e0ff] border-2 border-[#00e0ff] rounded-lg hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] transition duration-300 text-sm ml-4"
+            >
+              <i className="bi bi-files"></i>
+              Copy
+            </button>
+
+          )}
+        </div>
+
         {showMatchingTest ? (
           <MatchingCard
             t={t}
