@@ -44,6 +44,8 @@ export default function Home() {
   const [selectedSet, setSelectedSet] = useState(null);
   const studyTips = t.studyTips;
   const [randomTip, setRandomTip] = useState(studyTips[0]);
+  const [showNeedLogin, setShowNeedLogin] = useState(false);
+
   const reloadAuthInfo = () => {
     const token = localStorage.getItem("token");
     const savedUsername = localStorage.getItem("username");
@@ -126,8 +128,17 @@ export default function Home() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  function needLogin(action) {
+    if (!username) {
+      setShowNeedLogin(true);
+      return false;
+    }
+    action();
+    return true;
+  }
 
   return (
+
     <DndProvider backend={HTML5Backend}>
       {showLogin ? (
         <AuthForm
@@ -194,19 +205,19 @@ export default function Home() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => {
-                  setIsCreatingSet(true);
-                  setIsEditingSet(null);
-                  setIsCreatePuzzle(false);
-                  setSelectedSet(null);
-                  setIsHome(false);
+                  needLogin(() => {
+                    setIsCreatingSet(true);
+                    setIsEditingSet(null);
+                    setIsCreatePuzzle(false);
+                    setSelectedSet(null);
+                    setIsHome(false);
+                  });
                 }}
                 className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-lg transition duration-300
-               hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
-
+         hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
               >
                 +
               </button>
-
 
               {/* user name, login */}
               {!isAuth ? (
@@ -435,6 +446,7 @@ export default function Home() {
                     publicSets={publicSets}
                     username={username}
                     setPublicSets={setPublicSets}
+                    needLogin={needLogin}
                   />
                 ) : (
                   <PuzzlePage
@@ -448,6 +460,7 @@ export default function Home() {
                     publicSets={publicSets}
                     username={username}
                     setPublicSets={setPublicSets}
+                    needLogin={needLogin}
                   />
 
                 )
@@ -465,6 +478,7 @@ export default function Home() {
                   setIsHome={setIsHome}
                   username={username}
                   setPublicSets={setPublicSets}
+                  needLogin={needLogin}
                   t={t}
                 />
 
@@ -491,6 +505,38 @@ export default function Home() {
           </div>
         </div>
       )}
+      {showNeedLogin && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+          <div className="bg-black p-6 rounded-lg text-white border border-[#00e0ff] shadow-[0_0_16px_#00e0ff] w-[350px]">
+            <h2 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] text-center">
+              You need to log in first!
+            </h2>
+            <p className="text-center text-[#00e0ff] mb-6">
+              Login is required to unlock more features like creating, liking, and editing sets.
+            </p>
+
+            <div className="flex justify-center gap-4">
+              <button
+                className="px-6 py-2 rounded-lg border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                onClick={() => {
+                  setShowNeedLogin(false);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-6 py-2 rounded-lg border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                onClick={() => {
+                  setShowNeedLogin(false);
+                  setShowLogin(true);
+                }}
+              >
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DndProvider>
   );
 }
@@ -501,7 +547,7 @@ export default function Home() {
 
 
 /* Component: Home Content */
-function HomeContent({ setPublicSets, username, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
+function HomeContent({ needLogin, setPublicSets, username, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
   const [starredTerms, setStarredTerms] = useState({});
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
   const [clickedHeartId, setClickedHeartId] = useState(null);
@@ -581,19 +627,21 @@ function HomeContent({ setPublicSets, username, studySets, screenWidth, isEditin
               {/* ❤️ Heart Absolute */}
               <div
                 className="absolute top-1/2 right-2 flex items-center gap-2 text-2xl cursor-pointer transition-all duration-300 transform -translate-y-1/2"
-                onClick={async (e) => {
+                onClick={(e) => {
                   e.stopPropagation();
-                  setClickedHeartId(publicSet._id);
-                  setTimeout(() => setClickedHeartId(null), 200);
-
-                  try {
-                    await toggleLikeSet(publicSet._id, username);
-                    const updatedPublicSets = await getPublicSets();
-                    setPublicSets(updatedPublicSets);
-                  } catch (error) {
-                    console.error('Error toggling like:', error);
-                  }
+                  needLogin(async () => {
+                    setClickedHeartId(publicSet._id);
+                    setTimeout(() => setClickedHeartId(null), 200);
+                    try {
+                      await toggleLikeSet(publicSet._id, username);
+                      const updatedPublicSets = await getPublicSets();
+                      setPublicSets(updatedPublicSets);
+                    } catch (error) {
+                      console.error('Error toggling like:', error);
+                    }
+                  });
                 }}
+
               >
                 <div
                   className={`flex items-center justify-center rounded-full p-2 border-2 ${publicSet.likes && publicSet.likes.includes(username)
@@ -1477,7 +1525,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
 }
 
 
-function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle, studySets, setStudySets, publicSets, setPublicSets, username, t }) {
+function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle, studySets, setStudySets, publicSets, setPublicSets, username, t }) {
   const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
   const [selectedSet, setSelectedSet] = useState(null);
   const [clickedHeartId, setClickedHeartId] = useState(null);
@@ -1518,11 +1566,16 @@ function PuzzlePage({ screenWidth, setShowGenerator, showGenerator, setSelectedP
       <div className="flex items-center gap-5 mb-4">
         <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.playpuzzle}</h2>
         <button
-          onClick={() => setShowGenerator(true)}
+          onClick={() => {
+            needLogin(() => {
+              setShowGenerator(true);
+            });
+          }}
           className="px-4 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
         >
           {t.createyourpuzzle}
         </button>
+
       </div>
 
       {/* Your Created Puzzle Sets */}

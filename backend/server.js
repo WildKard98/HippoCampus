@@ -21,17 +21,18 @@ app.use('/api/ai', aiRoute);          // ⭐ new clean AI API here
 
 // Home Route
 app.get('/', (req, res) => {
-  res.send('🌱 WordNest backend is running!');
+    res.send('🌱 WordNest backend is running!');
 });
 
 // Start the server
 const PORT = process.env.PORT || 5001;
 mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log('✅ Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`🚀 Server listening on http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
+    .connect(process.env.MONGO_URI)
+    .then(() => {
+        console.log('✅ Connected to MongoDB');
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 Server listening on port ${PORT}`);
+        });
+
+    })
+    .catch((err) => console.error('❌ MongoDB connection error:', err));
