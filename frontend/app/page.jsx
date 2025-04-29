@@ -119,7 +119,7 @@ export default function Home() {
     fetchPublicSets();
   }, []);
 
-  // fetch username studyset
+  // fetch username puzzleset
   const [puzzleSets, setPuzzleSets] = useState([]);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export default function Home() {
     }
   }, []);
 
-  // fetch public set
+  // fetch public puzzle set
   const [publicPuzzleSets, setPublicPuzzleSets] = useState([]);
   useEffect(() => {
     async function fetchPublicPuzzleSets() {
@@ -518,13 +518,13 @@ export default function Home() {
                     setShowGenerator={setShowGenerator}
                     showGenerator={showGenerator}
                     setSelectedPuzzle={setSelectedPuzzle}
-                    studySets={studySets}
                     setStudySets={setStudySets}
                     t={t}
                     publicPuzzleSets={publicPuzzleSets}
                     username={username}
                     setPublicPuzzleSets={setPublicPuzzleSets}
                     needLogin={needLogin}
+                    puzzleSets={puzzleSets}
                   />
 
                 )
