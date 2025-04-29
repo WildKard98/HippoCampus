@@ -1368,7 +1368,7 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
 
         <button
           onClick={() => setIsManaging(!isManaging)}
-          className="px-4 py-2 border-2 border-[#00e0ff] text-[#00e0ff] rounded-lg hover:bg-[#00e0ff] hover:text-black shadow-[0_0_8px_#00e0ff] hover:shadow-[0_0_12px_#00e0ff] transition duration-300 font-bold"
+          className="px-4 py-2 border-2 border-[#ff7700] text-[#ff7700] rounded-lg hover:bg-[#ff7700] hover:text-black shadow-[0_0_8px_#ff7700] hover:shadow-[0_0_12px#ff7700] transition duration-300 font-bold"
         >
           {isManaging ? t.doneManaging : t.manageLibrary}
         </button>
@@ -1419,17 +1419,26 @@ function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIs
                 </button>
 
                 {/* Lock/Unlock Box */}
-                <button
-                  onClick={() => togglePrivatePublic(index)}
-                  className={`flex items-center justify-center w-20 h-10 rounded-lg border transition duration-300 hover:scale-110 font-bold
-                     ${studySet.isPrivate === "Private"
-                      ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
-                      : "border-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_yellow]"
-                    }
-                 `}
-                >
-                  {studySet.isPrivate === "Private" ? "Private" : "Public"}
-                </button>
+                {studySet.isPrivate === "Copy" ? (
+                  <div
+                    className="flex items-center justify-center w-20 h-10 rounded-lg border-2 border-[#00e0ff] text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-bold cursor-default"
+                  >
+                    Copied
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => togglePrivatePublic(index)}
+                    className={`flex items-center justify-center w-20 h-10 rounded-lg border transition duration-300 hover:scale-110 font-bold
+      ${studySet.isPrivate === "Private"
+                        ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
+                        : "border-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_yellow]"
+                      }
+    `}
+                  >
+                    {studySet.isPrivate === "Private" ? "Private" : "Public"}
+                  </button>
+                )}
+
               </div>
             )}
           </div>
@@ -1719,6 +1728,7 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
   const scrollPauseTimerRef = useRef(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [copyError, setCopyError] = useState(false);
+  const isOwner = studySet.username === localStorage.getItem("username");
 
   const resetScrollPauseTimer = () => {
     if (scrollPauseTimerRef.current) clearTimeout(scrollPauseTimerRef.current);
@@ -1774,10 +1784,10 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
     try {
       const username = localStorage.getItem("username");
       if (!username) {
-        setShowNeedLogin(true); // Reuse your login popup if not logged in
+        setShowNeedLogin(true);
         return;
       }
-
+  
       const copiedSet = {
         username,
         title: studySet.title + " (Copy)",
@@ -1788,18 +1798,20 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
         })),
         isPrivate: "Copy"
       };
-
+  
       const response = await createStudySet(copiedSet);
       console.log("✅ Copied set:", response);
-
-      setCopySuccess(true); // 🟠 show success popup
+  
+      // 🛠️ After copying, refresh your library
+      const updatedSets = await getStudySets(username);
+      setStudySets(updatedSets); // 🔥 update instantly!
+  
+      setCopySuccess(true); // show popup
     } catch (error) {
       console.error("❌ Failed to copy set:", error);
-      setCopyError(true); // 🔴 show error popup
+      setCopyError(true);
     }
   };
-
-
 
   return (
     <div className="flex flex-1">
@@ -1810,7 +1822,7 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
             <div className="bg-black p-6 rounded-lg text-white border border-[#00e0ff] shadow-[0_0_16px_#00e0ff] w-[350px]">
               <h2 className="text-2xl font-bold mb-4 text-[#00e0ff] text-center drop-shadow-[0_0_8px_#00e0ff]">Set Copied!</h2>
               <p className="text-center text-[#00e0ff] mb-6">
-                Your copy has been created. Go to your Library to edit it!
+                Your copy has been created. Go to your Library to review it!
               </p>
               <div className="flex justify-center">
                 <button
@@ -1958,30 +1970,32 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
 
 
                       {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
-                      <div className="absolute top-2 right-2 flex gap-2 z-10">
-                        <button
-                          className={`absolute top-0 right-7 text-xl z-10 transition duration-300 ${starredTerms[studySet.terms[currentIndex].term]
-                            ? "text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"
-                            : "text-white hover:text-[#ffaa33] drop-shadow-[0_0_8px_white]"
-                            }`}
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent flip when clicking the star
-                            toggleStar(studySet.terms[currentIndex].term);
-                          }}
-                        >
-                          {starredTerms[studySet.terms[currentIndex].term] ? (
-                            <i className="bi bi-star-fill text-yellow-400"></i>
-                          ) : (
-                            <i className="bi bi-star"></i>
-                          )}
-                        </button>
+                      {isOwner && (
+                        <div className="absolute top-2 right-2 flex gap-2 z-10">
+                          <button
+                            className={`absolute top-0 right-7 text-xl z-10 transition duration-300 ${starredTerms[studySet.terms[currentIndex].term]
+                              ? "text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"
+                              : "text-white hover:text-[#ffaa33] drop-shadow-[0_0_8px_white]"
+                              }`}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent flip when clicking the star
+                              toggleStar(studySet.terms[currentIndex].term);
+                            }}
+                          >
+                            {starredTerms[studySet.terms[currentIndex].term] ? (
+                              <i className="bi bi-star-fill text-yellow-400"></i>
+                            ) : (
+                              <i className="bi bi-star"></i>
+                            )}
+                          </button>
 
-                        {/* Pencil Icons */}
-                        <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_white]"
-                          onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
-                          <i className="bi bi-pencil-fill"></i>
-                        </button>
-                      </div>
+                          {/* Pencil Icons */}
+                          <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_white]"
+                            onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
+                            <i className="bi bi-pencil-fill"></i>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -1994,30 +2008,32 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
                         {studySet.terms[currentIndex].term}
                       </span>
                       {/* ⭐ Star Button - Positioned in the top-right corner and clickable */}
-                      <div className="absolute top-2 right-2 flex gap-2 z-10">
-                        <button
-                          className={`absolute top-0 right-7 text-xl z-10 transition duration-300 ${starredTerms[studySet.terms[currentIndex].term]
-                            ? "text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"
-                            : "text-white hover:text-[#ffaa33] drop-shadow-[0_0_8px_white]"
-                            }`}
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent flip when clicking the star
-                            toggleStar(studySet.terms[currentIndex].term);
-                          }}
-                        >
-                          {starredTerms[studySet.terms[currentIndex].term] ? (
-                            <i className="bi bi-star-fill text-yellow-400"></i>
-                          ) : (
-                            <i className="bi bi-star"></i>
-                          )}
-                        </button>
+                      {isOwner && (
+                        <div className="absolute top-2 right-2 flex gap-2 z-10">
+                          <button
+                            className={`absolute top-0 right-7 text-xl z-10 transition duration-300 ${starredTerms[studySet.terms[currentIndex].term]
+                              ? "text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"
+                              : "text-white hover:text-[#ffaa33] drop-shadow-[0_0_8px_white]"
+                              }`}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent flip when clicking the star
+                              toggleStar(studySet.terms[currentIndex].term);
+                            }}
+                          >
+                            {starredTerms[studySet.terms[currentIndex].term] ? (
+                              <i className="bi bi-star-fill text-yellow-400"></i>
+                            ) : (
+                              <i className="bi bi-star"></i>
+                            )}
+                          </button>
 
-                        {/* Pencil Icons */}
-                        <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_white]"
-                          onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
-                          <i className="bi bi-pencil-fill"></i>
-                        </button>
-                      </div>
+                          {/* Pencil Icons */}
+                          <button className="absolute top-0 right-0 text-white text-xl z-10 transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_white]"
+                            onClick={(e) => { e.stopPropagation(); handleEditClick(studySet.terms[currentIndex], currentIndex); }}>
+                            <i className="bi bi-pencil-fill"></i>
+                          </button>
+                        </div>
+                      )}
 
                     </div>
                   )}
@@ -2098,44 +2114,49 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
                     <span className="text-[#00e0ff] w-2/3">{item.definition}</span>
 
                     {/* ⭐ Star & ✏️ Edit Buttons Container */}
-                    <div className="relative flex items-center pl-8">
-                      {/* Star Button - Positioned at the top-right */}
-                      <button
-                        onClick={() => toggleStar(item.term)}
-                        className="absolute bottom-0 right-0 text-white text-xl"
-                      >
-                        {starredTerms[item.term] ? (
-                          <i className="bi bi-star-fill text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"></i>
-                        ) : (
-                          <i className="bi bi-star text-[#00e0ff] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#00e0ff]"></i>
-                        )}
-                      </button>
+                    {isOwner && (
+                      <div className="relative flex items-center pl-8">
+                        {/* Star Button - Positioned at the top-right */}
+                        <button
+                          onClick={() => toggleStar(item.term)}
+                          className="absolute bottom-0 right-0 text-white text-xl"
+                        >
+                          {starredTerms[item.term] ? (
+                            <i className="bi bi-star-fill text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"></i>
+                          ) : (
+                            <i className="bi bi-star text-[#00e0ff] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#00e0ff]"></i>
+                          )}
+                        </button>
 
-                      {/* ✏️ Pencil Icon (Edit Button) - Positioned lower right */}
-                      <button
-                        onClick={() => handleEditClick(item, index)}
-                        className="absolute top-0 right-0 text-[#00e0ff] text-xl transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
-                      >
-                        <i className="bi bi-pencil-fill"></i>
-                      </button>
-                    </div>
+                        {/* ✏️ Pencil Icon (Edit Button) - Positioned lower right */}
+                        <button
+                          onClick={() => handleEditClick(item, index)}
+                          className="absolute top-0 right-0 text-[#00e0ff] text-xl transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
+                        >
+                          <i className="bi bi-pencil-fill"></i>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
 
               {/* Add or Remove Term Button */}
-              <div className="flex justify-center mt-4">
-                <button
-                  onClick={() => {
-                    setIsEditingSet(studySet);  // ✅ Set the correct study set
-                    setIsCreatingSet(false);    // ✅ Prevent conflict with Create Set mode
-                  }}
-                  className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
-               hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
-                >
-                  {t.addorremove}
-                </button>
-              </div>
+
+              {isOwner && (
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={() => {
+                      setIsEditingSet(studySet);
+                      setIsCreatingSet(false);
+                    }}
+                    className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                  >
+                    {t.addorremove}
+                  </button>
+                </div>
+              )}
+
 
             </div>
           </div>
