@@ -106,6 +106,8 @@ export const translations = {
         addbt: "Add",
         enteryet: "Add a question and answer above to start",
         untitle: "Untitle",
+
+        puzzlesets: "Puzzle sets",
         studyTips: [
             "Did you know your brain may absorb information better right before eating? Try reviewing your study set before a meal.",
             "Reviewing your notes before sleep can help lock the information into long-term memory.",
@@ -220,6 +222,7 @@ export const translations = {
         addbt: "Thêm",
         enteryet: "Nhập câu hỏi và đáp án ở trên để bắt đầu",
         untitle: "Chưa đặt tên",
+        puzzlesets: "Câu đố",
         studyTips: [
             "Bạn có biết não của bạn có thể tiếp thu thông tin tốt hơn ngay trước khi ăn? Hãy thử xem lại bộ từ vựng trước bữa ăn.",
             "Ôn lại ghi chú trước khi ngủ có thể giúp ghi nhớ lâu dài.",

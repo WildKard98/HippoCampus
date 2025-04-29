@@ -18,6 +18,11 @@ export const createStudySet = async (studySetData) => {
     }
 };
 
+export const deleteStudySet = async (id) => {
+    const res = await api.delete(`/studysets/${id}`);
+    return res.data;
+};
+
 export const updateStudySet = async (id, updatedData) => {
     try {
         const response = await api.put(`/studysets/${id}`, updatedData);

@@ -5,9 +5,10 @@ const authRoute = require('./routes/auth');
 const studysetsRoute = require('./routes/studysets');
 const generateSet = require('./routes/generateSet'); // (old spawn version ✅ keep for backup)
 const aiRoute = require('./routes/ai'); // ⭐ New AI route
-require('dotenv').config();
-
+const puzzleSetRoutes = require('./routes/puzzlesets');
 const app = express();
+
+require('dotenv').config();
 
 // Middleware
 app.use(cors());
@@ -18,6 +19,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/studysets', studysetsRoute);
 app.use('/api/generateSet', generateSet); // (optional backup route)
 app.use('/api/ai', aiRoute);          // ⭐ new clean AI API here
+app.use('/api/puzzlesets', puzzleSetRoutes);
 
 // Home Route
 app.get('/', (req, res) => {

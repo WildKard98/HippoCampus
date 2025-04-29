@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
+import { createPuzzleSet } from "./api";
 
 export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet,t }) {
     const [puzzleTitle, setPuzzleTitle] = React.useState("");
@@ -13,6 +14,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet,t }
     const [isEditing, setIsEditing] = useState(false);
     const MAX_WORDS = 20; // or any number you feel is good
     const MAX_LETTERS = 15; // or whatever max you want
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001"; // add this at top if not exist
 
     // Open the edit modal
     const handleEditClick = (termObj, index) => {
@@ -185,31 +187,39 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet,t }
                                 className="w-full px-4 py-2 rounded-lg text-white bg-black placeholder-white  border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
                             <button
-                                onClick={() => {
+                                 onClick={async () => {
                                     if (!puzzleTitle.trim()) {
-                                        alert("Please enter a title before saving.");
-                                        return;
+                                      alert("Please enter a title before saving.");
+                                      return;
                                     }
                                     if (qnaList.length === 0) {
-                                        alert("Add at least one question & answer.");
-                                        return;
+                                      alert("Add at least one question & answer.");
+                                      return;
                                     }
-
-                                    const studySet = {
-                                        title: puzzleTitle.trim(),
-                                        description: "", // optional
-                                        terms: qnaList.map((qna) => ({
-                                            term: qna.answer,
-                                            definition: qna.question,
-                                        })),
+                                
+                                    const newPuzzleSet = {
+                                      username: localStorage.getItem('username'),
+                                      title: puzzleTitle.trim(),
+                                      description: "",
+                                      terms: qnaList.map((qna) => ({
+                                        term: qna.answer,
+                                        definition: qna.question,
+                                      })),
+                                      isPrivate: "Private",
                                     };
-
-                                    if (onSaveStudySet) {
-                                        onSaveStudySet(studySet); // ✅ Send to parent
+                                
+                                    try {
+                                      const savedSet = await createPuzzleSet(newPuzzleSet);
+                                      if (onSaveStudySet) {
+                                        onSaveStudySet(savedSet);
+                                      }
+                                      if (onBack) onBack();
+                                    } catch (error) {
+                                      console.error(error);
+                                      alert("Error saving puzzle set. Try again later.");
                                     }
-
-                                    if (onBack) onBack(); // ✅ Go back to main screen
-                                }}
+                                  }}
+                                  
                                 className="w-full mt-2 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
                                       hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                             >
@@ -449,14 +459,3 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet,t }
         </div>
     );
 }
-
-
-
-/*
-<span className="font-semibold w-1/3">{item.answer}</span>
-                                            <div
-                                                className="w-[2px] h-full bg-white mx-4 rounded-full opacity-50"
-                                                style={{ minHeight: "40px" }}
-                                            ></div>
-                                            <span className="text-gray-300 w-2/3">{item.question}</span>
-*/

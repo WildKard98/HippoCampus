@@ -9,6 +9,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import MatchingCard from "./matchingcard";
 import Findterm from "./findterm";
 import CrosswordPuzzle from "./crossword";
+import CrosswordPuzzlePage from "./crosswordpage";
 import GeneratePuzzle from "./generatepuzzle";
 import { useLanguage } from "./languagecontext";
 import AuthForm from "./auth";
@@ -19,6 +20,9 @@ import { getPublicSets } from './api';
 import { toggleLikeSet } from './api';
 import { starTerm, unstarTerm } from './api';
 import { getPuzzleSets, getPublicPuzzleSets, toggleLikePuzzleSet } from "./api";
+import { updatePuzzleSet } from './api';
+import { deleteStudySet } from "./api";
+import { deletePuzzleSet } from "./api";
 import axios from 'axios';
 
 export default function Home() {
@@ -29,7 +33,7 @@ export default function Home() {
   const [isCreatingSet, setIsCreatingSet] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isWingPanelOpen, setIsWingPanelOpen] = useState(false);
-  const [isEditingSet, setIsEditingSet] = useState(null); 
+  const [isEditingSet, setIsEditingSet] = useState(null);
   const [screenWidth, setScreenWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
   const [isCreatePuzzle, setIsCreatePuzzle] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
@@ -153,7 +157,7 @@ export default function Home() {
     }
     fetchPublicPuzzleSets();
   }, []);
-  
+
 
   useEffect(() => {
     const tip = studyTips[Math.floor(Math.random() * studyTips.length)];
@@ -469,6 +473,8 @@ export default function Home() {
                   t={t}
                   starredTerms={starredTerms}
                   toggleStar={toggleStar}
+                  puzzleSets={puzzleSets}
+                  setPuzzleSets={setPuzzleSets}
                 />
               ) : isEditingSet ? (
                 <EditSet
@@ -511,6 +517,9 @@ export default function Home() {
                     username={username}
                     setPublicPuzzleSets={setPublicPuzzleSets}
                     needLogin={needLogin}
+                    puzzleSets={puzzleSets}
+                    setPuzzleSets={setPuzzleSets}
+                    setIsHome={setIsHome}
                   />
                 ) : (
                   <PuzzlePage
@@ -525,6 +534,8 @@ export default function Home() {
                     setPublicPuzzleSets={setPublicPuzzleSets}
                     needLogin={needLogin}
                     puzzleSets={puzzleSets}
+                    setPuzzleSets={setPuzzleSets}
+                    setIsHome={setIsHome}
                   />
 
                 )
@@ -1351,14 +1362,32 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
 
 
 
-function LibraryContent({ starredTerms, toggleStar, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, setStudySets, t }) {
+function LibraryContent({ starredTerms, toggleStar, puzzleSets, setPuzzleSets, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, setStudySets, t }) {
   const [isManaging, setIsManaging] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+
+  const togglePrivatePublic = async (index) => {
+    try {
+      const updatedSets = [...studySets];
+
+      // Switch between "Private" and "Public"
+      updatedSets[index].isPrivate = updatedSets[index].isPrivate === "Private" ? "Public" : "Private";
+      setStudySets(updatedSets); // 🔥 Instant frontend update
+      const studySet = updatedSets[index];
+      const payload = {
+        isPrivate: studySet.isPrivate,
+      };
+      const response = await updateStudySet(studySet._id, payload);
+      
+    } catch (error) {
+      console.error("❌ Failed to update isPrivate:", error);
+    }
+  };
 
   const handleDeleteStudySet = async (index) => {
     const studySetId = studySets[index]._id;  // You have _id in each studySet
     try {
-      await axios.delete(`${API_URL}/api/studysets/${studySetId}`);
+      await deleteStudySet(studySetId);
       // After successful delete, update local studySets
       const updatedSets = [...studySets];
       updatedSets.splice(index, 1);
@@ -1368,26 +1397,34 @@ function LibraryContent({ starredTerms, toggleStar, studySets, screenWidth, isEd
     }
   };
 
-  const togglePrivatePublic = async (index) => {
+  // --- Functions for PuzzleSets ---
+  const handleDeletePuzzleSet = async (index) => {
+    const puzzleSetId = puzzleSets[index]._id;
     try {
-      const updatedSets = [...studySets];
-
-      // Switch between "Private" and "Public"
-      updatedSets[index].isPrivate = updatedSets[index].isPrivate === "Private" ? "Public" : "Private";
-      setStudySets(updatedSets); // 🔥 Instant frontend update
-
-      const studySet = updatedSets[index];
-
-      const payload = {
-        isPrivate: studySet.isPrivate,
-      };
-
-      const response = await updateStudySet(studySet._id, payload);
+      await deletePuzzleSet(puzzleSetId);
+      const updatedSets = [...puzzleSets];
+      updatedSets.splice(index, 1);
+      setPuzzleSets(updatedSets);
     } catch (error) {
-      console.error("❌ Failed to update isPrivate:", error);
+      console.error('Failed to delete puzzle set:', error);
     }
   };
 
+  const togglePrivatePublicPuzzleSet = async (index) => {
+    try {
+      const updatedSets = [...puzzleSets];
+
+      updatedSets[index].isPrivate = updatedSets[index].isPrivate === "Private" ? "Public" : "Private";
+      setPuzzleSets(updatedSets);
+      const puzzleSet = updatedSets[index];
+      const payload = {
+        isPrivate: puzzleSet.isPrivate,
+      };
+      const response = await updatePuzzleSet(puzzleSet._id, payload);
+    } catch (error) {
+      console.error("Failed to update puzzle set privacy:", error);
+    }
+  };
 
   // If a set is selected, show flashcard review instead of library
   if (selectedSet) {
@@ -1478,11 +1515,11 @@ function LibraryContent({ starredTerms, toggleStar, studySets, screenWidth, isEd
                   <button
                     onClick={() => togglePrivatePublic(index)}
                     className={`flex items-center justify-center w-20 h-10 rounded-lg border transition duration-300 hover:scale-110 font-bold
-      ${studySet.isPrivate === "Private"
+                       ${studySet.isPrivate === "Private"
                         ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
                         : "border-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_yellow]"
                       }
-    `}
+                    `}
                   >
                     {studySet.isPrivate === "Private" ? "Private" : "Public"}
                   </button>
@@ -1493,7 +1530,77 @@ function LibraryContent({ starredTerms, toggleStar, studySets, screenWidth, isEd
           </div>
         ))
       ) : (
-        <p className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.noFolders}</p>
+        <p className="text-[#ff7700] ">{t.noFolders}</p>
+      )}
+      <h2 className="text-lg font-bold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] mt-8 mb-2">{t.puzzlesets}</h2>
+      {puzzleSets.length > 0 ? (
+        puzzleSets.map((puzzleSet, index) => (
+          <div key={index} className="flex items-center justify-start gap-2 w-full max-w-[600px] mb-4">
+            {/* PuzzleSet card */}
+            <div
+              onClick={() => {
+                if (!isManaging) {
+                  setSelectedSet(puzzleSet);
+                  setIsHome(false);
+                }
+              }}
+              className="relative flex items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+            >
+              {/* ❤️ Heart inside Folder */}
+              <div
+                className="absolute top-1/2 right-2 flex items-center gap-1 text-xl transform -translate-y-1/2"
+              >
+                <i
+                  className={`bi ${puzzleSet.likes && puzzleSet.likes.length > 0
+                    ? "bi-heart-fill text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
+                    : "bi-heart text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
+                    }`}
+                  style={{ paddingTop: "2px" }}
+                ></i>
+                <span className="text-xs text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">
+                  {puzzleSet.likes ? puzzleSet.likes.length : 0}
+                </span>
+              </div>
+              <i className="bi bi-folder2"></i> {puzzleSet.title} ({puzzleSet.terms.length} {puzzleSet.terms.length === 1 ? t.termsg : t.termmul})
+            </div>
+
+            {isManaging && (
+              <div className="flex gap-2">
+                {/* Delete Puzzle */}
+                <button
+                  onClick={() => handleDeletePuzzleSet(index)}
+                    className="flex items-center justify-center w-10 h-10 rounded-lg border border-red-500 text-red-500 drop-shadow-[0_0_8px_red] transition duration-300 hover:scale-110"
+                >
+                  <i className="bi bi-trash"></i>
+                </button>
+
+                {/* Toggle Puzzle Privacy */}
+                {/* Lock/Unlock Box */}
+                {puzzleSet.isPrivate === "Copy" ? (
+                  <div
+                    className="flex items-center justify-center w-20 h-10 rounded-lg border-2 border-[#00e0ff] text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-bold cursor-default"
+                  >
+                    Copied
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => togglePrivatePublic(index)}
+                    className={`flex items-center justify-center w-20 h-10 rounded-lg border transition duration-300 hover:scale-110 font-bold
+                       ${puzzleSet.isPrivate === "Private"
+                        ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
+                        : "border-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_yellow]"
+                      }
+                    `}
+                  >
+                    {puzzleSet.isPrivate === "Private" ? "Private" : "Public"}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <p className="text-[#ff7700]">{t.nopuzzle}</p>
       )}
     </section>
   );
@@ -1588,10 +1695,11 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
 }
 
 
-function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle, puzzleSets, setPuzzleSets, publicPuzzleSets, setPublicPuzzleSets, username, t }) {
+function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showGenerator, setSelectedPuzzle, puzzleSets, setPuzzleSets, publicPuzzleSets, setPublicPuzzleSets, username, t }) {
   const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
   const [selectedSet, setSelectedSet] = useState(null);
   const [clickedHeartId, setClickedHeartId] = useState(null);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
   if (showGenerator) {
     return (
@@ -1610,7 +1718,7 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
 
   if (showCrosswordPuzzle && selectedSet) {
     return (
-      <CrosswordPuzzle
+      <CrosswordPuzzlePage
         t={t}
         screenWidth={screenWidth}
         puzzleSet={selectedSet}
@@ -1642,12 +1750,13 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
 
       {/* Your Created Puzzle Sets */}
       {puzzleSets.length > 0 ? (
-        <div className="flex flex-col gap-4"> {/* 🔥 Add this flex column with gap */}
+        <div className="flex flex-col gap-4">
           {puzzleSets.map((puzzleSet, index) => (
             <div
               key={index}
               onClick={() => {
                 setSelectedSet(puzzleSet);
+                setShowCrosswordPuzzle(true);
                 setIsHome(false);
               }}
               className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
