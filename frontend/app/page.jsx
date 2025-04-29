@@ -17,6 +17,7 @@ import { updateStudySet } from './api';
 import { getStudySets } from './api';
 import { getPublicSets } from './api';
 import { toggleLikeSet } from './api';
+import { starTerm, unstarTerm } from './api';
 import axios from 'axios';
 
 export default function Home() {
@@ -45,6 +46,29 @@ export default function Home() {
   const studyTips = t.studyTips;
   const [randomTip, setRandomTip] = useState(studyTips[0]);
   const [showNeedLogin, setShowNeedLogin] = useState(false);
+  const [starredTerms, setStarredTerms] = useState({}); // ⭐ Key = term text, Value = true
+
+  const toggleStar = async (term, setId) => {
+    const username = localStorage.getItem("username");
+    if (!username || !setId) return;
+
+    try {
+      if (starredTerms[term]) {
+        await unstarTerm(username, setId, term);
+        setStarredTerms(prev => {
+          const newTerms = { ...prev };
+          delete newTerms[term];
+          return newTerms;
+        });
+      } else {
+        await starTerm(username, setId, term);
+        setStarredTerms(prev => ({ ...prev, [term]: true }));
+      }
+    } catch (err) {
+      console.error("Failed to toggle star:", err);
+    }
+  };
+
 
   const reloadAuthInfo = () => {
     const token = localStorage.getItem("token");
@@ -406,6 +430,8 @@ export default function Home() {
                   setSelectedSet={setSelectedSet}
                   setIsHome={setIsHome}
                   t={t}
+                  starredTerms={starredTerms}
+                  toggleStar={toggleStar}
                 />
               ) : isEditingSet ? (
                 <EditSet
@@ -482,6 +508,8 @@ export default function Home() {
                   needLogin={needLogin}
                   t={t}
                   setStudySets={setStudySets}
+                  starredTerms={starredTerms}
+                  toggleStar={toggleStar}
                 />
 
               )}
@@ -549,18 +577,11 @@ export default function Home() {
 
 
 /* Component: Home Content */
-function HomeContent({ setStudySets, needLogin, setPublicSets, username, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
-  const [starredTerms, setStarredTerms] = useState({});
+function HomeContent({ starredTerms, toggleStar, setStudySets, needLogin, setPublicSets, username, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
   const [clickedHeartId, setClickedHeartId] = useState(null);
 
   // Toggle star for terms, syncing with flashcard & list
-  const toggleStar = (term) => {
-    setStarredTerms((prev) => ({
-      ...prev,
-      [term]: !prev[term], // Toggle star state for the term
-    }));
-  };
 
   // If a set is selected, show flashcard review instead of library
   if (selectedSet) {
@@ -1293,18 +1314,9 @@ function DraggableCard({ id, index, term, definition, moveCard, onDelete, onTerm
 
 
 
-function LibraryContent({ studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, setStudySets, t }) {
-  const [starredTerms, setStarredTerms] = useState({});
+function LibraryContent({ starredTerms, toggleStar, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, setStudySets, t }) {
   const [isManaging, setIsManaging] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-
-  // Toggle star for terms, syncing with flashcard & list
-  const toggleStar = (term) => {
-    setStarredTerms((prev) => ({
-      ...prev,
-      [term]: !prev[term], // Toggle star state for the term
-    }));
-  };
 
   const handleDeleteStudySet = async (index) => {
     const studySetId = studySets[index]._id;  // You have _id in each studySet
@@ -1729,7 +1741,6 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
   const [copySuccess, setCopySuccess] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const isOwner = studySet.username === localStorage.getItem("username");
-
   const resetScrollPauseTimer = () => {
     if (scrollPauseTimerRef.current) clearTimeout(scrollPauseTimerRef.current);
     scrollPauseTimerRef.current = setTimeout(() => {
@@ -1787,7 +1798,7 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
         setShowNeedLogin(true);
         return;
       }
-  
+
       const copiedSet = {
         username,
         title: studySet.title + " (Copy)",
@@ -1798,14 +1809,14 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
         })),
         isPrivate: "Copy"
       };
-  
+
       const response = await createStudySet(copiedSet);
       console.log("✅ Copied set:", response);
-  
+
       // 🛠️ After copying, refresh your library
       const updatedSets = await getStudySets(username);
       setStudySets(updatedSets); // 🔥 update instantly!
-  
+
       setCopySuccess(true); // show popup
     } catch (error) {
       console.error("❌ Failed to copy set:", error);
@@ -1978,11 +1989,12 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
                               : "text-white hover:text-[#ffaa33] drop-shadow-[0_0_8px_white]"
                               }`}
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent flip when clicking the star
-                              toggleStar(studySet.terms[currentIndex].term);
+                              e.stopPropagation();
+                              toggleStar(studySet.terms[currentIndex].term, studySet._id);
                             }}
+
                           >
-                            {starredTerms[studySet.terms[currentIndex].term] ? (
+                           {isOwner && starredTerms[studySet.terms[currentIndex].term] ? (
                               <i className="bi bi-star-fill text-yellow-400"></i>
                             ) : (
                               <i className="bi bi-star"></i>
@@ -2016,11 +2028,12 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
                               : "text-white hover:text-[#ffaa33] drop-shadow-[0_0_8px_white]"
                               }`}
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent flip when clicking the star
-                              toggleStar(studySet.terms[currentIndex].term);
+                              e.stopPropagation();
+                              toggleStar(studySet.terms[currentIndex].term, studySet._id);
                             }}
+
                           >
-                            {starredTerms[studySet.terms[currentIndex].term] ? (
+                            {isOwner && starredTerms[studySet.terms[currentIndex].term] ? (
                               <i className="bi bi-star-fill text-yellow-400"></i>
                             ) : (
                               <i className="bi bi-star"></i>
@@ -2118,10 +2131,10 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
                       <div className="relative flex items-center pl-8">
                         {/* Star Button - Positioned at the top-right */}
                         <button
-                          onClick={() => toggleStar(item.term)}
+                          onClick={() => toggleStar(item.term, studySet._id)}
                           className="absolute bottom-0 right-0 text-white text-xl"
                         >
-                          {starredTerms[item.term] ? (
+                          {isOwner && starredTerms[item.term] ? (
                             <i className="bi bi-star-fill text-[#ff7700] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#ff7700]"></i>
                           ) : (
                             <i className="bi bi-star text-[#00e0ff] hover:text-[#ffaa33] drop-shadow-[0_0_8px_#00e0ff]"></i>

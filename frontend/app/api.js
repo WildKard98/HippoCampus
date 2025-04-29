@@ -59,5 +59,27 @@ export const toggleLikeSet = async (id, username) => {
     }
 };
 
+// ⭐ Star a term
+export const starTerm = async (username, setId, term) => {
+    try {
+        const response = await api.post('/auth/starredTerms/add', { username, setId, term });
+        return response.data;
+    } catch (error) {
+        console.error('Error starring term:', error);
+        throw error;
+    }
+};
+
+// ❌ Unstar a term
+export const unstarTerm = async (username, setId, term) => {
+    try {
+        const response = await api.post('/auth/starredTerms/remove', { username, setId, term });
+        return response.data;
+    } catch (error) {
+        console.error('Error unstarring term:', error);
+        throw error;
+    }
+};
+
 
 export default api;

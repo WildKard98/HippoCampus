@@ -129,4 +129,47 @@ router.post('/check-availability', async (req, res) => {
     }
   });
 
+  // ⭐ Add a starred term
+router.post('/starredTerms/add', async (req, res) => {
+    try {
+        const { username, setId, term } = req.body;
+
+        const user = await User.findOne({ username });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Prevent duplicates
+        const alreadyStarred = user.starredTerms.some(item => item.setId === setId && item.term === term);
+        if (alreadyStarred) return res.status(400).json({ message: "Term already starred" });
+
+        user.starredTerms.push({ setId, term });
+        await user.save();
+
+        res.status(200).json({ message: "Term starred successfully", starredTerms: user.starredTerms });
+
+    } catch (err) {
+        console.error("Error starring term:", err);
+        res.status(500).json({ message: "Failed to star term" });
+    }
+});
+
+// ❌ Remove a starred term
+router.post('/starredTerms/remove', async (req, res) => {
+    try {
+        const { username, setId, term } = req.body;
+
+        const user = await User.findOne({ username });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Remove the matching star
+        user.starredTerms = user.starredTerms.filter(item => !(item.setId === setId && item.term === term));
+        await user.save();
+
+        res.status(200).json({ message: "Term unstarred successfully", starredTerms: user.starredTerms });
+
+    } catch (err) {
+        console.error("Error unstarring term:", err);
+        res.status(500).json({ message: "Failed to unstar term" });
+    }
+});
+
 module.exports = router;
