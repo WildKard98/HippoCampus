@@ -2,7 +2,6 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
 const router = express.Router();
 
 // REGISTER
@@ -21,7 +20,28 @@ router.post('/register', async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const newUser = new User({ username, email, password: hashedPassword });
+        // New fields (optional during registration)
+        const bio = req.body.bio || "";
+        const profilePicture = req.body.profilePicture || "";
+        const userMajor = req.body.userMajor || "";
+        const userType = "Normal"; // Always Normal for registration
+        const emailVerified = false; // Always false at registration
+
+        const newUser = new User({
+            username,
+            email,
+            password: hashedPassword,
+            bio,
+            profilePicture,
+            userMajor,
+            userType,
+            emailVerified,
+            achievements: [],
+            goldenSeahorse: 0,
+            platinumSeahorse: 0,
+            starredTerms: [],
+        });
+
         await newUser.save();
         console.log("🔥 New user created:", newUser);
 
@@ -32,14 +52,25 @@ router.post('/register', async (req, res) => {
             user: {
                 username: newUser.username,
                 email: newUser.email,
+                achievements: newUser.achievements,
+                userType: newUser.userType,
+                userMajor: newUser.userMajor,
+                goldenSeahorse: newUser.goldenSeahorse,
+                platinumSeahorse: newUser.platinumSeahorse,
+                bio: newUser.bio,
+                profilePicture: newUser.profilePicture,
+                emailVerified: newUser.emailVerified,
+                createdAt: newUser.createdAt,
             }
         });
+        
 
     } catch (err) {
         console.error("❌ Error during registration:", err);
         res.status(500).json({ message: "Something went wrong." });
     }
 });
+
 
 // LOGIN
 router.post('/login', async (req, res) => {
@@ -61,8 +92,18 @@ router.post('/login', async (req, res) => {
             user: {
                 username: user.username,
                 email: user.email,
+                achievements: user.achievements,
+                userType: user.userType,
+                userMajor: user.userMajor,
+                goldenSeahorse: user.goldenSeahorse,
+                platinumSeahorse: user.platinumSeahorse,
+                bio: user.bio,
+                profilePicture: user.profilePicture,
+                emailVerified: user.emailVerified,
+                createdAt: user.createdAt,
             }
-        });
+        });        
+        
 
     } catch (err) {
         res.status(500).json({ error: 'Login failed.' });
@@ -87,5 +128,5 @@ router.post('/check-availability', async (req, res) => {
       return res.status(500).json({ error: 'Server error' });
     }
   });
-  
+
 module.exports = router;
