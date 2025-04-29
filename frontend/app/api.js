@@ -81,5 +81,42 @@ export const unstarTerm = async (username, setId, term) => {
     }
 };
 
+// Create a new PuzzleSet
+export const createPuzzleSet = async (puzzleSetData) => {
+    const res = await api.post('/puzzlesets', puzzleSetData);
+    return res.data;
+};
+
+// Get all public PuzzleSets
+export const getPublicPuzzleSets = async () => {
+    const res = await api.get('/puzzlesets/public');
+    return res.data;
+};
+
+// Get PuzzleSets by username
+export const getPuzzleSets = async (username) => {
+    const res = await api.get(`/puzzlesets/${username}`);
+    return res.data;
+};
+
+// Update a PuzzleSet
+export const updatePuzzleSet = async (id, updatedPuzzleSet) => {
+    const res = await api.put(`/puzzlesets/${id}`, updatedPuzzleSet);
+    return res.data;
+};
+
+// Delete a PuzzleSet
+export const deletePuzzleSet = async (id) => {
+    const res = await api.delete(`/puzzlesets/${id}`);
+    return res.data;
+};
+
+// Like/Unlike a PuzzleSet
+export const toggleLikePuzzleSet = async (id, username) => {
+    const res = await api.put(`/puzzlesets/${id}/like`, { username });
+    return res.data;
+};
+
+
 
 export default api;

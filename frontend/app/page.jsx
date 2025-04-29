@@ -18,6 +18,7 @@ import { getStudySets } from './api';
 import { getPublicSets } from './api';
 import { toggleLikeSet } from './api';
 import { starTerm, unstarTerm } from './api';
+import { getPuzzleSets, getPublicPuzzleSets, toggleLikePuzzleSet } from "./api";
 import axios from 'axios';
 
 export default function Home() {
@@ -28,8 +29,8 @@ export default function Home() {
   const [isCreatingSet, setIsCreatingSet] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isWingPanelOpen, setIsWingPanelOpen] = useState(false);
-  const [isEditingSet, setIsEditingSet] = useState(null); // Holds the set being edited
-  const [screenWidth, setScreenWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024); // Default to 1024px to prevent small width issues
+  const [isEditingSet, setIsEditingSet] = useState(null); 
+  const [screenWidth, setScreenWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
   const [isCreatePuzzle, setIsCreatePuzzle] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
   const [isHome, setIsHome] = useState(false);
@@ -37,7 +38,7 @@ export default function Home() {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const { t, setLang, lang } = useLanguage();
   const [isAuth, setIsAuth] = useState(false);
-  const [username, setUsername] = useState(""); // ← Get this from login response
+  const [username, setUsername] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -46,7 +47,7 @@ export default function Home() {
   const studyTips = t.studyTips;
   const [randomTip, setRandomTip] = useState(studyTips[0]);
   const [showNeedLogin, setShowNeedLogin] = useState(false);
-  const [starredTerms, setStarredTerms] = useState({}); // ⭐ Key = term text, Value = true
+  const [starredTerms, setStarredTerms] = useState({});
 
   const toggleStar = async (term, setId) => {
     const username = localStorage.getItem("username");
@@ -117,6 +118,42 @@ export default function Home() {
     }
     fetchPublicSets();
   }, []);
+
+  // fetch username studyset
+  const [puzzleSets, setPuzzleSets] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const savedUsername = localStorage.getItem("username");
+
+    if (token && savedUsername) {
+      // after login success
+      setIsAuth(true);
+      setUsername(savedUsername);
+      setShowLogin(false);
+
+      getPuzzleSets(savedUsername)
+        .then((sets) => setPuzzleSets(sets))
+        .catch((err) => console.error('Failed to refresh Puzzle sets after login:', err));
+
+    }
+  }, []);
+
+  // fetch public set
+  const [publicPuzzleSets, setPublicPuzzleSets] = useState([]);
+  useEffect(() => {
+    async function fetchPublicPuzzleSets() {
+      try {
+        const response = await getPublicPuzzleSets();  // Fetch public sets from the backend
+        console.log("Public Puzzle Sets: ", response);
+        setPublicPuzzleSets(response);
+      } catch (err) {
+        console.error("Failed to fetch public Puzzle sets:", err);
+      }
+    }
+    fetchPublicPuzzleSets();
+  }, []);
+  
 
   useEffect(() => {
     const tip = studyTips[Math.floor(Math.random() * studyTips.length)];
@@ -470,9 +507,9 @@ export default function Home() {
                     studySets={studySets}
                     setStudySets={setStudySets}
                     t={t}
-                    publicSets={publicSets}
+                    publicPuzzleSets={publicPuzzleSets}
                     username={username}
-                    setPublicSets={setPublicSets}
+                    setPublicPuzzleSets={setPublicPuzzleSets}
                     needLogin={needLogin}
                   />
                 ) : (
@@ -484,9 +521,9 @@ export default function Home() {
                     studySets={studySets}
                     setStudySets={setStudySets}
                     t={t}
-                    publicSets={publicSets}
+                    publicPuzzleSets={publicPuzzleSets}
                     username={username}
-                    setPublicSets={setPublicSets}
+                    setPublicPuzzleSets={setPublicPuzzleSets}
                     needLogin={needLogin}
                   />
 
@@ -1551,7 +1588,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
 }
 
 
-function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle, studySets, setStudySets, publicSets, setPublicSets, username, t }) {
+function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, setSelectedPuzzle, puzzleSets, setPuzzleSets, publicPuzzleSets, setPublicPuzzleSets, username, t }) {
   const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
   const [selectedSet, setSelectedSet] = useState(null);
   const [clickedHeartId, setClickedHeartId] = useState(null);
@@ -1562,11 +1599,10 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
         t={t}
         screenWidth={screenWidth}
         onBack={() => setShowGenerator(false)}
-        onSaveStudySet={(newSet) => {
-          const updatedSets = [...studySets, newSet];
-          localStorage.setItem("myStudySets", JSON.stringify(updatedSets));
-          setStudySets(updatedSets);
-          setShowGenerator(false);
+        onSaveStudySet={(newPuzzleSet) => {
+          const updatedPuzzleSets = [...puzzleSets, newPuzzleSet];
+          localStorage.setItem("myPuzzleSets", JSON.stringify(updatedPuzzleSets));
+          setPuzzleSets(updatedPuzzleSets);
         }}
       />
     );
@@ -1577,7 +1613,7 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
       <CrosswordPuzzle
         t={t}
         screenWidth={screenWidth}
-        studySet={selectedSet}
+        puzzleSet={selectedSet}
         onBack={() => {
           setShowCrosswordPuzzle(false);
           setSelectedSet(null);
@@ -1605,26 +1641,26 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
       </div>
 
       {/* Your Created Puzzle Sets */}
-      {studySets.length > 0 ? (
+      {puzzleSets.length > 0 ? (
         <div className="flex flex-col gap-4"> {/* 🔥 Add this flex column with gap */}
-          {studySets.map((studySet, index) => (
+          {puzzleSets.map((puzzleSet, index) => (
             <div
               key={index}
               onClick={() => {
-                setSelectedSet(studySet);
+                setSelectedSet(puzzleSet);
                 setIsHome(false);
               }}
               className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+                <i className="bi bi-folder2"></i> {puzzleSet.title} ({puzzleSet.terms.length}{puzzleSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
               </div>
 
               {/* 🔥 Glow white text + orange username */}
               <div className="text-sm pl-6">
                 <span className="text-white  font-semibold">Created by:</span>{" "}
                 <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
-                  {studySet.username}
+                  {puzzleSet.username}
                 </span>
               </div>
             </div>
@@ -1637,13 +1673,13 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
       {/* Other People's Puzzle Section */}
       <h2 className="text-lg font-semibold mt-10 mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.otherpuzzle}</h2>
 
-      {publicSets.length > 0 ? (
+      {publicPuzzleSets.length > 0 ? (
         <div className="flex flex-col gap-4">
-          {publicSets.map((publicSet, index) => (
+          {publicPuzzleSets.map((publicPuzzleSet, index) => (
             <div
               key={index}
               onClick={() => {
-                setSelectedSet(publicSet);
+                setSelectedSet(publicPuzzleSet);
                 setIsHome(false);
               }}
               className="relative flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
@@ -1653,23 +1689,23 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
                 className="absolute top-1/2 right-2 flex items-center gap-2 text-2xl cursor-pointer transition-all duration-300 transform -translate-y-1/2"
                 onClick={async (e) => {
                   e.stopPropagation();
-                  setClickedHeartId(publicSet._id);
+                  setClickedHeartId(publicPuzzleSet._id);
                   setTimeout(() => setClickedHeartId(null), 200);
 
                   try {
-                    await toggleLikeSet(publicSet._id, username);
-                    const updatedPublicSets = await getPublicSets();
-                    setPublicSets(updatedPublicSets);
+                    await toggleLikePuzzleSet(publicPuzzleSet._id, username);
+                    const updatedPublicPuzzleSets = await getPublicPuzzleSets();
+                    setPublicPuzzleSets(updatedPublicPuzzleSets);
                   } catch (error) {
                     console.error('Error toggling like:', error);
                   }
                 }}
               >
                 <div
-                  className={`flex items-center justify-center rounded-full p-2 border-2 ${publicSet.likes && publicSet.likes.includes(username)
+                  className={`flex items-center justify-center rounded-full p-2 border-2 ${publicPuzzleSet.likes && publicPuzzleSet.likes.includes(username)
                     ? "border-red-500"
                     : "border-[#ff7700]"
-                    } ${clickedHeartId === publicSet._id ? "scale-125" : "scale-100"} 
+                    } ${clickedHeartId === publicPuzzleSet._id ? "scale-125" : "scale-100"} 
     transition-transform duration-200`}
                   style={{
                     width: "40px",
@@ -1677,7 +1713,7 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
                   }}
                 >
                   <i
-                    className={`bi ${publicSet.likes && publicSet.likes.includes(username)
+                    className={`bi ${publicPuzzleSet.likes && publicPuzzleSet.likes.includes(username)
                       ? "bi-heart-fill text-red-500 drop-shadow-[0_0_8px_red]"
                       : "bi-heart text-[#ff7700]"
                       }`}
@@ -1687,12 +1723,12 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
                   ></i>
                 </div>
                 <span
-                  className={`text-sm ${publicSet.likes && publicSet.likes.includes(username)
+                  className={`text-sm ${publicPuzzleSet.likes && publicPuzzleSet.likes.includes(username)
                     ? "text-red-500"
                     : "text-[#ff7700]"
                     }`}
                 >
-                  {publicSet.likes ? publicSet.likes.length : 0}
+                  {publicPuzzleSet.likes ? publicPuzzleSet.likes.length : 0}
                 </span>
               </div>
 
@@ -1700,14 +1736,14 @@ function PuzzlePage({ needLogin, screenWidth, setShowGenerator, showGenerator, s
               {/* 📂 Folder Title */}
               <div className="flex items-center gap-2">
                 <i className="bi bi-folder2"></i>
-                {publicSet.title} ({publicSet.terms.length}{publicSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+                {publicPuzzleSet.title} ({publicPuzzleSet.terms.length}{publicPuzzleSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
               </div>
 
               {/* 👤 Username */}
               <div className="text-sm pl-6">
                 <span className="text-white font-semibold">Created by:</span>{" "}
                 <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
-                  {publicSet.username}
+                  {publicPuzzleSet.username}
                 </span>
               </div>
             </div>
@@ -1994,7 +2030,7 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
                             }}
 
                           >
-                           {isOwner && starredTerms[studySet.terms[currentIndex].term] ? (
+                            {isOwner && starredTerms[studySet.terms[currentIndex].term] ? (
                               <i className="bi bi-star-fill text-yellow-400"></i>
                             ) : (
                               <i className="bi bi-star"></i>
@@ -2106,8 +2142,6 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
               </div>
             </div>
             ˝
-
-
             {/* Neon Blue Line */}
             <div className={`mt-6 h-[2px] bg-[#00e0ff] ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}></div>
 
