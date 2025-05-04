@@ -502,7 +502,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
 
                             <div className="grid grid-cols-2 gap-4 mb-4">
                                 <div className="flex flex-col">
-                                    <label className="mb-2 text-[#00e0ff]">{t.termlanguage}</label>
+                                    <label className="mb-2 text-[#00e0ff]">{t.anslanguage}</label>
                                     <select
                                         value={termLanguage}
                                         onChange={(e) => setTermLanguage(e.target.value)}
@@ -514,7 +514,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                 </div>
 
                                 <div className="flex flex-col">
-                                    <label className="mb-2 text-[#00e0ff]">{t.deflanguage}</label>
+                                    <label className="mb-2 text-[#00e0ff]">{t.queslanguage}</label>
                                     <select
                                         value={definitionLanguage}
                                         onChange={(e) => setDefinitionLanguage(e.target.value)}

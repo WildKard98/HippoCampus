@@ -60,6 +60,9 @@ export const translations = {
         genwait: "Generating...",
         termlanguage: "Term Language",
         deflanguage: "Definition Language",
+        anslanguage: "Answer Language",
+        queslanguage: "Question Language",
+        
 
         // search bar 1
         searchbar: "Study set, puzzle, news",
@@ -183,8 +186,10 @@ export const translations = {
         numterm: "Số lượng thuật ngữ",
         generatebtn: "Tạo",
         genwait: "Đang tạo...",
-        termlanguage: "Ngôn ngữ cho đáp án",
-        deflanguage: "Ngôn ngữ cho câu hỏi",
+        termlanguage: "Ngôn ngữ thuật ngữ",
+        deflanguage: "Ngôn ngữ định nghĩa",
+        anslanguage: "Ngôn ngữ đáp án",
+        queslanguage: "Ngôn ngữ câu hỏi",
 
         //need login
         needlogin: "Đăng nhập để sử dụng!",

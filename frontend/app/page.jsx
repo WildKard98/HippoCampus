@@ -852,7 +852,8 @@ function CreateSet({ onSave, t }) {
   const [aiPrompt, setAiPrompt] = useState(""); // user input
   const [aiNumTerms, setAiNumTerms] = useState(10);  // default 10 terms
   const [isGenerating, setIsGenerating] = useState(false);
-  const [aiLanguage, setAiLanguage] = useState("English");
+  const [termLanguage, setTermLanguage] = useState("English");
+  const [definitionLanguage, setDefinitionLanguage] = useState("English");
 
   const [terms, setTerms] = useState([
     { id: 1, term: "", definition: "" },
@@ -1053,15 +1054,41 @@ function CreateSet({ onSave, t }) {
                 onChange={(e) => setAiPrompt(e.target.value)}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="flex flex-col">
+                  <label className="mb-2 text-[#00e0ff]">{t.termlanguage}</label>
+                  <select
+                    value={termLanguage}
+                    onChange={(e) => setTermLanguage(e.target.value)}
+                    className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
+                  >
+                    <option value="English" className="bg-black text-[#00e0ff]">English</option>
+                    <option value="Vietnamese" className="bg-black text-[#00e0ff]">Tiếng Việt</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-2 text-[#00e0ff]">{t.deflanguage}</label>
+                  <select
+                    value={definitionLanguage}
+                    onChange={(e) => setDefinitionLanguage(e.target.value)}
+                    className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
+                  >
+                    <option value="English" className="bg-black text-[#00e0ff]">English</option>
+                    <option value="Vietnamese" className="bg-black text-[#00e0ff]">Tiếng Việt</option>
+                  </select>
+                </div>
+              </div>
+              {/* Generate Button */}
+              <div className="flex flex-col gap-4 items-center mt-2">
                 <div className="flex flex-col">
                   <label className="mb-2 text-[#00e0ff]">{t.numterm}</label>
                   <select
                     value={aiNumTerms}
                     onChange={(e) => setAiNumTerms(e.target.value)}
                     className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] 
-      shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] 
-      hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
+                                           shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] 
+                                           hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
                   >
                     {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
                       <option key={num} value={num} className="bg-black text-[#00e0ff]">
@@ -1070,25 +1097,7 @@ function CreateSet({ onSave, t }) {
                     ))}
                   </select>
                 </div>
-
-                <div className="flex flex-col">
-                  <label className="mb-2 text-[#00e0ff]">{t.language}</label>
-                  <select
-                    value={aiLanguage}
-                    onChange={(e) => setAiLanguage(e.target.value)}
-                    className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] 
-      shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] 
-      hover:bg-[#00e0ff] hover:text-black transition duration-300 w-full text-center"
-                  >
-                    <option value="English" className="bg-black text-[#00e0ff]">English</option>
-                    <option value="Vietnamese" className="bg-black text-[#00e0ff]">Tiếng Việt</option>
-                  </select>
-                </div>
-
-              </div>
-              {/* Generate Button */}
-              <div className="mt-6 flex justify-center">
-                <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_16px_#ff00ff] w-[70%]">
+                <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_16px_#ff00ff] w-full max-w-[200px]">
                   <button
                     onClick={async () => {
                       setIsGenerating(true);
@@ -1099,7 +1108,8 @@ function CreateSet({ onSave, t }) {
                           body: JSON.stringify({
                             topic: aiPrompt,
                             numTerms: aiNumTerms,
-                            language: aiLanguage,
+                            termLanguage,
+                            definitionLanguage,
                           }),
                         });
 
@@ -1125,7 +1135,7 @@ function CreateSet({ onSave, t }) {
                     }}
                     disabled={isGenerating}
                     className={`w-full px-6 py-2 rounded-full font-bold bg-black text-yellow-500 transition duration-500
-        ${isGenerating ? "" : "hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"}`}
+                                          ${isGenerating ? "" : "hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"}`}
                   >
                     {isGenerating ? (
                       <div className="flex items-center justify-center gap-2">
