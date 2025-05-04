@@ -6,7 +6,7 @@ const axios = require('axios');
 const MAX_RETRIES = 3; // 💥 Max retry 3 times
 
 router.post('/', async (req, res) => {
-    const { topic, numTerms } = req.body;
+    const { topic, numTerms, termLanguage, definitionLanguage } = req.body;
 
     if (!topic || !numTerms) {
         return res.status(400).json({ error: 'Missing topic or numTerms' });
@@ -17,14 +17,25 @@ router.post('/', async (req, res) => {
     let generatedSet = null;
 
     const prompt = `
-You are a helpful study set generator. 
-Only output valid pure JSON array, like this: [{"term": "CPU", "definition": "Central Processing Unit"}, {"term": "RAM", "definition": "Random Access Memory"}, ...].
+You are a helpful study set generator.
+Your job is to ONLY return valid JSON array like this:
+[{"term": "CPU", "definition": "Central Processing Unit"}, ...]
 
-Do not say anything else.
+⚠️ IMPORTANT: 
+- All terms have to be in language: **${termLanguage}**.
+- All definitions have to be in **${definitionLanguage}**.
+- Do NOT write anything in English unless requested.
+- Do NOT include any explanations, greetings, or notes.
+- Output ONLY the JSON array, no text before or after.
+- The format must look exactly like this for example:
+  [
+    {"term": "ABC", "definition": "DEF"},
+    {"term": "GHI", "definition": "JKL"}
+  ]
 
-Create exactly ${numTerms} terms and definitions about "${topic}".
-ONLY output the JSON array, no explanations, no extra text.
+Now create ${numTerms} term-definition pairs about: "${topic}".
 `;
+
 
     while (tries < MAX_RETRIES && !success) {
         try {

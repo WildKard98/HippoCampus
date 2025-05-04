@@ -52,6 +52,8 @@ export default function Home() {
   const [randomTip, setRandomTip] = useState(studyTips[0]);
   const [showNeedLogin, setShowNeedLogin] = useState(false);
   const [starredTerms, setStarredTerms] = useState({});
+  const [showSetOption, setShowSetOption] = useState(false);
+  const dropdownRef = useRef();
 
   const toggleStar = async (term, setId) => {
     const username = localStorage.getItem("username");
@@ -193,6 +195,25 @@ export default function Home() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowSetOption(false);
+      }
+    };
+
+    if (showSetOption) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showSetOption]);
+
   function needLogin(action) {
     if (!username) {
       setShowNeedLogin(true);
@@ -203,13 +224,13 @@ export default function Home() {
   }
 
   return (
-
     <DndProvider backend={HTML5Backend}>
       {showLogin ? (
         <AuthForm
           screenWidth={screenWidth}
           onBack={() => setShowLogin(false)}
           reloadAuthInfo={reloadAuthInfo}
+          t={t}
         />
 
       ) : (
@@ -268,21 +289,53 @@ export default function Home() {
 
             {/* Right: Plus Button, Type/Draw Toggle, User Info */}
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => {
-                  needLogin(() => {
-                    setIsCreatingSet(true);
-                    setIsEditingSet(null);
-                    setIsCreatePuzzle(false);
-                    setSelectedSet(null);
-                    setIsHome(false);
-                  });
-                }}
-                className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-lg transition duration-300
-         hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
-              >
-                +
-              </button>
+              <div className="relative inline-block text-left" ref={dropdownRef}>
+                <button
+                  onClick={() => setShowSetOption((prev) => !prev)}
+                  className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                >
+                  +
+                </button>
+
+                {showSetOption && (
+                  <div className="absolute right-0 mt-2 w-[140px] rounded-md shadow-lg bg-black ring-1 ring-[#ff7700] ring-opacity-50 z-50">
+                    <div className="py-1 text-[#ff7700] drop-shadow-[0_0_4px_#ff7700]">
+                      <button
+                        onClick={() => {
+                          setShowSetOption(false);
+                          needLogin(() => {
+                            setIsCreatingSet(true);
+                            setIsEditingSet(null);
+                            setIsCreatePuzzle(false);
+                            setSelectedSet(null);
+                            setIsHome(false);
+                          });
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-[#ff7700] hover:text-black"
+                      >
+                        <i className="bi bi-journal mr-2"></i>
+                        {t.createset}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowSetOption(false);
+                          needLogin(() => {
+                            setShowGenerator(true);
+                            setIsCreatingSet(false);
+                            setSelectedSet(null);
+                            setIsHome(false);
+                          });
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-[#ff7700] hover:text-black"
+                      >
+                        <i className="bi bi-puzzle mr-2"></i>
+                        {t.createnewpuzzle}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
 
               {/* user name, login */}
               {!isAuth ? (
@@ -290,19 +343,19 @@ export default function Home() {
                   onClick={() => setShowLogin(true)}
                   className="bg-[#00e0ff] text-black px-4 py-2 rounded-full font-semibold hover:bg-[#00bfff] transition"
                 >
-                  Login
+                  {t.login}
                 </button>
               ) : (
                 <div className="relative">
                   <div className="relative user-dropdown">
                     <button
                       onClick={() => setShowDropdown(!showDropdown)}
-                      className="bg-[#00e0ff] text-black px-4 py-2 rounded-full font-semibold hover:bg-[#00bfff] transition"
+                      className="bg-[#00e0ff] text-black px-4 py-2 rounded-full font-semibold hover:bg-[#00bfff] transition w-[150px] truncate"
                     >
                       {username}
                     </button>
                     {showDropdown && (
-                      <div className="absolute right-0 mt-2 w-20 bg-black border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-50">
+                      <div className="absolute right-0 mt-2 w-[150px] bg-black border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-50">
                         <button
                           onClick={() => {
                             setIsAuth(false);
@@ -314,14 +367,14 @@ export default function Home() {
                           }}
                           className="block w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
                         >
-                          Logout
+                          {t.logout}
                         </button>
                       </div>
                     )}
                   </div>
-
                 </div>
               )}
+
 
               <div className="relative lang-menu">
                 <div
@@ -503,6 +556,19 @@ export default function Home() {
                     setIsCreatingSet(false);
                   }}
                 />
+              ) : showGenerator ? (
+                <GeneratePuzzle
+                  t={t}
+                  screenWidth={screenWidth}
+                  onBack={() => setShowGenerator(false)}
+                  onSaveStudySet={(newPuzzleSet) => {
+                    const updatedPuzzleSets = [...puzzleSets, newPuzzleSet];
+                    localStorage.setItem("myPuzzleSets", JSON.stringify(updatedPuzzleSets));
+                    setPuzzleSets(updatedPuzzleSets);
+                    setShowGenerator(false);
+                    setIsCreatePuzzle(true);
+                  }}
+                />
               ) : isCreatePuzzle ? (
                 showGenerator === "play" && selectedPuzzle ? (
                   <PuzzlePage
@@ -587,10 +653,10 @@ export default function Home() {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
           <div className="bg-black p-6 rounded-lg text-white border border-[#00e0ff] shadow-[0_0_16px_#00e0ff] w-[350px]">
             <h2 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] text-center">
-              You need to log in first!
+              {t.needlogin}
             </h2>
             <p className="text-center text-[#00e0ff] mb-6">
-              Login is required to unlock more features like creating, liking, and editing sets.
+              {t.needloginlog}
             </p>
 
             <div className="flex justify-center gap-4">
@@ -600,7 +666,7 @@ export default function Home() {
                   setShowNeedLogin(false);
                 }}
               >
-                Cancel
+                {t.cancelbtn}
               </button>
               <button
                 className="px-6 py-2 rounded-lg border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
@@ -609,7 +675,7 @@ export default function Home() {
                   setShowLogin(true);
                 }}
               >
-                Login
+                {t.login}
               </button>
             </div>
           </div>
@@ -786,6 +852,7 @@ function CreateSet({ onSave, t }) {
   const [aiPrompt, setAiPrompt] = useState(""); // user input
   const [aiNumTerms, setAiNumTerms] = useState(10);  // default 10 terms
   const [isGenerating, setIsGenerating] = useState(false);
+  const [aiLanguage, setAiLanguage] = useState("English");
 
   const [terms, setTerms] = useState([
     { id: 1, term: "", definition: "" },
@@ -851,9 +918,9 @@ function CreateSet({ onSave, t }) {
           <button
             onClick={() => setShowAiModal(true)}
             className="w-full px-6 py-2 rounded-full font-bold bg-black text-yellow-500 transition duration-500
-      hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"
+            hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"
           >
-            Ask AI ✨
+            {t.askai} ✨
           </button>
         </div>
       </div>
@@ -974,40 +1041,54 @@ function CreateSet({ onSave, t }) {
               </button>
 
               {/* Title */}
-              <h2 className="text-2xl font-bold mb-4 text-white drop-shadow-[0_0_8px_white]">Ask AI to Create a Set</h2>
+              <h2 className="text-2xl font-bold mb-4 text-white drop-shadow-[0_0_8px_white]">{t.aicreate}</h2>
 
               {/* Topic Input */}
-              <label className="block mb-2 text-[#00e0ff]">Topic</label>
+              <label className="block mb-2 text-[#00e0ff]">{t.topic}</label>
               <input
                 type="text"
-                placeholder="e.g., Computer Science Basics"
+                placeholder={t.topiceg}
                 className="bg-black text-[#ff7700] placeholder-white px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
               />
 
-              {/* Number of Terms */}
-              <label className="block mb-2 text-[#00e0ff]">Number of Terms</label>
-              <div className="flex justify-between items-center gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="mb-2 text-[#00e0ff]">{t.numterm}</label>
+                  <select
+                    value={aiNumTerms}
+                    onChange={(e) => setAiNumTerms(e.target.value)}
+                    className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] 
+      shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] 
+      hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
+                  >
+                    {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
+                      <option key={num} value={num} className="bg-black text-[#00e0ff]">
+                        {num}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                {/* Select Dropdown */}
-                <select
-                  value={aiNumTerms}
-                  onChange={(e) => setAiNumTerms(e.target.value)}
-                  className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] 
-             shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] 
-             hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-1/2
-             scrollbar-thin scrollbar-thumb-[#00e0ff] scrollbar-track-black"
-                >
-                  {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
-                    <option key={num} value={num} className="bg-black text-[#00e0ff]">
-                      {num}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex flex-col">
+                  <label className="mb-2 text-[#00e0ff]">{t.language}</label>
+                  <select
+                    value={aiLanguage}
+                    onChange={(e) => setAiLanguage(e.target.value)}
+                    className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] 
+      shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] 
+      hover:bg-[#00e0ff] hover:text-black transition duration-300 w-full text-center"
+                  >
+                    <option value="English" className="bg-black text-[#00e0ff]">English</option>
+                    <option value="Vietnamese" className="bg-black text-[#00e0ff]">Tiếng Việt</option>
+                  </select>
+                </div>
 
-                {/* Generate Button */}
-                <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_16px_#ff00ff] w-1/2">
+              </div>
+              {/* Generate Button */}
+              <div className="mt-6 flex justify-center">
+                <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_16px_#ff00ff] w-[70%]">
                   <button
                     onClick={async () => {
                       setIsGenerating(true);
@@ -1018,6 +1099,7 @@ function CreateSet({ onSave, t }) {
                           body: JSON.stringify({
                             topic: aiPrompt,
                             numTerms: aiNumTerms,
+                            language: aiLanguage,
                           }),
                         });
 
@@ -1025,13 +1107,12 @@ function CreateSet({ onSave, t }) {
 
                         if (response.ok) {
                           console.log("Generated terms:", data.terms || data.studySet);
-
                           setTerms((data.terms || data.studySet).map((item, index) => ({
                             id: index + 1,
                             term: item.term,
                             definition: item.definition,
                           })));
-                          setTitle(aiPrompt); // Fill in the title automatically
+                          setTitle(aiPrompt);
                           setShowAiModal(false);
                         } else {
                           console.error("Error generating set:", data.error);
@@ -1042,37 +1123,24 @@ function CreateSet({ onSave, t }) {
                         setIsGenerating(false);
                       }
                     }}
-                    disabled={isGenerating} // disable button while loading
+                    disabled={isGenerating}
                     className={`w-full px-6 py-2 rounded-full font-bold bg-black text-yellow-500 transition duration-500
-              ${isGenerating ? "" : "hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"}`}
+        ${isGenerating ? "" : "hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"}`}
                   >
                     {isGenerating ? (
                       <div className="flex items-center justify-center gap-2">
                         <svg className="animate-spin h-5 w-5 text-[#ff7700]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
-                          ></path>
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"></path>
                         </svg>
-                        <span>Generating...</span>
+                        <span>{t.genwait}</span>
                       </div>
                     ) : (
-                      "Generate"
+                      t.generatebtn
                     )}
                   </button>
                 </div>
-
               </div>
-
             </div>
           </div>
         </div>
@@ -1378,7 +1446,7 @@ function LibraryContent({ starredTerms, toggleStar, puzzleSets, setPuzzleSets, s
         isPrivate: studySet.isPrivate,
       };
       const response = await updateStudySet(studySet._id, payload);
-      
+
     } catch (error) {
       console.error("❌ Failed to update isPrivate:", error);
     }
@@ -1569,7 +1637,7 @@ function LibraryContent({ starredTerms, toggleStar, puzzleSets, setPuzzleSets, s
                 {/* Delete Puzzle */}
                 <button
                   onClick={() => handleDeletePuzzleSet(index)}
-                    className="flex items-center justify-center w-10 h-10 rounded-lg border border-red-500 text-red-500 drop-shadow-[0_0_8px_red] transition duration-300 hover:scale-110"
+                  className="flex items-center justify-center w-10 h-10 rounded-lg border border-red-500 text-red-500 drop-shadow-[0_0_8px_red] transition duration-300 hover:scale-110"
                 >
                   <i className="bi bi-trash"></i>
                 </button>
@@ -2360,8 +2428,6 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
             </div>
           </div>
         )}
-
-
       </div>
     </div >
   );

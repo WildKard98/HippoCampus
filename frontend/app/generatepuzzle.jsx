@@ -3,7 +3,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { createPuzzleSet } from "./api";
 
-export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet,t }) {
+export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t }) {
     const [puzzleTitle, setPuzzleTitle] = React.useState("");
     const [question, setQuestion] = React.useState("");
     const [answer, setAnswer] = React.useState("");
@@ -15,6 +15,13 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet,t }
     const MAX_WORDS = 20; // or any number you feel is good
     const MAX_LETTERS = 15; // or whatever max you want
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001"; // add this at top if not exist
+    const [showAiModal, setShowAiModal] = useState(false);
+    const [aiPrompt, setAiPrompt] = useState(""); // user input
+    const [aiNumTerms, setAiNumTerms] = useState(10);  // default 10 terms
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [termLanguage, setTermLanguage] = useState("English");
+    const [definitionLanguage, setDefinitionLanguage] = useState("English");
+
 
     // Open the edit modal
     const handleEditClick = (termObj, index) => {
@@ -126,10 +133,20 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet,t }
                 {t.backbtn}
             </button>
 
-            <h1 className="text-3xl font-bold mb-6 text-[#ff7700] drop-shadow-[0_0_12px_#ff7700]">
-                {t.createpuzzle}
-            </h1>
-
+            <div className="flex items-center justify-between mb-4">
+                <h1 className="text-3xl font-bold mb-6 text-[#ff7700] drop-shadow-[0_0_12px_#ff7700]">
+                    {t.createpuzzle}
+                </h1>
+                <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_16px_#ff00ff]">
+                    <button
+                        onClick={() => setShowAiModal(true)}
+                        className="w-full px-6 py-2 rounded-full font-bold bg-black text-yellow-500 transition duration-500
+            hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"
+                    >
+                        {t.askai} ✨
+                    </button>
+                </div>
+            </div>
             {isEditing ? (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                     <div
@@ -187,39 +204,39 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet,t }
                                 className="w-full px-4 py-2 rounded-lg text-white bg-black placeholder-white  border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
                             <button
-                                 onClick={async () => {
+                                onClick={async () => {
                                     if (!puzzleTitle.trim()) {
-                                      alert("Please enter a title before saving.");
-                                      return;
+                                        alert("Please enter a title before saving.");
+                                        return;
                                     }
                                     if (qnaList.length === 0) {
-                                      alert("Add at least one question & answer.");
-                                      return;
+                                        alert("Add at least one question & answer.");
+                                        return;
                                     }
-                                
+
                                     const newPuzzleSet = {
-                                      username: localStorage.getItem('username'),
-                                      title: puzzleTitle.trim(),
-                                      description: "",
-                                      terms: qnaList.map((qna) => ({
-                                        term: qna.answer,
-                                        definition: qna.question,
-                                      })),
-                                      isPrivate: "Private",
+                                        username: localStorage.getItem('username'),
+                                        title: puzzleTitle.trim(),
+                                        description: "",
+                                        terms: qnaList.map((qna) => ({
+                                            term: qna.answer,
+                                            definition: qna.question,
+                                        })),
+                                        isPrivate: "Private",
                                     };
-                                
+
                                     try {
-                                      const savedSet = await createPuzzleSet(newPuzzleSet);
-                                      if (onSaveStudySet) {
-                                        onSaveStudySet(savedSet);
-                                      }
-                                      if (onBack) onBack();
+                                        const savedSet = await createPuzzleSet(newPuzzleSet);
+                                        if (onSaveStudySet) {
+                                            onSaveStudySet(savedSet);
+                                        }
+                                        if (onBack) onBack();
                                     } catch (error) {
-                                      console.error(error);
-                                      alert("Error saving puzzle set. Try again later.");
+                                        console.error(error);
+                                        alert("Error saving puzzle set. Try again later.");
                                     }
-                                  }}
-                                  
+                                }}
+
                                 className="w-full mt-2 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
                                       hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                             >
@@ -452,6 +469,133 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet,t }
                                     })}
                             </div>
 
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showAiModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    {/* Rainbow Border around the Modal */}
+                    <div className="relative p-[3px] rounded-lg bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_20px_#ff00ff] w-[450px]">
+                        <div className="bg-black p-6 rounded-lg text-white w-full h-full">
+
+                            {/* Close Button */}
+                            <button
+                                className="absolute top-2 right-2 text-[#ff7700] text-xl hover:scale-110 transition"
+                                onClick={() => setShowAiModal(false)}
+                            >
+                                ✖
+                            </button>
+
+                            {/* Title */}
+                            <h2 className="text-2xl font-bold mb-4 text-white drop-shadow-[0_0_8px_white]">{t.aicreate}</h2>
+
+                            {/* Topic Input */}
+                            <label className="block mb-2 text-[#00e0ff]">{t.topic}</label>
+                            <input
+                                type="text"
+                                placeholder={t.topiceg}
+                                className="bg-black text-[#ff7700] placeholder-white px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                                value={aiPrompt}
+                                onChange={(e) => setAiPrompt(e.target.value)}
+                            />
+
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div className="flex flex-col">
+                                    <label className="mb-2 text-[#00e0ff]">{t.termlanguage}</label>
+                                    <select
+                                        value={termLanguage}
+                                        onChange={(e) => setTermLanguage(e.target.value)}
+                                        className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
+                                    >
+                                        <option value="English" className="bg-black text-[#00e0ff]">English</option>
+                                        <option value="Vietnamese" className="bg-black text-[#00e0ff]">Tiếng Việt</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex flex-col">
+                                    <label className="mb-2 text-[#00e0ff]">{t.deflanguage}</label>
+                                    <select
+                                        value={definitionLanguage}
+                                        onChange={(e) => setDefinitionLanguage(e.target.value)}
+                                        className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
+                                    >
+                                        <option value="English" className="bg-black text-[#00e0ff]">English</option>
+                                        <option value="Vietnamese" className="bg-black text-[#00e0ff]">Tiếng Việt</option>
+                                    </select>
+                                </div>
+                            </div>
+                            {/* Generate Button */}
+                            <div className="flex flex-col gap-4 items-center mt-2">
+                                <div className="flex flex-col">
+                                    <label className="mb-2 text-[#00e0ff]">{t.numterm}</label>
+                                    <select
+                                        value={aiNumTerms}
+                                        onChange={(e) => setAiNumTerms(e.target.value)}
+                                        className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] 
+                                           shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] 
+                                           hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
+                                    >
+                                        {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
+                                            <option key={num} value={num} className="bg-black text-[#00e0ff]">
+                                                {num}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_16px_#ff00ff] w-full max-w-[200px]">
+                                    <button
+                                        onClick={async () => {
+                                            setIsGenerating(true);
+                                            try {
+                                                const response = await fetch('http://localhost:5001/api/ai', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({
+                                                        topic: aiPrompt,
+                                                        numTerms: aiNumTerms,
+                                                        termLanguage,
+                                                        definitionLanguage,
+                                                    }),
+                                                });
+
+                                                const data = await response.json();
+
+                                                if (response.ok) {
+                                                    console.log("Generated terms:", data.terms || data.studySet);
+                                                    setQnaList((data.terms || data.studySet).map((item) => ({
+                                                        question: item.definition, // question ← from AI definition
+                                                        answer: item.term.toUpperCase(), // answer ← from AI term, uppercase for puzzle
+                                                    })));
+                                                    setPuzzleTitle(aiPrompt);
+                                                    setShowAiModal(false);
+                                                } else {
+                                                    console.error("Error generating set:", data.error);
+                                                }
+                                            } catch (err) {
+                                                console.error("Failed to call AI API:", err);
+                                            } finally {
+                                                setIsGenerating(false);
+                                            }
+                                        }}
+                                        disabled={isGenerating}
+                                        className={`w-full px-6 py-2 rounded-full font-bold bg-black text-yellow-500 transition duration-500
+                                          ${isGenerating ? "" : "hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"}`}
+                                    >
+                                        {isGenerating ? (
+                                            <div className="flex items-center justify-center gap-2">
+                                                <svg className="animate-spin h-5 w-5 text-[#ff7700]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"></path>
+                                                </svg>
+                                                <span>{t.genwait}</span>
+                                            </div>
+                                        ) : (
+                                            t.generatebtn
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

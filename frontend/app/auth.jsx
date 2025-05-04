@@ -2,7 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useEffect } from "react";
-export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, reloadAuthInfo }) {
+export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, reloadAuthInfo,t }) {
 
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState("");
@@ -28,21 +28,21 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
                 });
 
                 if (res.data.usernameTaken) {
-                    setUsernameError("❌ Username is already taken.");
-                    setMessage("❌ Username is already taken.");
+                    setUsernameError(t.usernametaken);
+                    setMessage(t.usernametaken);
                     setLoading(false);
                     return;
                 }
 
                 if (res.data.emailTaken) {
-                    setEmailError("❌ Email is already used.");
-                    setMessage("❌ Email is already used.");
+                    setEmailError(t.emailtaken);
+                    setMessage(t.emailtaken);
                     setLoading(false);
                     return;
                 }
             } catch (err) {
-                console.error("❌ Availability check error:", err.message);
-                setMessage("❌ Server error during availability check.");
+                console.error(t.servererror, err.message);
+                setMessage(t.servererror);
                 setLoading(false);
                 return;
             }
@@ -57,12 +57,10 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
 
             const res = await axios.post(`${apiUrl}${endpoint}`, payload);
 
-            console.log("🔥 API response data:", res.data);
-
             localStorage.setItem("username", res.data.user.username);
             localStorage.setItem("token", res.data.token);
 
-            setMessage(isLogin ? "✅ Login successful!" : "✅ Registered successfully.");
+            setMessage(isLogin ? t.loginsuccess : t.registersuccess);
             reloadAuthInfo();
             onBack();
             setTimeout(() => {
@@ -71,7 +69,7 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
 
         } catch (err) {
             console.error("❌ Auth error:", err.response?.data || err.message);
-            setMessage(err.response?.data?.message || "Something went wrong.");
+            setMessage(err.response?.data?.message || t.somethingwrong);
         } finally {
             setLoading(false);
         }
@@ -84,7 +82,7 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
                     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
                     // const apiUrl = "http://localhost:5001";
                     const res = await axios.post(`${apiUrl}/api/auth/check-availability`, { username: inputUsername });
-                    setUsernameError(res.data.usernameTaken ? "❌ Username is already taken." : "");
+                    setUsernameError(res.data.usernameTaken ? t.usernametaken : "");
                 } catch (err) {
                     console.error(err);
                 }
@@ -101,7 +99,7 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
                     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
                     // const apiUrl = "http://localhost:5001";
                     const res = await axios.post(`${apiUrl}/api/auth/check-availability`, { email });
-                    setEmailError(res.data.emailTaken ? "❌ Email is already used." : "");
+                    setEmailError(res.data.emailTaken ? t.emailtaken : "");
                 } catch (err) {
                     console.error(err);
                 }
@@ -121,13 +119,13 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
                     {/* Header */}
                     <div className={`flex justify-between items-center ${screenWidth <= 770 ? "flex-col gap-3" : ""}`}>
                         <h1 className="text-3xl font-bold drop-shadow-[0_0_8px_#00e0ff]">
-                            {isLogin ? "Login" : "Register"}
+                            {isLogin ? t.login : t.register}
                         </h1>
                         <button
                             onClick={onBack}
                             className="px-4 py-2 border border-[#00e0ff] rounded-lg hover:bg-[#00e0ff] hover:text-black text-[#00e0ff] transition shadow-md hover:shadow-[0_0_12px_#00e0ff]"
                         >
-                            ← Back
+                            {t.backbtn}
                         </button>
                     </div>
 
@@ -138,7 +136,7 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
                                 <input
                                     value={inputUsername}
                                     onChange={(e) => setInputUsername(e.target.value)}
-                                    placeholder="Username"
+                                    placeholder= {t.username}
                                     className="bg-black border border-[#00e0ff] px-4 py-2 rounded-lg text-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none"
                                 />
                                 {usernameError && (
@@ -150,7 +148,7 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
                         <input
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Email"
+                            placeholder={t.email}
                             className="bg-black border border-[#00e0ff] px-4 py-2 rounded-lg text-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none"
                         />
                         {emailError && (
@@ -158,7 +156,7 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
                         )}
                         <input
                             type="password"
-                            placeholder="Password"
+                            placeholder={t.password}
                             className="bg-black border border-[#00e0ff] px-4 py-2 rounded-lg text-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -167,7 +165,7 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
                             type="submit"
                             className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-6 py-2 rounded-lg hover:bg-[#ff7700] hover:text-black transition shadow-md hover:shadow-[0_0_12px_#ff7700]"
                         >
-                            {isLogin ? "Login" : "Register"}
+                            {isLogin ? t.login : t.register}
                         </button>
                         {message && (
                             <p className="text-sm text-center text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{message}</p>
@@ -183,13 +181,13 @@ export default function AuthForm({ screenWidth, onBack, setIsAuth, setUsername, 
                                 </div>
                             ) : (
                                 <>
-                                    {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+                                    {isLogin ? t.noaccount : t.haveaccount}{" "}
                                     <button
                                         type="button"
                                         className="underline text-[#00e0ff] hover:text-[#ffaa33] transition"
                                         onClick={() => setIsLogin(!isLogin)}
                                     >
-                                        {isLogin ? "Register" : "Login"}
+                                        {isLogin ? t.register : t.login}
                                     </button>
                                 </>
                             )}

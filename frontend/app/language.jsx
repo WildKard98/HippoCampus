@@ -13,6 +13,10 @@ export const translations = {
         tryagainbtn: "Try again?",
         congradbtn: "Congratuation!, Want to try it again?",
 
+        //plus button
+        createset: "Study Set",
+        createnewpuzzle: "Puzzle",
+
         // login, register
         logout: "Logout",
         login: "Login",
@@ -22,9 +26,18 @@ export const translations = {
         username: "Username",
         haveaccount: "Already have an account?",
         somethingwrong: "Something went wrong.",
-        usernametaken: "Username already taken.",
-        emailtaken: "Email already registered.",
+        usernametaken: "❌ Username is already taken.",
+        emailtaken: "❌ Email is already used.",
         loading: "Loading...",
+        email: "Email",
+        servererror: "❌ Server error during availability check.",
+        loginsuccess: "Login Successful!",
+        registersuccess: "Registered successfully!",
+
+        //need login
+        needlogin: "Login required!",
+        needloginlog: "You need to log in first!",
+        cancelbtn: "Cancel",
 
         // homepage more feature
         otherpeopleset: "Other People's Sets",
@@ -39,13 +52,14 @@ export const translations = {
 
         // AI feature
         askai: "Ask AI",
-        aicreate: "Ask AI to create a set",
+        aicreate: "Create a set by AI",
         topic: "Topic",
         topiceg: "e.g., brands, famous singers, planets",
         numterm: "Number of Terms",
         generatebtn: "Generate",
         genwait: "Generating...",
-
+        termlanguage: "Term Language",
+        deflanguage: "Definition Language",
 
         // search bar 1
         searchbar: "Study set, puzzle, news",
@@ -129,6 +143,10 @@ export const translations = {
         tryagainbtn: "Thử lại?",
         congradbtn: "Chúc mừng! Bạn muốn thử lại không?",
 
+        //plus button
+        createset: "Tập học mới",
+        createnewpuzzle: "Câu đố",
+
         // login, register
         logout: "Đăng xuất",
         login: "Đăng nhập",
@@ -138,9 +156,13 @@ export const translations = {
         username: "Tên người dùng",
         haveaccount: "Đã có tài khoản?",
         somethingwrong: "Đã xảy ra lỗi.",
-        usernametaken: "Tên người dùng đã được sử dụng.",
-        emailtaken: "Email đã được đăng ký.",
+        usernametaken: "❌ Tên người dùng đã được sử dụng.",
+        emailtaken: "❌ Email đã được đăng ký.",
         loading: "Đang tải...",
+        email: "Email",
+        servererror: "❌ Máy chủ Lỗi .",
+        loginsuccess: " Đăng nhập thành công!",
+        registersuccess: "Đăng kí thành công!",
 
         // homepage more feature
         otherpeopleset: "Bộ thẻ của người khác",
@@ -155,13 +177,19 @@ export const translations = {
 
         // AI feature
         askai: "Hỏi AI",
-        aicreate: "Yêu cầu AI tạo bộ thẻ",
+        aicreate: "Tạo danh sách bằng AI",
         topic: "Chủ đề",
         topiceg: "ví dụ: thương hiệu, ca sĩ nổi tiếng, hành tinh",
         numterm: "Số lượng thuật ngữ",
         generatebtn: "Tạo",
         genwait: "Đang tạo...",
+        termlanguage: "Ngôn ngữ cho đáp án",
+        deflanguage: "Ngôn ngữ cho câu hỏi",
 
+        //need login
+        needlogin: "Đăng nhập để sử dụng!",
+        needloginlog: "Bạn cần phải đăng nhập trước!",
+        cancelbtn: "Huỷ",
 
         // search bar 1
         searchbar: "Tệp học, ô chữ, tin tức",
