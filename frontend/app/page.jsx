@@ -34,7 +34,7 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false);
   const [isWingPanelOpen, setIsWingPanelOpen] = useState(false);
   const [isEditingSet, setIsEditingSet] = useState(null);
-  const [screenWidth, setScreenWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
+  const [screenWidth, setScreenWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0);
   const [isCreatePuzzle, setIsCreatePuzzle] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
   const [isHome, setIsHome] = useState(false);
@@ -214,6 +214,16 @@ export default function Home() {
     };
   }, [showSetOption]);
 
+  useEffect(() => {
+    if (screenWidth > 770 && screenWidth < 1000) {
+      setIsMenuCollapsed(true); // collapse the side panel
+    } else if (screenWidth >= 1000) {
+      setIsMenuCollapsed(false); // expand side panel
+    }
+    // else, do nothing for ≤ 770 (handled by WingPanel)
+  }, [screenWidth]);
+
+
   function needLogin(action) {
     if (!username) {
       setShowNeedLogin(true);
@@ -237,22 +247,25 @@ export default function Home() {
         <div className="min-h-screen bg-black text-white flex flex-col">
 
           {/* Unified Header */}
-          <header className="flex justify-between items-center p-4 bg-black text-white">
+          <header className="flex justify-between items-center p-4 bg-black text-white gap-4 flex-wrap">
+
 
             {/* Left: Hamburger & App Name */}
             <div className="flex items-center">
-              <button
-                className="bg-black text-[#00e0ff] text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:bg-[#00e0ff] hover:text-black"
-                onClick={() => {
-                  if (window.innerWidth <= 770) {
-                    setIsWingPanelOpen(true);  // Open WingPanel if screen width ≤ 770px
-                  } else {
-                    setIsMenuCollapsed(!isMenuCollapsed); // Otherwise, toggle side panel
-                  }
-                }}
-              >
-                ☰
-              </button>
+              {screenWidth > 480 && (
+                <button
+                  className="bg-black text-[#00e0ff] text-2xl focus:outline-none w-9 h-9 min-w-[36px] min-h-[36px] flex-shrink-0 flex items-center justify-center rounded-full transition duration-300 hover:bg-[#00e0ff] hover:text-black"
+                  onClick={() => {
+                    if (window.innerWidth <= 770) {
+                      setIsWingPanelOpen(true);  // Open WingPanel if screen width ≤ 770px
+                    } else {
+                      setIsMenuCollapsed(!isMenuCollapsed); // Otherwise, toggle side panel
+                    }
+                  }}
+                >
+                  ☰
+                </button>
+              )}
 
               {/* Web Title (Changes based on screen size) */}
               <img
@@ -264,77 +277,77 @@ export default function Home() {
                 <img
                   src="/logo6.png"
                   alt="Hippocampus Logo"
-                  className={`h-14 w-40 object-contain ml-2 ${screenWidth > 770 ? "block" : "hidden"}`}
+                  className={`h-11 w-40 object-contain ml-2 ${screenWidth > 770 ? "block" : "hidden"}`}
                 />
               </div>
             </div>
 
 
             {/* Middle: Search Bar */}
-            {screenWidth >= 620 && (
-              <div className="w-2/3 flex justify-center px-4">
-                <div className="relative w-full max-w-lg">
-                  {/* Neon Blue Search Icon */}
+            {screenWidth >= 660 && (
+              <div className="flex-1 max-w-[400px]">
+                <div className="relative w-full">
                   <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
-
-                  {/* Neon Input Field */}
                   <input
                     type="text"
                     placeholder={t.searchbar}
-                    className="bg-black  text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] shadow-[0_0_8px_#00e0ff] transition"
+                    className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] shadow-[0_0_8px_#00e0ff] transition"
                   />
                 </div>
               </div>
             )}
 
+
             {/* Right: Plus Button, Type/Draw Toggle, User Info */}
             <div className="flex items-center gap-4">
-              <div className="relative inline-block text-left" ref={dropdownRef}>
-                <button
-                  onClick={() => setShowSetOption((prev) => !prev)}
-                  className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
-                >
-                  +
-                </button>
+              {screenWidth > 480 && (
+                <div className="relative inline-block text-left" ref={dropdownRef}>
+                  <button
+                    onClick={() => setShowSetOption((prev) => !prev)}
+                    className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                  >
+                    +
+                  </button>
 
-                {showSetOption && (
-                  <div className="absolute right-0 mt-2 w-[140px] rounded-md shadow-lg bg-black ring-1 ring-[#ff7700] ring-opacity-50 z-50">
-                    <div className="py-1 text-[#ff7700] drop-shadow-[0_0_4px_#ff7700]">
-                      <button
-                        onClick={() => {
-                          setShowSetOption(false);
-                          needLogin(() => {
-                            setIsCreatingSet(true);
-                            setIsEditingSet(null);
-                            setIsCreatePuzzle(false);
-                            setSelectedSet(null);
-                            setIsHome(false);
-                          });
-                        }}
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-[#ff7700] hover:text-black"
-                      >
-                        <i className="bi bi-journal mr-2"></i>
-                        {t.createset}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowSetOption(false);
-                          needLogin(() => {
-                            setShowGenerator(true);
-                            setIsCreatingSet(false);
-                            setSelectedSet(null);
-                            setIsHome(false);
-                          });
-                        }}
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-[#ff7700] hover:text-black"
-                      >
-                        <i className="bi bi-puzzle mr-2"></i>
-                        {t.createnewpuzzle}
-                      </button>
+                  {showSetOption && (
+                    <div className="absolute right-0 mt-2 w-[140px] rounded-md shadow-lg bg-black ring-1 ring-[#ff7700] ring-opacity-50 z-50">
+                      <div className="py-1 text-[#ff7700] drop-shadow-[0_0_4px_#ff7700]">
+                        <button
+                          onClick={() => {
+                            setShowSetOption(false);
+                            needLogin(() => {
+                              setIsCreatingSet(true);
+                              setIsEditingSet(null);
+                              setIsCreatePuzzle(false);
+                              setSelectedSet(null);
+                              setIsHome(false);
+                            });
+                          }}
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-[#ff7700] hover:text-black"
+                        >
+                          <i className="bi bi-journal mr-2"></i>
+                          {t.createset}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowSetOption(false);
+                            needLogin(() => {
+                              setShowGenerator(true);
+                              setIsCreatingSet(false);
+                              setSelectedSet(null);
+                              setIsHome(false);
+                            });
+                          }}
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-[#ff7700] hover:text-black"
+                        >
+                          <i className="bi bi-puzzle mr-2"></i>
+                          {t.createnewpuzzle}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
 
 
               {/* user name, login */}
@@ -409,7 +422,7 @@ export default function Home() {
           </header>
 
           {/* Search bar adjusts when screen width < 620px */}
-          {screenWidth < 620 && (
+          {screenWidth < 660 && (
             <div className="w-full px-4 mt-2 flex justify-center">
               <div className="relative w-full max-w-none">
                 <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
@@ -434,6 +447,18 @@ export default function Home() {
               setIsEditingSet={setIsEditingSet}
               setIsHome={setIsHome}
               t={t}
+            />
+          )}
+
+          {/*MobileNav trigger when width <= 480px */}
+          {screenWidth <= 480 && (
+            <MobileNav
+              t={t}
+              setIsHome={setIsHome}
+              setIsCreatingSet={setIsCreatingSet}
+              setIsCreatePuzzle={setIsCreatePuzzle}
+              setSelectedSet={setSelectedSet}
+              setIsEditingSet={setIsEditingSet}
             />
           )}
 
@@ -2442,4 +2467,114 @@ function FlashcardReview({ setStudySets, studySets, studySet, onExit, screenWidt
     </div >
   );
 }
+
+
+
+
+function MobileNav({
+  t,
+  setIsHome,
+  setIsCreatingSet,
+  setIsCreatePuzzle,
+  setSelectedSet,
+  setIsEditingSet,
+  isHome,
+  isCreatingSet,
+  isCreatePuzzle,
+}) {
+  const navBtnBase = "flex flex-col items-center justify-center flex-1 text-xs transition rounded-md py-1";
+  const activeColor = "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]";
+  const inactiveColor = "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]";
+
+  return (
+    <div className="fixed bottom-0 left-0 w-full h-16 bg-black z-50">
+      {/* Lowered glowing top line */}
+      <div className="absolute left-0 w-full h-[2px] bg-[#00e0ff]">
+        <div className="absolute left-1/2 transform -translate-x-1/2 w-10 h-full bg-black" />
+      </div>
+
+      {/* Navigation Buttons */}
+      <div className="flex items-end justify-between h-full px-1 pt-4">
+
+        {/* Home */}
+        <button
+          onClick={() => {
+            setIsHome(true);
+            setIsCreatingSet(false);
+            setIsCreatePuzzle(false);
+            setIsEditingSet(false);
+            setSelectedSet(null);
+          }}
+          className={`${navBtnBase} ${isHome ? activeColor : inactiveColor}`}
+        >
+          <i className="bi bi-house-door text-xl" />
+          <span className="mt-1">{t.home}</span>
+        </button>
+
+        {/* Library */}
+        <button
+          onClick={() => {
+            setIsHome(false);
+            setIsCreatingSet("library");
+            setIsCreatePuzzle(false);
+            setIsEditingSet(false);
+            setSelectedSet(null);
+          }}
+          className={`${navBtnBase} ${isCreatingSet === "library" ? activeColor : inactiveColor}`}
+        >
+          <i className="bi bi-book text-xl" />
+          <span className="mt-1">{t.library}</span>
+        </button>
+
+        {/* Center Plus Button (orange glow, raised but not too high) */}
+        <div className="relative -top-0 w-20 h-20 rounded-full border-4 border-[#ff7700] bg-black mx-1 flex items-center justify-center drop-shadow-[0_0_12px_#ff7700]">
+          <button
+            onClick={() => {
+              setIsCreatingSet(true);
+              setIsHome(false);
+              setIsCreatePuzzle(false);
+              setIsEditingSet(false);
+              setSelectedSet(null);
+            }}
+            className="text-[#ff7700] text-3xl hover:text-black hover:bg-[#ff7700] w-full h-full flex items-center justify-center transition rounded-full"
+          >
+            <i className="bi bi-plus-lg" />
+          </button>
+        </div>
+
+        {/* Folder */}
+        <button
+          onClick={() => {
+            setIsHome(false);
+            setIsCreatingSet("folder");
+            setIsCreatePuzzle(false);
+            setIsEditingSet(false);
+            setSelectedSet(null);
+          }}
+          className={`${navBtnBase} ${isCreatingSet === "folder" ? activeColor : inactiveColor}`}
+        >
+          <i className="bi bi-folder2 text-xl" />
+          <span className="mt-1">{t.createfolder}</span>
+        </button>
+
+        {/* Crossword */}
+        <button
+          onClick={() => {
+            setIsCreatePuzzle(true);
+            setIsHome(false);
+            setIsCreatingSet(false);
+            setIsEditingSet(false);
+            setSelectedSet(null);
+          }}
+          className={`${navBtnBase} ${isCreatePuzzle ? activeColor : inactiveColor}`}
+        >
+          <i className="bi bi-puzzle text-xl" />
+          <span className="mt-1">{t.playcrossword}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
 
