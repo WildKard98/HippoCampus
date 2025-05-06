@@ -12,6 +12,9 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
     const [hoveredClueNumber, setHoveredClueNumber] = useState(null);
     const [hoveredDirection, setHoveredDirection] = useState(null);
     const [cellStatus, setCellStatus] = useState({});
+    const [scale, setScale] = useState(1);
+    const [translate, setTranslate] = useState({ x: 0, y: 0 });
+    const [startPan, setStartPan] = useState(null);
 
     // Get clue number for a specific grid cell
     const getClueNumber = (row, col) => {
@@ -29,32 +32,6 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
             updated[row][col] = value;
             return updated;
         });
-    };
-    const handleMouseDown = (e) => {
-        setIsDragging(true);
-        setDragStart({
-            x: e.clientX,
-            y: e.clientY,
-        });
-    };
-
-    const handleMouseMove = (e) => {
-        if (!isDragging || !containerRef.current) return;
-
-        const dx = e.clientX - dragStart.x;
-        const dy = e.clientY - dragStart.y;
-
-        containerRef.current.scrollLeft -= dx;
-        containerRef.current.scrollTop -= dy;
-
-        setDragStart({
-            x: e.clientX,
-            y: e.clientY,
-        });
-    };
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
     };
 
     const checkAnswers = () => {
@@ -137,6 +114,45 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
         generate();
     }, [studySet]);
 
+    const handleWheel = (e) => {
+        if (containerRef.current?.contains(e.target)) {
+            e.preventDefault(); // ⛔ stop page scroll
+            const zoomAmount = e.deltaY < 0 ? 0.1 : -0.1;
+            setScale((prev) => Math.min(Math.max(prev + zoomAmount, 0.5), 2));
+        }
+    };
+
+
+    const handlePanStart = (e) => {
+        setStartPan({ x: e.clientX || e.touches[0].clientX, y: e.clientY || e.touches[0].clientY });
+    };
+
+    const handlePanMove = (e) => {
+        if (!startPan) return;
+        const currentX = e.clientX || e.touches[0].clientX;
+        const currentY = e.clientY || e.touches[0].clientY;
+        const dx = currentX - startPan.x;
+        const dy = currentY - startPan.y;
+        setTranslate((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+        setStartPan({ x: currentX, y: currentY });
+    };
+
+    const handlePanEnd = () => {
+        setStartPan(null);
+    };
+
+    useEffect(() => {
+        const wheelHandler = (e) => {
+            if (containerRef.current?.contains(e.target)) {
+                e.preventDefault();
+            }
+        };
+        window.addEventListener("wheel", wheelHandler, { passive: false });
+
+        return () => {
+            window.removeEventListener("wheel", wheelHandler);
+        };
+    }, []);
 
     return (
         <div className="text-white font-[Itim]">
@@ -218,27 +234,31 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
                         <>
                             {/* THE PUZZLE */}
                             <div
-                                className="w-full h-[420px] overflow-auto touch-pinch-zoom"
-                                style={{
-                                  touchAction: "pinch-zoom", // ← this allows native pinch zoom
-                                  WebkitOverflowScrolling: "touch",
-                                  cursor: isDragging ? "grabbing" : "grab",
-                                  maxWidth: "100%",
-                                  maxHeight: "420px",
-                                  border: "1px solid #00e0ff",
-                                  position: "relative",
-                                }}
                                 ref={containerRef}
-                                onMouseDown={handleMouseDown}
-                                onMouseMove={handleMouseMove}
-                                onMouseUp={handleMouseUp}
-                                onMouseLeave={handleMouseUp}
+                                onWheel={handleWheel}
+                                onMouseDown={handlePanStart}
+                                onMouseMove={handlePanMove}
+                                onMouseUp={handlePanEnd}
+                                onMouseLeave={handlePanEnd}
+                                onTouchStart={handlePanStart}
+                                onTouchMove={handlePanMove}
+                                onTouchEnd={handlePanEnd}
+                                style={{
+                                    overflow: "hidden",
+                                    touchAction: "none", // disable pinch-zoom on phones if you're handling it
+                                    width: "100%",
+                                    height: "420px",
+                                    border: "1px solid #00e0ff",
+                                    position: "relative",
+                                    cursor: startPan ? "grabbing" : "grab",
+                                }}
                             >
                                 <div
-                                    className="flex flex-col items-start gap-px w-fit max-w-full"
                                     style={{
-                                        transform: `scale(${grid.length > 20 ? 1 : grid.length > 10 ? 1.2 : 1.5})`,
+                                        transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
                                         transformOrigin: "top left",
+                                        transition: "transform 0.05s ease-out",
+                                        display: "inline-block",
                                     }}
                                 >
                                     {grid.map((rowArray, row) => (
