@@ -220,13 +220,15 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                         <>
                             {/* THE PUZZLE */}
                             <div
-                                className="w-full h-[420px] overflow-auto"
+                                className="w-full h-[420px] overflow-auto touch-pinch-zoom"
                                 style={{
-                                    cursor: isDragging ? "grabbing" : "grab",
-                                    maxWidth: "100%",
-                                    maxHeight: "420px",
-                                    border: "1px solid #00e0ff", // optional for visual clarity
-                                    position: "relative",
+                                  touchAction: "pinch-zoom", // ← this allows native pinch zoom
+                                  WebkitOverflowScrolling: "touch",
+                                  cursor: isDragging ? "grabbing" : "grab",
+                                  maxWidth: "100%",
+                                  maxHeight: "420px",
+                                  border: "1px solid #00e0ff",
+                                  position: "relative",
                                 }}
                                 ref={containerRef}
                                 onMouseDown={handleMouseDown}
