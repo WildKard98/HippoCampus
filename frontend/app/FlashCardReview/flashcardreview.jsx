@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { updateStudySet, createStudySet, getStudySets } from '../api';
-import MatchingCard from "./MatchingCard";
-import Findterm from "./Findterm";
+import MatchingCard from "./matchingcard";
+import Findterm from "./findterm";
 import CrosswordPuzzle from "./crossword";
 
 export default function FlashcardReview({setShowNeedLogin, setStudySets, studySets, studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setSelectedSet, t }) {
