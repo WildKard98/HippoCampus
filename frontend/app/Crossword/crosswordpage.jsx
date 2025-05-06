@@ -140,10 +140,11 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
 
     return (
         <div className="text-white font-[Itim]">
-
-            {/* Matching Test Title & Back Button */}
+            {/*Title & Back Button */}
             <div className={`grid grid-cols-2 gap-30 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h2 className="text-xl justify-start text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff] font-bold">{t.puzzle}</h2>
+            <h2 className="text-3xl font-semibold text-left text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">
+              {puzzleSet.title}
+            </h2>
 
                 <button
                     className="mb-4 px-4 py-2 justify-end rounded border border-white text-white transition duration-300 
@@ -217,7 +218,6 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                     })();
                     return (
                         <>
-
                             {/* THE PUZZLE */}
                             <div
                                 className="w-full h-[420px] overflow-auto"

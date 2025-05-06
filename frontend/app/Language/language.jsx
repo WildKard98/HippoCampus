@@ -58,10 +58,10 @@ export const translations = {
         numterm: "Number of Terms",
         generatebtn: "Generate",
         genwait: "Generating...",
-        termlanguage: "Term Language",
-        deflanguage: "Definition Language",
-        anslanguage: "Answer Language",
-        queslanguage: "Question Language",
+        termlanguage: "Term language",
+        deflanguage: "Definition language",
+        anslanguage: "Answer language",
+        queslanguage: "Question language",
         
 
         // search bar 1
@@ -247,7 +247,7 @@ export const translations = {
         down: "Dọc",
         checkanswer: "Kiểm tra!",
         createyourpuzzle: "Tạo câu đố",
-        createpuzzle: "Tạo câu đố ô chữ",
+        createpuzzle: "Tạo câu đố",
         question: "Câu hỏi:",
         answer: "Đáp án:",
         enterquestion: "Nhập câu hỏi...",

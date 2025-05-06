@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
-import { createPuzzleSet } from "./api";
+import { createPuzzleSet } from "../api";
 
 export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t }) {
     const [puzzleTitle, setPuzzleTitle] = React.useState("");
