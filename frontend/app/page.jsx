@@ -296,7 +296,7 @@ export default function Home() {
                   <input
                     type="text"
                     placeholder={t.searchbar}
-                    className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] shadow-[0_0_8px_#00e0ff] transition"
+                    className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-3xl w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] transition"
                   />
                 </div>
               </div>
@@ -309,7 +309,7 @@ export default function Home() {
                 <div className="relative inline-block text-left" ref={dropdownRef}>
                   <button
                     onClick={() => setShowSetOption((prev) => !prev)}
-                    className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                    className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-3xl transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
                   >
                     +
                   </button>
@@ -373,7 +373,7 @@ export default function Home() {
                       {username}
                     </button>
                     {showDropdown && (
-                      <div className="absolute right-0 mt-2 w-[150px] bg-black border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-50">
+                      <div className="absolute right-0 mt-2 w-[150px] bg-black border border-[#00e0ff] rounded-3xl shadow-[0_0_12px_#00e0ff] z-50">
                         <button
                           onClick={() => {
                             setIsAuth(false);
@@ -399,7 +399,7 @@ export default function Home() {
                   className="flex items-center gap-2 cursor-pointer"
                   onClick={() => setShowLangMenu((prev) => !prev)}
                 >
-                  <div className="min-w-[80px] max-w-[80px] px-2 py-1 bg-black border border-[#00e0ff] rounded-md flex items-center justify-center">
+                  <div className="min-w-[80px] max-w-[80px] px-2 py-1 bg-black border border-[#00e0ff] rounded-3xl flex items-center justify-center">
                     <span className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold text-sm whitespace-nowrap">
                       {lang === "vi" ? "Tiếng Việt" : "English"}
                     </span>
@@ -407,16 +407,16 @@ export default function Home() {
                 </div>
 
                 {showLangMenu && (
-                  <div className="absolute right-0 mt-2 w-32 bg-black border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-50">
+                  <div className="absolute right-0 mt-2 w-32 bg-black border border-[#00e0ff] rounded-3xl shadow-[0_0_12px_#00e0ff] z-50">
                     <button
                       onClick={() => { setLang("en"); setShowLangMenu(false); }}
-                      className="w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
+                      className="w-full px-4 py-2 text-left text-[#00e0ff] rounded-3xl hover:bg-[#00e0ff] hover:text-black transition"
                     >
                       English
                     </button>
                     <button
                       onClick={() => { setLang("vi"); setShowLangMenu(false); }}
-                      className="w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
+                      className="w-full px-4 py-2 text-left text-[#00e0ff] rounded-3xl hover:bg-[#00e0ff] hover:text-black transition"
                     >
                       Tiếng Việt
                     </button>
@@ -428,13 +428,13 @@ export default function Home() {
 
           {/* Search bar adjusts when screen width < 620px */}
           {screenWidth < 660 && (
-            <div className="w-full px-4 mt-2 flex justify-center">
+            <div className="w-full mb-4 flex justify-center">
               <div className="relative w-full max-w-none">
                 <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
                 <input
                   type="text"
                   placeholder={t.searchbar}
-                  className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-lg w-full border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                  className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-3xl w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                 />
               </div>
             </div>
@@ -469,14 +469,16 @@ export default function Home() {
 
 
           {/* Main Container with Sidebar & Content */}
-          <div className="flex flex-1 relative">
+          <div className="flex flex-1 relative"
+          style={{
+            paddingBottom: screenWidth <= 480 ? "63px" : undefined,
+          }}>
 
             {/* Side Navigation */}
             <aside
-              className={`bg-black p-4 transition-all border-t border-r border-[#00e0ff] rounded-tr-xl ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-16" : "w-48"
+              className={`bg-black p-4 transition-all border border-[#00e0ff] rounded-3xl ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-17" : "w-48"
                 }`}
             >
-
               <nav className="flex flex-col gap-4">
                 <button
                   onClick={() => {
@@ -488,7 +490,7 @@ export default function Home() {
                     setRandomTip(tip);
                     setSelectedSet(null);
                   }}
-                  className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
                 >
                   <i className="bi bi-house-door"></i> {!isMenuCollapsed && t.home}
                 </button>
@@ -501,7 +503,7 @@ export default function Home() {
                     setIsCreatePuzzle(false);
                     setIsHome(false);
                   }}
-                  className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
                 >
                   <i className="bi bi-folder2"></i> {!isMenuCollapsed && t.library}
                 </button>
@@ -515,7 +517,7 @@ export default function Home() {
                     setIsHome(false);
                     setIsCreatePuzzle(false);
                   }}
-                  className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
+                  className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
                   <i className="bi bi-plus"></i> {!isMenuCollapsed && t.createfolder}
                 </button>
                 <hr className="border-[#00e0ff]" />
@@ -528,7 +530,7 @@ export default function Home() {
                     setSelectedSet(null);
                     setIsHome(false);
                   }}
-                  className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
                 >
                   <i className="bi bi-puzzle"></i> {!isMenuCollapsed && t.playcrossword}
                 </button>
@@ -538,10 +540,10 @@ export default function Home() {
 
             {/* Main Content Area */}
             <main
-              className="flex-1 p-6 overflow-x-hidden overflow-y-visible relative"
+              className="flex-1 p-3  overflow-x-hidden overflow-y-visible relative max-w-[1500px] border border-[#00e0ff] rounded-3xl"
               style={{
-                maxWidth: "100%",
-                paddingBottom: screenWidth <= 480 ? "80px" : undefined,
+                marginRight: screenWidth > 770 && isHome ? "220px" : "0",
+                
               }}
             >
 
@@ -667,7 +669,7 @@ export default function Home() {
             {/* Right Panel (Hidden on small screens OR when creating a set) */}
             {screenWidth > 770 && isHome && (
               <div className="hidden md:block">
-                <aside className="w-55 bg-black p-4 absolute right-0 top-0 h-full border-t border-l border-[#00e0ff] shadow-[0_0_10px_#00e0ff] rounded-tl-2xl">
+                <aside className="w-55 bg-black p-4 absolute right-0 top-0 h-full border border-[#00e0ff] rounded-3xl">
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-lightbulb" viewBox="0 0 16 16">
                       <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1" />
@@ -686,7 +688,7 @@ export default function Home() {
       )}
       {showNeedLogin && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-          <div className="bg-black p-6 rounded-lg text-white border border-[#00e0ff] shadow-[0_0_16px_#00e0ff] w-[350px]">
+          <div className="bg-black p-6 rounded-3xl text-white border border-[#00e0ff] shadow-[0_0_16px_#00e0ff] w-[350px]">
             <h2 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] text-center">
               {t.needlogin}
             </h2>
@@ -696,7 +698,7 @@ export default function Home() {
 
             <div className="flex justify-center gap-4">
               <button
-                className="px-6 py-2 rounded-lg border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                className="px-6 py-2 rounded-3xl border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
                 onClick={() => {
                   setShowNeedLogin(false);
                 }}
@@ -704,7 +706,7 @@ export default function Home() {
                 {t.cancelbtn}
               </button>
               <button
-                className="px-6 py-2 rounded-lg border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                className="px-6 py-2 rounded-3xl border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
                 onClick={() => {
                   setShowNeedLogin(false);
                   setShowLogin(true);
@@ -764,7 +766,7 @@ function HomeContent({ starredTerms, toggleStar, setStudySets, needLogin, setPub
                 setSelectedSet(studySet);
                 setIsHome(false);
               }}
-              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
@@ -795,7 +797,7 @@ function HomeContent({ starredTerms, toggleStar, setStudySets, needLogin, setPub
                 setSelectedSet(publicSet);
                 setIsHome(false);
               }}
-              className="relative flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="relative flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
               {/* ❤️ Heart Absolute */}
               <div
@@ -970,7 +972,7 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
 
         <button
           onClick={() => setIsManaging(!isManaging)}
-          className="px-4 py-2 border-2 border-[#ff7700] text-[#ff7700] rounded-lg hover:bg-[#ff7700] hover:text-black shadow-[0_0_8px_#ff7700] hover:shadow-[0_0_12px#ff7700] transition duration-300 font-bold"
+          className="px-4 py-2 border-2 border-[#ff7700] text-[#ff7700] rounded-3xl hover:bg-[#ff7700] hover:text-black shadow-[0_0_8px_#ff7700] hover:shadow-[0_0_12px#ff7700] transition duration-300 font-bold"
         >
           {isManaging ? t.doneManaging : t.manageLibrary}
         </button>
@@ -987,7 +989,7 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
                   setIsHome(false);
                 }
               }}
-              className="relative flex items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="relative flex items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
               {/* ❤️ Heart inside Folder */}
               <div
@@ -1015,7 +1017,7 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
                 {/* Trash Box */}
                 <button
                   onClick={() => handleDeleteStudySet(index)}
-                  className="flex items-center justify-center w-10 h-10 rounded-lg border border-red-500 text-red-500 drop-shadow-[0_0_8px_red] transition duration-300 hover:scale-110"
+                  className="flex items-center justify-center w-10 h-10 rounded-3xl border border-red-500 text-red-500 drop-shadow-[0_0_8px_red] transition duration-300 hover:scale-110"
                 >
                   <i className="bi bi-trash"></i>
                 </button>
@@ -1023,14 +1025,14 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
                 {/* Lock/Unlock Box */}
                 {studySet.isPrivate === "Copy" ? (
                   <div
-                    className="flex items-center justify-center w-20 h-10 rounded-lg border-2 border-[#00e0ff] text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-bold cursor-default"
+                    className="flex items-center justify-center w-20 h-10 rounded-3xl border-2 border-[#00e0ff] text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-bold cursor-default"
                   >
                     Copied
                   </div>
                 ) : (
                   <button
                     onClick={() => togglePrivatePublic(index)}
-                    className={`flex items-center justify-center w-20 h-10 rounded-lg border transition duration-300 hover:scale-110 font-bold
+                    className={`flex items-center justify-center w-20 h-10 rounded-3xl border transition duration-300 hover:scale-110 font-bold
                        ${studySet.isPrivate === "Private"
                         ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
                         : "border-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_yellow]"
@@ -1060,7 +1062,7 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
                   setIsHome(false);
                 }
               }}
-              className="relative flex items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="relative flex items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
               {/* ❤️ Heart inside Folder */}
               <div
@@ -1085,7 +1087,7 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
                 {/* Delete Puzzle */}
                 <button
                   onClick={() => handleDeletePuzzleSet(index)}
-                  className="flex items-center justify-center w-10 h-10 rounded-lg border border-red-500 text-red-500 drop-shadow-[0_0_8px_red] transition duration-300 hover:scale-110"
+                  className="flex items-center justify-center w-10 h-10 rounded-3xl border border-red-500 text-red-500 drop-shadow-[0_0_8px_red] transition duration-300 hover:scale-110"
                 >
                   <i className="bi bi-trash"></i>
                 </button>
@@ -1094,14 +1096,14 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
                 {/* Lock/Unlock Box */}
                 {puzzleSet.isPrivate === "Copy" ? (
                   <div
-                    className="flex items-center justify-center w-20 h-10 rounded-lg border-2 border-[#00e0ff] text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-bold cursor-default"
+                    className="flex items-center justify-center w-20 h-10 rounded-3xl border-2 border-[#00e0ff] text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-bold cursor-default"
                   >
                     Copied
                   </div>
                 ) : (
                   <button
                     onClick={() => togglePrivatePublic(index)}
-                    className={`flex items-center justify-center w-20 h-10 rounded-lg border transition duration-300 hover:scale-110 font-bold
+                    className={`flex items-center justify-center w-20 h-10 rounded-3xl border transition duration-300 hover:scale-110 font-bold
                        ${puzzleSet.isPrivate === "Private"
                         ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
                         : "border-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_yellow]"
@@ -1129,7 +1131,7 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
 function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome, setIsEditingSet, t }) {
   return (
     <motion.aside
-      className="fixed top-0 left-0 h-full w-48 bg-black p-4 z-50 border-t border-r border-[#00e0ff] rounded-tr-xl"
+      className="fixed top-0 left-0 h-full w-48 bg-black p-4 z-50 border border-[#00e0ff] rounded-3xl"
       initial={{ x: -200 }}
       animate={{ x: isOpen ? 0 : -200 }}
       transition={{ duration: 0.3 }}
@@ -1161,7 +1163,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setSelectedSet(null);
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+          className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
         >
           <i className="bi bi-house-door"></i> {t.home}
         </button>
@@ -1174,7 +1176,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsHome(false);
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+          className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
         >
           <i className="bi bi-folder2"></i> {t.library}
         </button>
@@ -1186,7 +1188,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
           onClick={() => {
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+          className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
         >
           <i className="bi bi-plus"></i> {t.createfolder}
         </button>
@@ -1201,7 +1203,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setSelectedSet(null);
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+          className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
         >
           <i className="bi bi-puzzle"></i> {t.playcrossword}
         </button>
@@ -1257,7 +1259,7 @@ function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showG
               setShowGenerator(true);
             });
           }}
-          className="px-4 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
+          className="px-4 py-2 rounded-3xl border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
         >
           {t.createyourpuzzle}
         </button>
@@ -1275,7 +1277,7 @@ function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showG
                 setShowCrosswordPuzzle(true);
                 setIsHome(false);
               }}
-              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <i className="bi bi-folder2"></i> {puzzleSet.title} ({puzzleSet.terms.length}{puzzleSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
@@ -1307,7 +1309,7 @@ function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showG
                 setSelectedSet(publicPuzzleSet);
                 setIsHome(false);
               }}
-              className="relative flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-lg transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="relative flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
               {/* ❤️ Heart Absolute */}
               <div
@@ -1398,19 +1400,15 @@ function MobileNav({
   isCreatingSet,
   isCreatePuzzle,
 }) {
-  const navBtnBase = "flex flex-col items-center justify-center flex-1 text-xs transition rounded-md py-1";
+  const navBtnBase = "flex flex-col items-center justify-center flex-1 text-xs transition rounded-3xl py-1";
   const activeColor = "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]";
   const inactiveColor = "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]";
 
   return (
-    <div className="fixed bottom-0 left-0 w-full h-16 bg-black z-50">
-      {/* Lowered glowing top line */}
-      <div className="absolute left-0 w-full h-[2px] bg-[#00e0ff]">
-        <div className="absolute left-1/2 transform -translate-x-1/2 w-10 h-full bg-black" />
-      </div>
+    <div className="fixed bottom-0 left-0 w-full h-16 z-50 border border-white rounded-3xl backdrop-blur-md bg-black/50">
 
       {/* Navigation Buttons */}
-      <div className="flex items-end justify-between h-full px-1 pt-4">
+      <div className="flex items-end justify-between h-full px-1 pb-2 ">
 
         {/* Home */}
         <button
@@ -1423,8 +1421,7 @@ function MobileNav({
           }}
           className={`${navBtnBase} ${isHome ? activeColor : inactiveColor}`}
         >
-          <i className="bi bi-house-door text-xl" />
-          <span className="mt-1">{t.home}</span>
+          <i className="bi bi-house-door text-3xl" />
         </button>
 
         {/* Library */}
@@ -1438,11 +1435,10 @@ function MobileNav({
           }}
           className={`${navBtnBase} ${isCreatingSet === "library" ? activeColor : inactiveColor}`}
         >
-          <i className="bi bi-book text-xl" />
-          <span className="mt-1">{t.library}</span>
+          <i className="bi bi-book text-3xl" />
         </button>
 
-        {/* Center Plus Button (orange glow, raised but not too high) */}
+        {/* Center Plus Button */}
         <div className="relative -top-0 w-20 h-20 rounded-full border-4 border-[#ff7700] bg-black mx-1 flex items-center justify-center drop-shadow-[0_0_12px_#ff7700]">
           <button
             onClick={() => {
@@ -1469,8 +1465,7 @@ function MobileNav({
           }}
           className={`${navBtnBase} ${isCreatingSet === "folder" ? activeColor : inactiveColor}`}
         >
-          <i className="bi bi-folder2 text-xl" />
-          <span className="mt-1">{t.createfolder}</span>
+          <i className="bi bi-folder2 text-3xl" />
         </button>
 
         {/* Crossword */}
@@ -1484,12 +1479,12 @@ function MobileNav({
           }}
           className={`${navBtnBase} ${isCreatePuzzle ? activeColor : inactiveColor}`}
         >
-          <i className="bi bi-puzzle text-xl" />
-          <span className="mt-1">{t.playcrossword}</span>
+          <i className="bi bi-puzzle text-3xl" />
         </button>
       </div>
     </div>
   );
 }
+
 
 

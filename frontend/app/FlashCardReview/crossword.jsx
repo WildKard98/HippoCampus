@@ -157,21 +157,22 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
     return (
         <div className="text-white font-[Itim]">
             {/* Matching Test Title & Back Button */}
-            <div className={`grid grid-cols-2 gap-30 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h2 className="text-xl justify-start text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff] font-bold">{t.puzzle}</h2>
+            <div className={`flex justify-between items-center py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
+                <h2 className="text-xl text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff] font-bold">
+                    {t.puzzle}
+                </h2>
 
                 <button
-                    className="mb-4 px-4 py-2 justify-end rounded border border-white text-white transition duration-300 
-             hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
+                    className="w-[120px] px-4 py-2 text-sm rounded-3xl border border-white text-white transition duration-300 
+                         hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
                     onClick={onBack}
                 >
                     {t.backbtn}
                 </button>
             </div>
-
             {/* Puzzle look */}
 
-            <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] p-2 rounded-lg w-full flex flex-col gap-2 w-full md:max-w-[750px]">
+            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 770 ? "w-full px-4" : "w-[60%]"}`}>
                 {/* ✅ highlight is now scoped inside the render and updates correctly */}
                 {(() => {
                     if (!grid.length || !placedWords.length) return null;
@@ -243,15 +244,18 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
                                 onTouchStart={handlePanStart}
                                 onTouchMove={handlePanMove}
                                 onTouchEnd={handlePanEnd}
+                                className="rounded-2xl"
                                 style={{
-                                    overflow: "hidden",
-                                    touchAction: "none", // disable pinch-zoom on phones if you're handling it
+                                    overflow: "auto",
+                                    WebkitOverflowScrolling: "touch",
                                     width: "100%",
                                     height: "420px",
                                     border: "1px solid #00e0ff",
                                     position: "relative",
+                                    touchAction: "manipulation", // let browser handle pinch-zoom
                                     cursor: startPan ? "grabbing" : "grab",
                                 }}
+
                             >
                                 <div
                                     style={{
@@ -403,10 +407,11 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
                 <hr className="border-[#00e0ff] shadow-[0_0_20px_#00e0ff]" />
 
                 {/* Bottom: Across & Down */}
-                <div className="flex gap-2">
-                    <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]  text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
-                        <span className={`font-semibold block mb-2 text-lg transition duration-200
-                            ${hoveredDirection === "across" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-white drop-shadow-[0_0_10px_white]"}`}>
+                <div className="flex flex-col md:flex-row gap-2">
+
+                    <div className="bg-black border-2 border-[#00e0ff] text-[#00e0ff] p-4 rounded-2xl w-full md:w-1/2 min-h-[150px]">
+                        <span className={`font-semibold block mb-2 text-2xl transition duration-200
+                            ${hoveredDirection === "across" ? "text-[#ffaa33] " : "text-white "}`}>
                             {t.across}
                         </span>
 
@@ -419,7 +424,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
                                 return (
                                     <div
                                         key={idx}
-                                        className={`mb-2 text-sm transition duration-200 
+                                        className={`mb-2 text-lg transition duration-200 
                                              ${hoveredClueNumber === entry.clueNumber && hoveredDirection === entry.direction
                                                 ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-bold"
                                                 : ""}`}
@@ -431,9 +436,9 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
                             })}
                     </div>
 
-                    <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
-                        <span className={`font-semibold block mb-2 text-lg transition duration-200
-                            ${hoveredDirection === "down" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-white drop-shadow-[0_0_10px_white]"}`}>
+                    <div className="bg-black border-2 border-[#00e0ff] text-[#00e0ff] p-4 rounded-2xl w-full md:w-1/2 min-h-[150px]">
+                        <span className={`font-semibold block mb-2 text-2xl transition duration-200
+                            ${hoveredDirection === "down" ? "text-[#ffaa33] " : "text-white "}`}>
                             {t.down}
                         </span>
 
@@ -446,7 +451,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
                                 return (
                                     <div
                                         key={idx}
-                                        className={`mb-2 text-sm transition duration-200 
+                                        className={`mb-2 text-lg transition duration-200 
                                               ${hoveredClueNumber === entry.clueNumber && hoveredDirection === entry.direction
                                                 ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-bold"
                                                 : ""}`}
@@ -461,7 +466,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
             </div>
             <button
                 onClick={() => checkAnswers()}
-                className="mt-4 px-6 py-2 rounded border border-white text-white transition duration-300 
+                className="mt-4 px-6 py-2 rounded-3xl border border-white text-white transition duration-300 
              hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
             >
                 {t.checkanswer}

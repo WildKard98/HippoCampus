@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-export default function Findterm({ studySet, setShowFillTest, screenWidth,t }) {
+export default function Findterm({ studySet, setShowFillTest, screenWidth, t }) {
     const [answers, setAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const allCorrect = studySet.terms.every((_, index) => answers[`correct-${index}`]); // ✅ Check if all answers are correct
@@ -44,16 +44,18 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth,t }) {
     return (
         <div className="flex flex-col text-white">
             {/* Title & Back Button */}
-            <div className={`grid grid-cols-2 gap-50 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h3 className="text-xl text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">{t.fillIn}</h3>
+            <div className={`flex justify-between items-center py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
+                <h3 className="text-xl text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">
+                    {t.fillIn}
+                </h3>
+
                 <button
-                    className="px-4 py-2 text-sm rounded-lg border border-white text-white hover:bg-white hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_white]"
+                    className="w-[120px] px-4 py-2 text-sm rounded-3xl border border-white text-white hover:bg-white hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_white]"
                     onClick={() => setShowFillTest(false)}
                 >
                     {t.backbtn}
                 </button>
             </div>
-
 
             <div className={`flex flex-col gap-2 mb-2 ${screenWidth <= 770 ? "w-full px-4" : "w-[60%]"}`}>
                 {studySet.terms.map((item, index) => (
