@@ -126,22 +126,22 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
     return (
         <div className="text-white font-[Itim]">
             <button
-                className="mb-4 px-4 py-2 rounded border border-white text-white transition duration-300 
-             hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
+                className="mb-4 px-4 py-2 rounded-3xl border border-white text-white transition duration-300 
+             hover:bg-white hover:text-black shadow-md hover"
                 onClick={onBack}
             >
                 {t.backbtn}
             </button>
 
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="text-3xl font-bold mb-6 text-[#ff7700] drop-shadow-[0_0_12px_#ff7700]">
+            <div className="flex flex-col md:flex-row gap-10 w-full justify-start pb-4">
+                <h1 className="text-3xl font-bold text-[#ff7700] ">
                     {t.createpuzzle}
                 </h1>
-                <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_16px_#ff00ff]">
+                <div className="p-[2px] rounded-3xl bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500">
                     <button
                         onClick={() => setShowAiModal(true)}
-                        className="w-full px-6 py-2 rounded-full font-bold bg-black text-yellow-500 transition duration-500
-            hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"
+                        className="w-full px-6 py-2 rounded-3xl font-bold bg-black text-yellow-500 transition duration-500
+                       hover:bg-gradient-to-r hover:from-pink-500 hover:via-yellow-500 hover:to-blue-500 hover:text-white hover:scale-110"
                     >
                         {t.askai} ✨
                     </button>
@@ -150,7 +150,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
             {isEditing ? (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                     <div
-                        className="bg-black p-6 rounded-lg text-white relative border border-[#00e0ff] shadow-[0_0_16px_#00e0ff]"
+                        className="bg-black p-6 rounded-3xl text-white relative border border-[#00e0ff] "
                         style={{ width: screenWidth > 450 ? "450px" : "100%" }}
                     >
                         <button
@@ -165,24 +165,24 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                         <label className="block mb-2 text-[#00e0ff]">{t.question}</label>
                         <input
                             type="text"
-                            className="bg-black text-white placeholder-white  px-4 py-2 rounded-lg w-full mb-4 
-                     border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                            className="bg-black text-white placeholder-white  px-4 py-2 rounded-3xl w-full mb-4 
+                     border border-[#00e0ff]  focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             value={editAnswer}
                             onChange={(e) => setEditAnswer(e.target.value)}
                         />
 
                         <label className="block mb-2 text-[#00e0ff]">{t.answer}</label>
                         <textarea
-                            className="bg-black text-white  placeholder-white  px-4 py-2 rounded-lg w-full mb-4 
-                     border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                            className="bg-black text-white  placeholder-white  px-4 py-2 rounded-3xl w-full mb-4 
+                     border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             value={editQuestion}
                             onChange={(e) => setEditQuestion(e.target.value)}
                         />
 
                         <button
                             onClick={handleSaveEdit}
-                            className="px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
-                     hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                            className="px-6 py-2 rounded-3xl border border-[#ff7700] text-[#ff7700] transition duration-300 
+                     hover:bg-[#ff7700] hover:text-black shadow-md hover"
                         >
                             {t.donebt}
                         </button>
@@ -195,13 +195,13 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                     {/* Left Column */}
                     <div className={`flex flex-col gap-2 ${screenWidth > 770 ? "w-full md:w-2/5 max-w-[450px]" : "w-full"}`}>
                         {/* Box 1: Title Input + Create Button */}
-                        <div className="bg-black p-4 rounded-lg border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]">
+                        <div className="bg-black p-4 rounded-3xl border border-[#00e0ff] ">
                             <input
                                 type="text"
                                 placeholder={t.entertitle}
                                 value={puzzleTitle}
                                 onChange={(e) => setPuzzleTitle(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg text-white bg-black placeholder-white  border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                                className="w-full px-4 py-2 rounded-3xl text-white bg-black placeholder-white  border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
                             <button
                                 onClick={async () => {
@@ -237,8 +237,8 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                     }
                                 }}
 
-                                className="w-full mt-2 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
-                                      hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                                className="w-full mt-2 py-2 rounded-3xl border border-[#ff7700] text-[#ff7700] transition duration-300 
+                                      hover:bg-[#ff7700] hover:text-black shadow-md "
                             >
                                 {t.createbtn}
                             </button>
@@ -247,15 +247,15 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
 
 
                         {/* Box 2: Question + Answer Input */}
-                        <div className="bg-black p-4 rounded-lg border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]">
+                        <div className="bg-black p-4 rounded-3xl border border-[#00e0ff]">
                             <label className="block mb-2 text-[#00e0ff]">{t.question}</label>
                             <input
                                 type="text"
                                 value={question}
                                 onChange={(e) => setQuestion(e.target.value)}
                                 placeholder={t.enterquestion}
-                                className="w-full px-4 py-2 rounded-lg text-white bg-black placeholder-white border border-[#00e0ff] mb-4 
-                                 shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                                className="w-full px-4 py-2 rounded-3xl text-white bg-black placeholder-white border border-[#00e0ff] mb-4 
+                                 focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
 
                             <hr className="border-[#00e0ff] my-2" />
@@ -266,8 +266,8 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                 value={answer}
                                 onChange={(e) => setAnswer(e.target.value)}
                                 placeholder={t.enteranswer}
-                                className="w-full px-4 py-2 rounded-lg text-white bg-black placeholder-white border border-[#00e0ff] 
-                                 shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                                className="w-full px-4 py-2 rounded-3xl text-white bg-black placeholder-white border border-[#00e0ff] 
+                                 focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                             />
 
                             <button
@@ -290,8 +290,8 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                         setAnswer("");
                                     }
                                 }}
-                                className="mt-4 px-6 py-2 rounded-lg border border-[#ff7700] text-[#ff7700] transition duration-300 
-                                       hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                                className="mt-4 px-6 py-2 rounded-3xl border border-[#ff7700] text-[#ff7700] transition duration-300 
+                                       hover:bg-[#ff7700] hover:text-black shadow-md"
                             >
                                 {t.addbt}
                             </button>
@@ -299,7 +299,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
 
 
                         {/* Show QnA box */}
-                        <div className="bg-black p-4 rounded-lg overflow-y-auto border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]">
+                        <div className="bg-black p-4 rounded-3xl overflow-y-auto border border-[#00e0ff]">
                             {qnaList.length === 0 ? (
                                 <p className="text-[#00e0ff] text-center py-4">{t.enteryet}</p>
                             ) : (
@@ -307,13 +307,13 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                     {qnaList.map((item, index) => (
                                         <div
                                             key={index}
-                                            className="bg-black p-4 rounded-lg flex items-center justify-between w-full 
-                                                 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff]"
+                                            className="bg-black p-4 rounded-2xl flex items-center justify-between w-full 
+                                                 border border-[#00e0ff]"
                                         >
                                             <div className="flex items-center gap-2 w-full">
                                                 {/* Answer (1/3) */}
                                                 <div
-                                                    className="w-1/3 px-1 py-4 text-white drop-shadow-[0_0_8px_white] font-bold text-center break-words overflow-hidden"
+                                                    className="w-1/3 px-1 py-4 text-white  font-bold text-center break-words overflow-hidden"
                                                     style={{
                                                         fontSize: item.answer.length > 10 ? "0.7rem" : "0.9rem",
                                                         wordBreak: "break-word",
@@ -325,10 +325,10 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                                 </div>
 
                                                 {/* Divider */}
-                                                <div className="w-[2px] h-10 bg-[#00e0ff] mx-2 rounded-full shadow-[0_0_8px_#00e0ff]" />
+                                                <div className="w-[2px] h-10 bg-[#00e0ff] mx-2 rounded-full " />
 
                                                 {/* Question (2/3) */}
-                                                <div className="w-2/3 px-1 py-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] text-sm break-words"
+                                                <div className="w-2/3 px-1 py-4 text-[#00e0ff]  text-sm break-words"
                                                 >
                                                     {item.question}
                                                 </div>
@@ -342,7 +342,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                                         const updatedList = qnaList.filter((_, i) => i !== index);
                                                         setQnaList(updatedList);
                                                     }}
-                                                    className="absolute top-0 right-0 text-[#00e0ff] transition duration-300 hover:text-[#ff0033] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
+                                                    className="absolute top-0 right-0 text-[#00e0ff] transition duration-300 hover:text-[#ff0033] hover:scale-110"
                                                 >
                                                     <i className="bi bi-trash"></i>
                                                 </button>
@@ -350,7 +350,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                                 {/* ✏️ Pencil Button */}
                                                 <button
                                                     onClick={() => handleEditClick(item, index)}
-                                                    className="absolute bottom-1 right-0 text-[#00e0ff] transition duration-300 hover:text-[#ffaa33] hover:scale-110 drop-shadow-[0_0_8px_#00e0ff]"
+                                                    className="absolute bottom-1 right-0 text-[#00e0ff] transition duration-300 hover:text-[#ffaa33] hover:scale-110 "
                                                 >
                                                     <i className="bi bi-pencil-fill"></i>
                                                 </button>
@@ -366,7 +366,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
 
                     {/* Right Column */}
                     {/* Puzzle look */}
-                    <div className={`bg-black p-2 rounded-lg ${screenWidth > 770 ? "md:w-3/5 flex flex-col border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] gap-2 max-w-[750px]" : "w-full md:w-3/5 flex flex-col  border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] gap-2"}`}>
+                    <div className={`bg-black p-2 rounded-3xl ${screenWidth > 770 ? "md:w-3/5 flex flex-col border-2 border-[#00e0ff] gap-2 max-w-[750px]" : "w-full md:w-3/5 flex flex-col  border-2 border-[#00e0ff] gap-2"}`}>
                         {/* Puzzle Title Box */}
                         <div className="flex justify-center ">
                             <div className="bg-black text-white p-2 rounded-md font-semibold text-center text-2xl">
@@ -376,18 +376,21 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
 
 
                         {/* Divider Line */}
-                        <hr className="border-[#00e0ff] shadow-[0_0_20px_#ff7700]" />
+
 
                         {/* THE PUZZLE */}
 
                         <div
-                            className="w-full h-[420px] overflow-auto"
+                            className="w-full h-[420px] overflow-auto rounded-3xl"
                             style={{
                                 cursor: isDragging ? "grabbing" : "grab",
                                 maxWidth: "100%",
                                 maxHeight: "420px",
-                                border: "1px solid #00e0ff", // optional for visual clarity
+                                border: "1px solid #00e0ff",
                                 position: "relative",
+                                scrollbarWidth: "none",       // ✅ Firefox
+                                msOverflowStyle: "none",      // ✅ IE/Edge
+                                WebkitOverflowScrolling: "touch", // ✅ smooth scroll on mobile
                             }}
                             ref={containerRef}
                             onMouseDown={handleMouseDown}
@@ -395,6 +398,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                             onMouseUp={handleMouseUp}
                             onMouseLeave={handleMouseUp}
                         >
+
                             <div
                                 className="flex flex-col items-start gap-px w-fit max-w-full"
                                 style={{
@@ -411,7 +415,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                             return cell ? (
                                                 <div
                                                     key={`${row}-${col}`}
-                                                    className="relative w-6 h-6 bg-black  text-[#00e0ff] rounded-sm flex items-center justify-center text-xs  border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]"
+                                                    className="relative w-6 h-6 bg-black  text-[#00e0ff] rounded-sm flex items-center justify-center text-xs  border-2 border-[#00e0ff]"
                                                 >
                                                     <span className="z-10">{cell}</span>
                                                     {clueNum && (
@@ -429,14 +433,14 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                             </div>
                         </div>
 
-                        {/* Divider Line */}
-                        <hr className="border-[#00e0ff] shadow-[0_0_20px_#00e0ff]" />
+                        {/* Divider Line <hr className="border-[#00e0ff] shadow-[0_0_20px_#00e0ff]" /> */}
+
 
                         {/* Bottom: Across & Down */}
-                        <div className="flex gap-2">
+                        <div className="flex flex-col md:flex-row gap-2">
 
                             {/* Across Box */}
-                            <div className="bg-black border-1 border-[#00e0ff] text-white p-4 rounded-md w-1/2 min-h-[150px]">
+                            <div className="bg-black border-1 border-[#00e0ff] text-[#00e0ff] p-4 rounded-2xl w-full md:w-1/2 min-h-[150px]">
                                 <span className="font-semibold block mb-2">{t.across}</span>
                                 {placedWords
                                     .filter((entry) => entry.direction === "across")
@@ -453,7 +457,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                             </div>
 
                             {/* Down Box */}
-                            <div className="bg-black  border-1 border-[#00e0ff] text-white p-4 rounded-md w-1/2 min-h-[150px]">
+                            <div className="bg-black border-1 border-[#00e0ff] text-[#00e0ff] p-4 rounded-2xl w-full md:w-1/2 min-h-[150px]">
                                 <span className="font-semibold block mb-2">{t.down}</span>
                                 {placedWords
                                     .filter((entry) => entry.direction === "down")
@@ -474,14 +478,16 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                 </div>
             )}
             {showAiModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    {/* Rainbow Border around the Modal */}
-                    <div className="relative p-[3px] rounded-lg bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_20px_#ff00ff] w-[450px]">
-                        <div className="bg-black p-6 rounded-lg text-white w-full h-full">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="relative p-[3px] rounded-3xl bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_20px_#ff00ff] w-[450px]">
+
+                        {/* Put .relative here so the ✖ button is relative to this box */}
+                        <div className="bg-black p-6 rounded-3xl text-white w-full h-full relative">
+
 
                             {/* Close Button */}
                             <button
-                                className="absolute top-2 right-2 text-[#ff7700] text-xl hover:scale-110 transition"
+                                className="absolute top-4 right-4 text-[#ff7700] text-xl hover:scale-110 transition"
                                 onClick={() => setShowAiModal(false)}
                             >
                                 ✖
@@ -495,7 +501,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                             <input
                                 type="text"
                                 placeholder={t.topiceg}
-                                className="bg-black text-[#ff7700] placeholder-white px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                                className="bg-black text-[#ff7700] placeholder-white px-4 py-2 rounded-3xl w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                                 value={aiPrompt}
                                 onChange={(e) => setAiPrompt(e.target.value)}
                             />
@@ -506,7 +512,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                     <select
                                         value={termLanguage}
                                         onChange={(e) => setTermLanguage(e.target.value)}
-                                        className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
+                                        className="bg-black text-[#ff7700] px-4 py-2 rounded-3xl border border-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
                                     >
                                         <option value="English" className="bg-black text-[#00e0ff]">English</option>
                                         <option value="Vietnamese" className="bg-black text-[#00e0ff]">Tiếng Việt</option>
@@ -518,7 +524,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                     <select
                                         value={definitionLanguage}
                                         onChange={(e) => setDefinitionLanguage(e.target.value)}
-                                        className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
+                                        className="bg-black text-[#ff7700] px-4 py-2 rounded-3xl border border-[#00e0ff] shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
                                     >
                                         <option value="English" className="bg-black text-[#00e0ff]">English</option>
                                         <option value="Vietnamese" className="bg-black text-[#00e0ff]">Tiếng Việt</option>
@@ -532,7 +538,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                     <select
                                         value={aiNumTerms}
                                         onChange={(e) => setAiNumTerms(e.target.value)}
-                                        className="bg-black text-[#ff7700] px-4 py-2 rounded-lg border border-[#00e0ff] 
+                                        className="bg-black text-[#ff7700] px-4 py-2 rounded-3xl border border-[#00e0ff] 
                                            shadow-[0_0_8px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] 
                                            hover:bg-[#00e0ff] hover:text-black transition duration-300 text-center w-full"
                                     >
@@ -543,7 +549,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                         ))}
                                     </select>
                                 </div>
-                                <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 shadow-[0_0_16px_#ff00ff] w-full max-w-[200px]">
+                                <div className="p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 w-full max-w-[200px]">
                                     <button
                                         onClick={async () => {
                                             setIsGenerating(true);

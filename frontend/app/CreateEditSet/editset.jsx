@@ -72,20 +72,20 @@ export default function EditSet({ studySet, setStudySets, setSelectedSet, onSave
   };
 
   return (
-    <div className="w-full max-w-[750px]">
+    <div className="w-full max-w-[750px] pb-6 ">
       <h1 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.editset}</h1>
 
       <input
         type="text"
         placeholder={t.entertitle}
-        className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+        className="bg-black text-[#ff7700] placeholder-[#ff7700] px-4 py-2 rounded-3xl w-full mb-4 border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <textarea
         placeholder={t.enterdescription}
-        className="bg-black text-white placeholder-white px-4 py-2 rounded-lg w-full mb-4 border border-[#00e0ff] shadow-[0_0_12px_#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+        className="bg-black text-white placeholder-white px-4 py-2 rounded-3xl w-full mb-4 border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
@@ -100,7 +100,7 @@ export default function EditSet({ studySet, setStudySets, setSelectedSet, onSave
       <div className="flex justify-center mb-5 ">
         <button
           onClick={handleSave}
-          className="bg-black text-[#ff7700] border border-[#ff7700] px-6 py-2 rounded-lg transition duration-300 hover:bg-[#ff7700] hover:text-black hover:scale-105 shadow-[0_0_12px_#ff7700]"
+          className="bg-black text-[#ff7700] border border-[#ff7700] px-6 py-2 rounded-3xl transition duration-300 hover:bg-[#ff7700] hover:text-black hover:scale-105 shadow-[0_0_12px_#ff7700]"
         >
           {t.donebt}
         </button>
@@ -136,7 +136,7 @@ export default function EditSet({ studySet, setStudySets, setSelectedSet, onSave
                 setShowCardDropdown(!showCardDropdown);
               }
             }}
-            className="bg-black text-[#00e0ff] border border-[#00e0ff] px-6 py-2 rounded-lg w-full shadow-[0_0_12px_#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 flex items-center justify-center relative"
+            className="bg-black text-[#00e0ff] border border-[#00e0ff] px-6 py-2 rounded-3xl w-full shadow-[0_0_12px_#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 flex items-center justify-center relative"
           >
             <span className="font-semibold">{t.addcard}</span>
             {!alwaysAddOne && (
@@ -146,7 +146,7 @@ export default function EditSet({ studySet, setStudySets, setSelectedSet, onSave
 
           {/* Dropdown Appears Inside Button */}
           {!alwaysAddOne && showCardDropdown && (
-            <div className="absolute top-full mt-1 w-full bg-black text-[#00e0ff] border border-[#00e0ff] rounded-lg shadow-[0_0_12px_#00e0ff] z-10">
+            <div className="absolute top-full mt-1 w-full bg-black text-[#00e0ff] border border-[#00e0ff] rounded-3xl shadow-[0_0_12px_#00e0ff] z-10">
               {[1, 2, 3, 4, 5].map((num) => (
                 <div
                   key={num}

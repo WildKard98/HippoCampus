@@ -35,7 +35,7 @@ export default function Home() {
   const [screenWidth, setScreenWidth] = useState(0);
   const [isCreatePuzzle, setIsCreatePuzzle] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
-  const [isHome, setIsHome] = useState(false);
+  const [isHome, setIsHome] = useState(true); // ✅ default to true
   const [selectedPuzzle, setSelectedPuzzle] = useState(null);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const { t, setLang, lang } = useLanguage();
@@ -53,6 +53,8 @@ export default function Home() {
   const [showSetOption, setShowSetOption] = useState(false);
   const dropdownRef = useRef();
   const [hasMounted, setHasMounted] = useState(false);
+  const [isLoadingSets, setIsLoadingSets] = useState(true);
+
   const toggleStar = async (term, setId) => {
     const username = localStorage.getItem("username");
     if (!username || !setId) return;
@@ -84,7 +86,8 @@ export default function Home() {
 
       getStudySets(savedUsername)
         .then((sets) => setStudySets(sets))
-        .catch((err) => console.error('Failed to refresh study sets after login:', err));
+        .catch((err) => console.error('Failed to refresh study sets after login:', err))
+        .finally(() => setIsLoadingSets(false));
     }
   };
 
@@ -103,7 +106,8 @@ export default function Home() {
 
       getStudySets(savedUsername)
         .then((sets) => setStudySets(sets))
-        .catch((err) => console.error('Failed to refresh study sets after login:', err));
+        .catch((err) => console.error('Failed to refresh study sets after login:', err))
+        .finally(() => setIsLoadingSets(false));
 
     }
   }, []);
@@ -118,6 +122,8 @@ export default function Home() {
         setPublicSets(response);
       } catch (err) {
         console.error("Failed to fetch public sets:", err);
+      } finally {
+        setIsLoadingSets(false); // ✅ Add this here too
       }
     }
     fetchPublicSets();
@@ -153,6 +159,8 @@ export default function Home() {
         setPublicPuzzleSets(response);
       } catch (err) {
         console.error("Failed to fetch public Puzzle sets:", err);
+      } finally {
+        setIsLoadingSets(false); // ✅ Add this here too
       }
     }
     fetchPublicPuzzleSets();
@@ -252,11 +260,11 @@ export default function Home() {
         <div className="min-h-screen bg-black text-white flex flex-col">
 
           {/* Unified Header */}
-          <header className="flex justify-between items-center p-4 bg-black text-white gap-4 flex-wrap">
+          <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center bg-black/50 text-[#00e0ff] flex-wrap shadow-md rounded-3xl border border-[#00e0ff] backdrop-blur-md ">
 
 
             {/* Left: Hamburger & App Name */}
-            <div className="flex items-center">
+            <div className="flex items-center p-4">
               {hasMounted && screenWidth > 480 && (
                 <button
                   className="bg-black text-[#00e0ff] text-2xl focus:outline-none w-9 h-9 min-w-[36px] min-h-[36px] flex-shrink-0 flex items-center justify-center rounded-full transition duration-300 hover:bg-[#00e0ff] hover:text-black"
@@ -278,7 +286,7 @@ export default function Home() {
                 alt="Hippocampus Logo"
                 className={`h-10 w-15 object-contain ml-1 ${screenWidth <= 770 ? "block" : "hidden"}`}
               />
-              <div className="fle px-1">
+              <div className="fle ">
                 <img
                   src="/logo6.png"
                   alt="Hippocampus Logo"
@@ -290,7 +298,7 @@ export default function Home() {
 
             {/* Middle: Search Bar */}
             {screenWidth >= 660 && (
-              <div className="flex-1 max-w-[400px]">
+              <div className="flex-1 max-w-[400px] p-4">
                 <div className="relative w-full">
                   <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
                   <input
@@ -304,7 +312,7 @@ export default function Home() {
 
 
             {/* Right: Plus Button, Type/Draw Toggle, User Info */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 p-4">
               {screenWidth > 480 && (
                 <div className="relative inline-block text-left" ref={dropdownRef}>
                   <button
@@ -424,21 +432,21 @@ export default function Home() {
                 )}
               </div>
             </div>
-          </header>
 
-          {/* Search bar adjusts when screen width < 620px */}
-          {screenWidth < 660 && (
-            <div className="w-full mb-4 flex justify-center">
-              <div className="relative w-full max-w-none">
-                <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
-                <input
-                  type="text"
-                  placeholder={t.searchbar}
-                  className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-3xl w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
-                />
+            {/* Search bar adjusts when screen width < 620px */}
+            {screenWidth < 660 && (
+              <div className="w-full flex justify-center px-3 pb-2">
+                <div className="relative w-full max-w-none">
+                  <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
+                  <input
+                    type="text"
+                    placeholder={t.searchbar}
+                    className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-3xl w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </header>
 
 
           {/* WingPanel (Hidden by default, appears when clicking the hamburger) */}
@@ -451,34 +459,49 @@ export default function Home() {
               setSelectedSet={setSelectedSet}
               setIsEditingSet={setIsEditingSet}
               setIsHome={setIsHome}
+              isHome={isHome}
+              isCreatingSet={isCreatingSet}
+              isCreatePuzzle={isCreatePuzzle}
               t={t}
+              setShowGenerator={setShowGenerator}
             />
+
           )}
 
           {/*MobileNav trigger when width <= 480px */}
           {screenWidth <= 480 && (
             <MobileNav
-              t={t}
-              setIsHome={setIsHome}
-              setIsCreatingSet={setIsCreatingSet}
-              setIsCreatePuzzle={setIsCreatePuzzle}
-              setSelectedSet={setSelectedSet}
-              setIsEditingSet={setIsEditingSet}
-            />
+            t={t}
+            setIsHome={setIsHome}
+            setIsCreatingSet={setIsCreatingSet}
+            setIsCreatePuzzle={setIsCreatePuzzle}
+            setSelectedSet={setSelectedSet}
+            setIsEditingSet={setIsEditingSet}
+            needLogin={needLogin}
+            setShowGenerator={setShowGenerator}
+            isHome={isHome}
+            isCreatingSet={isCreatingSet}
+            isCreatePuzzle={isCreatePuzzle}
+          />
           )}
 
 
           {/* Main Container with Sidebar & Content */}
-          <div className="flex flex-1 relative"
+          <div
+            className="flex flex-1 relative pt-[88px]"
             style={{
-              paddingBottom: screenWidth <= 480 ? "63px" : undefined,
-            }}>
-
+              paddingBottom: screenWidth <= 480 ? "64px" : undefined,
+              paddingTop: screenWidth <= 660 ? "130px" : undefined,
+              paddingLeft: screenWidth > 770 ? (isMenuCollapsed ? "84px" : "203px") : undefined,
+            }}
+          >
             {/* Side Navigation */}
             <aside
-              className={`bg-black p-4 transition-all border border-[#00e0ff] rounded-3xl ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-17" : "w-48"
-                }`}
+              className={`fixed top-[88px] left-0 z-40 bg-black/50 backdrop-blur-md p-4 border border-[#00e0ff] rounded-3xl shadow-lg
+                ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-[68px]" : "w-[190px]"}`}
+              style={{ height: "calc(100vh - 88px)" }} // 88px top + 8px bottom margin
             >
+
               <nav className="flex flex-col gap-4">
                 <button
                   onClick={() => {
@@ -489,8 +512,14 @@ export default function Home() {
                     const tip = studyTips[Math.floor(Math.random() * studyTips.length)];
                     setRandomTip(tip);
                     setSelectedSet(null);
+                    setShowGenerator(false);
                   }}
-                  className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300
+                    ${isHome
+                      ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                    }`}
+
                 >
                   <i className="bi bi-house-door"></i> {!isMenuCollapsed && t.home}
                 </button>
@@ -502,8 +531,14 @@ export default function Home() {
                     }
                     setIsCreatePuzzle(false);
                     setIsHome(false);
+                    setShowGenerator(false);
                   }}
-                  className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300
+                    ${isCreatingSet === "library"
+                      ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                    }`}
+
                 >
                   <i className="bi bi-folder2"></i> {!isMenuCollapsed && t.library}
                 </button>
@@ -516,8 +551,14 @@ export default function Home() {
                     setSelectedSet(null);
                     setIsHome(false);
                     setIsCreatePuzzle(false);
+                    setShowGenerator(false);
                   }}
-                  className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]">
+                  className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300
+                    ${isCreatingSet === "folder"
+                      ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                    }`}
+                >
                   <i className="bi bi-plus"></i> {!isMenuCollapsed && t.createfolder}
                 </button>
                 <hr className="border-[#00e0ff]" />
@@ -530,7 +571,12 @@ export default function Home() {
                     setSelectedSet(null);
                     setIsHome(false);
                   }}
-                  className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300  text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300
+                    ${isCreatePuzzle
+                      ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                    }`}
+
                 >
                   <i className="bi bi-puzzle"></i> {!isMenuCollapsed && t.playcrossword}
                 </button>
@@ -540,185 +586,190 @@ export default function Home() {
 
             {/* Main Content Area */}
             <main
-              className="flex-1 p-3  overflow-x-hidden overflow-y-visible relative max-w-[1500px] border border-[#00e0ff] rounded-3xl"
+              className="flex-1 p-3 overflow-hidden relative max-w-[1500px] border border-[#00e0ff] rounded-3xl"
               style={{
-                marginRight: screenWidth > 770 && isHome ? "220px" : "0",
-
+                marginRight: screenWidth > 770 && isHome ? "250px" : "0",
               }}
             >
-
-              {isCreatingSet === "library" ? (
-                <LibraryContent
-                  studySets={studySets}
-                  setStudySets={setStudySets}
-                  screenWidth={screenWidth}
-                  isEditing={isEditing}
-                  setIsEditing={setIsEditing}
-                  setIsEditingSet={setIsEditingSet}
-                  setIsCreatingSet={setIsCreatingSet}
-                  selectedSet={selectedSet}
-                  setSelectedSet={setSelectedSet}
-                  setIsHome={setIsHome}
-                  t={t}
-                  starredTerms={starredTerms}
-                  toggleStar={toggleStar}
-                  puzzleSets={puzzleSets}
-                  setPuzzleSets={setPuzzleSets}
-                  setShowNeedLogin={setShowNeedLogin}
-                />
-              ) : isEditingSet ? (
-                <EditSet
-                  studySet={isEditingSet}
-                  setStudySets={setStudySets}
-                  t={t}
-                  setSelectedSet={setSelectedSet}
-                  onSave={(updatedSet) => {
-                    setStudySets(
-                      studySets.map((set) =>
-                        set.title === isEditingSet.title ? updatedSet : set
-                      )
-                    );
-                    setIsEditingSet(null); // Exit edit mode
-                    setIsCreatingSet(false);
-                    setSelectedSet(updatedSet);
-                  }}
-                  onCancel={() => setIsEditingSet(null)}
-                />
-
-              ) : isCreatingSet ? (
-                <CreateSet
-                  t={t}
-                  onSave={(newSet) => {
-                    setStudySets([...studySets, newSet]);
-                    setIsCreatingSet(false);
-                  }}
-                />
-              ) : showGenerator ? (
-                <GeneratePuzzle
-                  t={t}
-                  screenWidth={screenWidth}
-                  onBack={() => setShowGenerator(false)}
-                  onSaveStudySet={(newPuzzleSet) => {
-                    const updatedPuzzleSets = [...puzzleSets, newPuzzleSet];
-                    localStorage.setItem("myPuzzleSets", JSON.stringify(updatedPuzzleSets));
-                    setPuzzleSets(updatedPuzzleSets);
-                    setShowGenerator(false);
-                    setIsCreatePuzzle(true);
-                  }}
-                />
-              ) : isCreatePuzzle ? (
-                showGenerator === "play" && selectedPuzzle ? (
-                  <PuzzlePage
-                    screenWidth={screenWidth}
-                    setShowGenerator={setShowGenerator}
-                    showGenerator={showGenerator}
-                    setSelectedPuzzle={setSelectedPuzzle}
+              <div className="h-full overflow-y-auto pr-2">
+                {isCreatingSet === "library" ? (
+                  <LibraryContent
                     studySets={studySets}
                     setStudySets={setStudySets}
+                    screenWidth={screenWidth}
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing}
+                    setIsEditingSet={setIsEditingSet}
+                    setIsCreatingSet={setIsCreatingSet}
+                    selectedSet={selectedSet}
+                    setSelectedSet={setSelectedSet}
+                    setIsHome={setIsHome}
                     t={t}
-                    publicPuzzleSets={publicPuzzleSets}
-                    username={username}
-                    setPublicPuzzleSets={setPublicPuzzleSets}
-                    needLogin={needLogin}
+                    starredTerms={starredTerms}
+                    toggleStar={toggleStar}
                     puzzleSets={puzzleSets}
                     setPuzzleSets={setPuzzleSets}
-                    setIsHome={setIsHome}
+                    setShowNeedLogin={setShowNeedLogin}
                   />
-                ) : (
-                  <PuzzlePage
-                    screenWidth={screenWidth}
-                    setShowGenerator={setShowGenerator}
-                    showGenerator={showGenerator}
-                    setSelectedPuzzle={setSelectedPuzzle}
+                ) : isEditingSet ? (
+                  <EditSet
+                    studySet={isEditingSet}
                     setStudySets={setStudySets}
                     t={t}
-                    publicPuzzleSets={publicPuzzleSets}
-                    username={username}
-                    setPublicPuzzleSets={setPublicPuzzleSets}
-                    needLogin={needLogin}
-                    puzzleSets={puzzleSets}
-                    setPuzzleSets={setPuzzleSets}
-                    setIsHome={setIsHome}
+                    setSelectedSet={setSelectedSet}
+                    onSave={(updatedSet) => {
+                      setStudySets(
+                        studySets.map((set) =>
+                          set.title === isEditingSet.title ? updatedSet : set
+                        )
+                      );
+                      setIsEditingSet(null); // Exit edit mode
+                      setIsCreatingSet(false);
+                      setSelectedSet(updatedSet);
+                    }}
+                    onCancel={() => setIsEditingSet(null)}
                   />
 
-                )
-              ) : (
-                <HomeContent
-                  studySets={studySets}
-                  publicSets={publicSets}
-                  screenWidth={screenWidth}
-                  isEditing={isEditing}
-                  setIsEditing={setIsEditing}
-                  setIsEditingSet={setIsEditingSet}
-                  setIsCreatingSet={setIsCreatingSet}
-                  selectedSet={selectedSet}
-                  setSelectedSet={setSelectedSet}
-                  setIsHome={setIsHome}
-                  username={username}
-                  setPublicSets={setPublicSets}
-                  needLogin={needLogin}
-                  t={t}
-                  setStudySets={setStudySets}
-                  starredTerms={starredTerms}
-                  toggleStar={toggleStar}
-                />
+                ) : isCreatingSet ? (
+                  <CreateSet
+                    t={t}
+                    onSave={(newSet) => {
+                      setStudySets([...studySets, newSet]);
+                      setIsCreatingSet(false);
+                    }}
+                  />
+                ) : showGenerator ? (
+                  <GeneratePuzzle
+                    t={t}
+                    screenWidth={screenWidth}
+                    onBack={() => setShowGenerator(false)}
+                    onSaveStudySet={(newPuzzleSet) => {
+                      const updatedPuzzleSets = [...puzzleSets, newPuzzleSet];
+                      localStorage.setItem("myPuzzleSets", JSON.stringify(updatedPuzzleSets));
+                      setPuzzleSets(updatedPuzzleSets);
+                      setShowGenerator(false);
+                      setIsCreatePuzzle(true);
+                    }}
+                  />
+                ) : isCreatePuzzle ? (
+                  showGenerator === "play" && selectedPuzzle ? (
+                    <PuzzlePage
+                      screenWidth={screenWidth}
+                      setShowGenerator={setShowGenerator}
+                      showGenerator={showGenerator}
+                      setSelectedPuzzle={setSelectedPuzzle}
+                      studySets={studySets}
+                      setStudySets={setStudySets}
+                      t={t}
+                      publicPuzzleSets={publicPuzzleSets}
+                      username={username}
+                      setPublicPuzzleSets={setPublicPuzzleSets}
+                      needLogin={needLogin}
+                      puzzleSets={puzzleSets}
+                      setPuzzleSets={setPuzzleSets}
+                      setIsHome={setIsHome}
+                    />
+                  ) : (
+                    <PuzzlePage
+                      screenWidth={screenWidth}
+                      setShowGenerator={setShowGenerator}
+                      showGenerator={showGenerator}
+                      setSelectedPuzzle={setSelectedPuzzle}
+                      setStudySets={setStudySets}
+                      t={t}
+                      publicPuzzleSets={publicPuzzleSets}
+                      username={username}
+                      setPublicPuzzleSets={setPublicPuzzleSets}
+                      needLogin={needLogin}
+                      puzzleSets={puzzleSets}
+                      setPuzzleSets={setPuzzleSets}
+                      setIsHome={setIsHome}
+                    />
 
-              )}
+                  )
+                ) : (
+                  <HomeContent
+                    studySets={studySets}
+                    publicSets={publicSets}
+                    screenWidth={screenWidth}
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing}
+                    setIsEditingSet={setIsEditingSet}
+                    setIsCreatingSet={setIsCreatingSet}
+                    selectedSet={selectedSet}
+                    setSelectedSet={setSelectedSet}
+                    setIsHome={setIsHome}
+                    username={username}
+                    setPublicSets={setPublicSets}
+                    needLogin={needLogin}
+                    t={t}
+                    setStudySets={setStudySets}
+                    starredTerms={starredTerms}
+                    toggleStar={toggleStar}
+                    isLoadingSets={isLoadingSets}
+                  />
+
+                )}
+              </div>
             </main>
 
             {/* Right Panel (Hidden on small screens OR when creating a set) */}
             {screenWidth > 770 && isHome && (
-              <div className="hidden md:block">
-                <aside className="w-55 bg-black p-4 absolute right-0 top-0 h-full border border-[#00e0ff] rounded-3xl">
-                  <h3 className="flex items-center gap-2 text-lg font-semibold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-lightbulb" viewBox="0 0 16 16">
-                      <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1" />
-                    </svg>
-                    {t.flashcardTip}
-                  </h3>
+              <aside
+                className="fixed top-[88px] right-0 z-40 w-[240px] h-[calc(100vh-88px)] bg-black/50 backdrop-blur-md p-4 border border-[#00e0ff] rounded-3xl shadow-lg"
+              >
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-lightbulb" viewBox="0 0 16 16">
+                    <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1" />
+                  </svg>
+                  {t.flashcardTip}
+                </h3>
 
-                  <p className="text-sm mt-2 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] opacity-80">
-                    {randomTip}
-                  </p>
-                </aside>
-              </div>
+                <p className="text-sm mt-2 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] opacity-80">
+                  {randomTip}
+                </p>
+              </aside>
             )}
-          </div>
-        </div>
-      )}
-      {showNeedLogin && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-          <div className="bg-black p-6 rounded-3xl text-white border border-[#00e0ff] shadow-[0_0_16px_#00e0ff] w-[350px]">
-            <h2 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] text-center">
-              {t.needlogin}
-            </h2>
-            <p className="text-center text-[#00e0ff] mb-6">
-              {t.needloginlog}
-            </p>
 
-            <div className="flex justify-center gap-4">
-              <button
-                className="px-6 py-2 rounded-3xl border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
-                onClick={() => {
-                  setShowNeedLogin(false);
-                }}
-              >
-                {t.cancelbtn}
-              </button>
-              <button
-                className="px-6 py-2 rounded-3xl border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
-                onClick={() => {
-                  setShowNeedLogin(false);
-                  setShowLogin(true);
-                }}
-              >
-                {t.login}
-              </button>
+          </div>
+        </div >
+      )
+      }
+      {
+        showNeedLogin && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+            <div className="bg-black p-6 rounded-3xl text-white border border-[#00e0ff] shadow-[0_0_16px_#00e0ff] w-[350px]">
+              <h2 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] text-center">
+                {t.needlogin}
+              </h2>
+              <p className="text-center text-[#00e0ff] mb-6">
+                {t.needloginlog}
+              </p>
+
+              <div className="flex justify-center gap-4">
+                <button
+                  className="px-6 py-2 rounded-3xl border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  onClick={() => {
+                    setShowNeedLogin(false);
+                  }}
+                >
+                  {t.cancelbtn}
+                </button>
+                <button
+                  className="px-6 py-2 rounded-3xl border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  onClick={() => {
+                    setShowNeedLogin(false);
+                    setShowLogin(true);
+                  }}
+                >
+                  {t.login}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </DndProvider>
+        )
+      }
+    </DndProvider >
   );
 }
 
@@ -728,7 +779,7 @@ export default function Home() {
 
 
 /* Component: Home Content */
-function HomeContent({ starredTerms, toggleStar, setStudySets, needLogin, setPublicSets, username, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
+function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, needLogin, setPublicSets, username, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, publicSets, t }) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
   const [clickedHeartId, setClickedHeartId] = useState(null);
 
@@ -757,7 +808,11 @@ function HomeContent({ starredTerms, toggleStar, setStudySets, needLogin, setPub
   return (
     <section>
       <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.recentfile}</h2>
-      {studySets.length > 0 ? (
+      {isLoadingSets ? (
+        <div className="text-center py-10 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] animate-pulse">
+          {t.loadingsets || "Loading study sets..."}
+        </div>
+      ) : studySets.length > 0 ? (
         <div className="flex flex-col gap-4"> {/* 🔥 Add this flex column with gap */}
           {studySets.map((studySet, index) => (
             <div
@@ -788,7 +843,11 @@ function HomeContent({ starredTerms, toggleStar, setStudySets, needLogin, setPub
 
       {/* 🟡 Public Sets Section */}
       <h2 className="text-lg font-semibold mt-10 mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.otherpeopleset}</h2>
-      {publicSets.length > 0 ? (
+      {isLoadingSets ? (
+        <div className="text-center py-10 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] animate-pulse">
+          {t.loadingsets || "Loading study sets..."}
+        </div>
+      ) : publicSets.length > 0 ? (
         <div className="flex flex-col gap-4">
           {publicSets.map((publicSet, index) => (
             <div
@@ -1139,16 +1198,15 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
 
 
 
-function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome, setIsEditingSet, t }) {
+function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome, setIsEditingSet, isHome, isCreatingSet, isCreatePuzzle, t, setShowGenerator }) {
   return (
     <motion.aside
-      className="fixed top-0 left-0 h-full w-48 bg-black p-4 z-50 border border-[#00e0ff] rounded-3xl"
+      className="fixed top-0 left-0 h-full w-48 bg-black/50 backdrop-blur-md p-4 z-50 border border-[#00e0ff] rounded-3xl shadow-lg"
       initial={{ x: -200 }}
       animate={{ x: isOpen ? 0 : -200 }}
       transition={{ duration: 0.3 }}
     >
-
-      {/* BigMac Button & Web Title "W" */}
+      {/* BigMac Button & Logo */}
       <div className="flex items-center gap-1">
         <button
           className="text-[#00e0ff] text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:border hover:border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
@@ -1159,12 +1217,13 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
         <img
           src="/logo5.png"
           alt="Hippocampus Logo"
-          className={`h-10 w-15 object-contain ml-1`}
+          className="h-10 w-15 object-contain ml-1"
         />
       </div>
 
       {/* Navigation Items */}
       <nav className="flex flex-col gap-4 mt-6">
+        {/* Home */}
         <button
           onClick={() => {
             setIsCreatingSet(false);
@@ -1173,12 +1232,17 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsEditingSet(null);
             setSelectedSet(null);
             setIsOpen(false);
+            setShowGenerator(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+          className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 ${isHome
+            ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+            }`}
         >
           <i className="bi bi-house-door"></i> {t.home}
         </button>
 
+        {/* Library */}
         <button
           onClick={() => {
             setSelectedSet(null);
@@ -1186,8 +1250,12 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsCreatePuzzle(false);
             setIsHome(false);
             setIsOpen(false);
+            setShowGenerator(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+          className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 ${isCreatingSet === "library"
+            ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+            }`}
         >
           <i className="bi bi-folder2"></i> {t.library}
         </button>
@@ -1195,11 +1263,20 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
         <hr className="border-[#00e0ff]" />
         <p className="text-sm text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.yourFolders}</p>
 
+        {/* Create Folder (if you use a "folder" flag) */}
         <button
           onClick={() => {
+            setIsCreatingSet("folder");
+            setSelectedSet(null);
+            setIsHome(false);
+            setIsCreatePuzzle(false);
             setIsOpen(false);
+            setShowGenerator(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+          className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 ${isCreatingSet === "folder"
+            ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+            }`}
         >
           <i className="bi bi-plus"></i> {t.createfolder}
         </button>
@@ -1207,14 +1284,19 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
         <hr className="border-[#00e0ff]" />
         <p className="text-sm text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.explore}</p>
 
+        {/* Play Crossword */}
         <button
           onClick={() => {
             setIsCreatePuzzle(true);
             setIsCreatingSet(false);
             setSelectedSet(null);
+            setIsHome(false);
             setIsOpen(false);
           }}
-          className="flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+          className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 ${isCreatePuzzle
+            ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+            }`}
         >
           <i className="bi bi-puzzle"></i> {t.playcrossword}
         </button>
@@ -1222,6 +1304,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
     </motion.aside>
   );
 }
+
 
 
 function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showGenerator, setSelectedPuzzle, puzzleSets, setPuzzleSets, publicPuzzleSets, setPublicPuzzleSets, username, t }) {
@@ -1400,100 +1483,151 @@ function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showG
 
 
 
-function MobileNav({
-  t,
-  setIsHome,
-  setIsCreatingSet,
-  setIsCreatePuzzle,
-  setSelectedSet,
-  setIsEditingSet,
-  isHome,
-  isCreatingSet,
-  isCreatePuzzle,
-}) {
+function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelectedSet, setIsEditingSet, isHome, isCreatingSet, isCreatePuzzle, needLogin, setShowGenerator }) {
   const navBtnBase = "flex flex-col items-center justify-center flex-1 text-xs transition rounded-3xl py-1";
-  const activeColor = "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]";
+  const activeColor = "text-black bg-[#ff7700] drop-shadow-[0_0_8px_#ff7700]";
   const inactiveColor = "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]";
+  const [showPrompt, setShowPrompt] = useState(false);
 
   return (
-    <div className="fixed bottom-0 left-0 w-full h-16 z-50 border border-white rounded-3xl backdrop-blur-md bg-black/50">
+    <>
+      <div className="fixed bottom-0 left-0 w-full h-16 z-50 border border-white rounded-3xl backdrop-blur-md bg-black/50">
+        {/* Navigation Buttons */}
+        <div className="flex items-end justify-between h-full px-1 pb-2 ">
 
-      {/* Navigation Buttons */}
-      <div className="flex items-end justify-between h-full px-1 pb-2 ">
-
-        {/* Home */}
-        <button
-          onClick={() => {
-            setIsHome(true);
-            setIsCreatingSet(false);
-            setIsCreatePuzzle(false);
-            setIsEditingSet(false);
-            setSelectedSet(null);
-          }}
-          className={`${navBtnBase} ${isHome ? activeColor : inactiveColor}`}
-        >
-          <i className="bi bi-house-door text-3xl" />
-        </button>
-
-        {/* Library */}
-        <button
-          onClick={() => {
-            setIsHome(false);
-            setIsCreatingSet("library");
-            setIsCreatePuzzle(false);
-            setIsEditingSet(false);
-            setSelectedSet(null);
-          }}
-          className={`${navBtnBase} ${isCreatingSet === "library" ? activeColor : inactiveColor}`}
-        >
-          <i className="bi bi-book text-3xl" />
-        </button>
-
-        {/* Center Plus Button */}
-        <div className="relative -top-0 w-20 h-20 rounded-full border-4 border-[#ff7700] bg-black mx-1 flex items-center justify-center drop-shadow-[0_0_12px_#ff7700]">
+          {/* Home */}
           <button
             onClick={() => {
-              setIsCreatingSet(true);
-              setIsHome(false);
+              setIsHome(true);
+              setIsCreatingSet(false);
               setIsCreatePuzzle(false);
               setIsEditingSet(false);
               setSelectedSet(null);
+              setShowGenerator(false);
             }}
-            className="text-[#ff7700] text-3xl hover:text-black hover:bg-[#ff7700] w-full h-full flex items-center justify-center transition rounded-full"
+            className={`${navBtnBase} ${isHome
+              ? "text-black bg-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+              : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]"
+              }`}
           >
-            <i className="bi bi-plus-lg" />
+            <i className="bi bi-house-door text-3xl" />
           </button>
+
+
+          {/* Library */}
+          <button
+            onClick={() => {
+              setIsHome(false);
+              setIsCreatingSet("library");
+              setIsCreatePuzzle(false);
+              setIsEditingSet(false);
+              setSelectedSet(null);
+              setShowGenerator(false);
+            }}
+            className={`${navBtnBase} ${isCreatingSet === "library"
+              ? "text-black bg-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+              : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]"
+              }`}
+          >
+            <i className="bi bi-book text-3xl" />
+          </button>
+
+
+          {/* Center Plus Button */}
+          <div className="relative -top-0 w-20 h-20 rounded-full border-4 border-[#ff7700] bg-black mx-1 flex items-center justify-center drop-shadow-[0_0_12px_#ff7700]">
+            <button
+              onClick={() => setShowPrompt(true)}
+              className="text-[#ff7700] text-3xl hover:text-black hover:bg-[#ff7700] w-full h-full flex items-center justify-center transition rounded-full"
+            >
+              <i className="bi bi-plus-lg" />
+            </button>
+
+          </div>
+
+          {/* Folder */}
+          <button
+            onClick={() => {
+              setIsHome(false);
+              setIsCreatingSet("folder");
+              setIsCreatePuzzle(false);
+              setIsEditingSet(false);
+              setSelectedSet(null);
+              setShowGenerator(false);
+            }}
+            className={`${navBtnBase} ${isCreatingSet === "folder"
+              ? "text-black bg-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+              : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]"
+              }`}
+          >
+            <i className="bi bi-folder2 text-3xl" />
+          </button>
+
+
+          {/* Crossword */}
+          <button
+            onClick={() => {
+              setIsCreatePuzzle(true);
+              setIsHome(false);
+              setIsCreatingSet(false);
+              setIsEditingSet(false);
+              setSelectedSet(null);
+            }}
+            className={`${navBtnBase} ${isCreatePuzzle
+                ? "text-black bg-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
+                : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]"
+              }`}
+          >
+            <i className="bi bi-puzzle text-3xl" />
+          </button>
+
         </div>
-
-        {/* Folder */}
-        <button
-          onClick={() => {
-            setIsHome(false);
-            setIsCreatingSet("folder");
-            setIsCreatePuzzle(false);
-            setIsEditingSet(false);
-            setSelectedSet(null);
-          }}
-          className={`${navBtnBase} ${isCreatingSet === "folder" ? activeColor : inactiveColor}`}
-        >
-          <i className="bi bi-folder2 text-3xl" />
-        </button>
-
-        {/* Crossword */}
-        <button
-          onClick={() => {
-            setIsCreatePuzzle(true);
-            setIsHome(false);
-            setIsCreatingSet(false);
-            setIsEditingSet(false);
-            setSelectedSet(null);
-          }}
-          className={`${navBtnBase} ${isCreatePuzzle ? activeColor : inactiveColor}`}
-        >
-          <i className="bi bi-puzzle text-3xl" />
-        </button>
       </div>
-    </div>
+      {showPrompt && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center">
+          <div className="bg-black border border-[#ff7700] rounded-3xl p-6 text-center shadow-[0_0_16px_#ff7700] w-[300px]">
+            <div className="flex flex-col gap-4">
+              <button
+                className="px-4 py-2 border border-[#00e0ff] text-[#00e0ff] rounded-3xl hover:bg-[#00e0ff] hover:text-black transition shadow-md"
+                onClick={() => {
+                  setShowPrompt(false);
+                  needLogin(() => {
+                    setIsCreatingSet(true);
+                    setIsEditingSet(null);
+                    setIsCreatePuzzle(false);
+                    setSelectedSet(null);
+                    setIsHome(false);
+                  });
+                }}
+              >
+                <i className="bi bi-journal mr-2" />
+                {t.createset}
+              </button>
+              <button
+                className="px-4 py-2 border border-[#00e0ff] text-[#00e0ff] rounded-3xl hover:bg-[#00e0ff] hover:text-black transition shadow-md"
+                onClick={() => {
+                  setShowPrompt(false);
+                  needLogin(() => {
+                    setShowGenerator(true);
+                    setIsCreatingSet(false);
+                    setSelectedSet(null);
+                    setIsHome(false);
+                  });
+                }}
+              >
+                <i className="bi bi-puzzle mr-2" />
+                {t.createnewpuzzle}
+              </button>
+              <button
+                onClick={() => setShowPrompt(false)}
+                className="text-sm mt-2 text-[#ff7700] "
+              >
+                {t.backbtn}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

@@ -48,7 +48,7 @@ export default function DraggableCard({ id, index, term, definition, moveCard, o
     }, []);
 
     return (
-        <div ref={(node) => ref(drop(node))} className={`bg-[#1a2e30] p-6 rounded-lg mb-4 border-2 border-[#00e0ff] shadow-[0_0_12px_#00e0ff] ${isDragging ? "opacity-50" : ""}`}>
+        <div ref={(node) => ref(drop(node))} className={`bg-[#1a2e30] p-6 rounded-3xl mb-4 border-2 border-[#00e0ff]  ${isDragging ? "opacity-50" : ""}`}>
             <div className="flex justify-between border-b border-[#00e0ff] pb-2 mb-2">
                 {/* 🔸 Box Number in Neon Orange */}
                 <span className="text-lg font-bold text-white drop-shadow-[0_0_8px_white]">{id}</span>
@@ -70,7 +70,7 @@ export default function DraggableCard({ id, index, term, definition, moveCard, o
                 <textarea
                     ref={termRef}
                     placeholder={t.enterterm}
-                    className={`${isMobile ? "w-full" : "w-2/6"} px-4 py-2 rounded-lg text-[#ff7700] bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none min-h-[40px] overflow-hidden resize-none`}
+                    className={`${isMobile ? "w-full" : "w-2/6"} px-4 py-2 rounded-3xl text-[#ff7700] bg-black border border-white placeholder-white  focus:outline-none min-h-[40px] overflow-hidden resize-none`}
                     value={term}
                     onChange={(e) => onTermChange(e.target.value)}
                 />
@@ -83,7 +83,7 @@ export default function DraggableCard({ id, index, term, definition, moveCard, o
                 <textarea
                     ref={defRef}
                     placeholder={t.enterdefinition}
-                    className={`${isMobile ? "w-full" : "w-4/6"} px-4 py-2 rounded-lg text-[#ff7700] bg-black border border-white placeholder-white shadow-[0_0_8px_white] focus:outline-none min-h-[40px] overflow-hidden resize-none`}
+                    className={`${isMobile ? "w-full" : "w-4/6"} px-4 py-2 rounded-3xl text-[#ff7700] bg-black border border-white placeholder-white  focus:outline-none min-h-[40px] overflow-hidden resize-none`}
                     value={definition}
                     onChange={(e) => onDefinitionChange(e.target.value)}
                 />
@@ -91,7 +91,7 @@ export default function DraggableCard({ id, index, term, definition, moveCard, o
 
 
                 <button
-                    className={`${isMobile ? "w-full" : ""} bg-black text-white border border-white px-4 py-2 rounded-lg hover:shadow-[0_0_10px_white] transition duration-300 ${!isMobile && "ml-2"}`}
+                    className={`${isMobile ? "w-full" : ""} bg-black text-white border border-white px-4 py-2 rounded-3xl hover:shadow-[0_0_10px_white] transition duration-300 ${!isMobile && "ml-2"}`}
                 >
                     <i className="bi bi-image"></i> {t.addimage}
                 </button>

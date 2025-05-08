@@ -268,7 +268,7 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                                     touchAction: "pinch-zoom",
                                     width: "100%",
                                     height: "420px",
-                                    border: "1px solid #00e0ff",
+                                    border: "2px solid #00e0ff",
                                     position: "relative",
                                     cursor: startPan ? "grabbing" : "grab",
                                     scrollbarWidth: "none",          // 🔵 Firefox
@@ -423,13 +423,11 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                                                                     activeClueCell.row === row &&
                                                                     activeClueCell.col === col &&
                                                                     activeClueText && (
-                                                                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max max-w-[300px] px-2 py-2 bg-black border border-[#00e0ff] rounded text-sm text-white z-30 shadow-lg leading-snug whitespace-pre-wrap text-center">
+                                                                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max max-w-[300px] px-2 py-2 bg-black border border-white rounded text-sm text-white z-30 shadow-lg leading-snug whitespace-pre-wrap text-center">
 
                                                                             {activeClueText}
                                                                         </div>
                                                                     )}
-
-
                                                             </>
                                                         )}
                                                     </div>
@@ -447,8 +445,8 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                         </>
                     );
                 })()}
-                {/* Divider Line */}
-                <hr className="border-[#00e0ff] shadow-[0_0_20px_#00e0ff]" />
+                {/* Divider Line <hr className="border-[#00e0ff] shadow-[0_0_20px_#00e0ff]" />*/}
+
 
                 {/* Bottom: Across & Down */}
                 {!isLoading && (
