@@ -2,7 +2,7 @@
   !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!../node_modules/bootstrap-icons/font/bootstrap-icons.css ***!
   \****************************************************************************************************************************************************************************************************************************************************************************************************/
 /*!
- * Bootstrap Icons v1.11.3 (https://icons.getbootstrap.com/)
+ * Bootstrap Icons v1.12.1 (https://icons.getbootstrap.com/)
  * Copyright 2019-2024 The Bootstrap Authors
  * Licensed under MIT (https://github.com/twbs/icons/blob/main/LICENSE)
  */
@@ -10,8 +10,8 @@
 @font-face {
   font-display: block;
   font-family: "bootstrap-icons";
-  src: url(/_next/static/media/bootstrap-icons.bfa90bda.woff2) format("woff2"),
-url(/_next/static/media/bootstrap-icons.70a9dee9.woff) format("woff");
+  src: url(/_next/static/media/bootstrap-icons.189e5ec8.woff2) format("woff2"),
+url(/_next/static/media/bootstrap-icons.68b1766c.woff) format("woff");
 }
 
 .bi::before,
@@ -2079,4 +2079,5 @@ url(/_next/static/media/bootstrap-icons.70a9dee9.woff) format("woff");
 .bi-suitcase2-fill::before { content: "\f901"; }
 .bi-suitcase2::before { content: "\f902"; }
 .bi-vignette::before { content: "\f903"; }
+.bi-bluesky::before { content: "\f7f9"; }
 

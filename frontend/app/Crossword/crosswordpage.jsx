@@ -115,49 +115,49 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
     }, [puzzleSet]);
 
     const handleWheel = (e) => {
+        if (containerRef.current?.contains(e.target)) {
+            e.preventDefault(); // ⛔ stop page scroll
+            const zoomAmount = e.deltaY < 0 ? 0.1 : -0.1;
+            setScale((prev) => Math.min(Math.max(prev + zoomAmount, 0.5), 2));
+        }
+    };
+
+
+    const handlePanStart = (e) => {
+        setStartPan({ x: e.clientX || e.touches[0].clientX, y: e.clientY || e.touches[0].clientY });
+    };
+
+    const handlePanMove = (e) => {
+        if (!startPan) return;
+        const currentX = e.clientX || e.touches[0].clientX;
+        const currentY = e.clientY || e.touches[0].clientY;
+        const dx = currentX - startPan.x;
+        const dy = currentY - startPan.y;
+        setTranslate((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+        setStartPan({ x: currentX, y: currentY });
+    };
+
+    const handlePanEnd = () => {
+        setStartPan(null);
+    };
+
+    useEffect(() => {
+        const wheelHandler = (e) => {
             if (containerRef.current?.contains(e.target)) {
-                e.preventDefault(); // ⛔ stop page scroll
-                const zoomAmount = e.deltaY < 0 ? 0.1 : -0.1;
-                setScale((prev) => Math.min(Math.max(prev + zoomAmount, 0.5), 2));
+                e.preventDefault();
             }
         };
-    
-    
-        const handlePanStart = (e) => {
-            setStartPan({ x: e.clientX || e.touches[0].clientX, y: e.clientY || e.touches[0].clientY });
+        window.addEventListener("wheel", wheelHandler, { passive: false });
+
+        return () => {
+            window.removeEventListener("wheel", wheelHandler);
         };
-    
-        const handlePanMove = (e) => {
-            if (!startPan) return;
-            const currentX = e.clientX || e.touches[0].clientX;
-            const currentY = e.clientY || e.touches[0].clientY;
-            const dx = currentX - startPan.x;
-            const dy = currentY - startPan.y;
-            setTranslate((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
-            setStartPan({ x: currentX, y: currentY });
-        };
-    
-        const handlePanEnd = () => {
-            setStartPan(null);
-        };
-    
-        useEffect(() => {
-            const wheelHandler = (e) => {
-                if (containerRef.current?.contains(e.target)) {
-                    e.preventDefault();
-                }
-            };
-            window.addEventListener("wheel", wheelHandler, { passive: false });
-    
-            return () => {
-                window.removeEventListener("wheel", wheelHandler);
-            };
-        }, []);
+    }, []);
 
     return (
         <div className="text-white font-[Itim]">
             {/*Title & Back Button */}
-            <div className={`grid grid-cols-2 gap-30 py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
+            <div className={`flex justify-between items-center py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
                 <h2 className="text-3xl font-semibold text-left text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">
                     {puzzleSet.title}
                 </h2>
@@ -173,7 +173,7 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
 
             {/* Puzzle look */}
 
-            <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] p-2 rounded-lg w-full flex flex-col gap-2 w-full md:max-w-[750px]">
+            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 770 ? "w-full px-4" : "w-[60%]"}`}>
                 {/* ✅ highlight is now scoped inside the render and updates correctly */}
                 {(() => {
                     if (!grid.length || !placedWords.length) return null;
@@ -245,17 +245,21 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                                 onTouchStart={handlePanStart}
                                 onTouchMove={handlePanMove}
                                 onTouchEnd={handlePanEnd}
+                                className="rounded-2xl"
                                 style={{
                                     overflow: "auto",
                                     WebkitOverflowScrolling: "touch",
-                                    touchAction: "pinch-zoom", // ✅ this restores native zoom only here
+                                    touchAction: "pinch-zoom",
                                     width: "100%",
                                     height: "420px",
                                     border: "1px solid #00e0ff",
                                     position: "relative",
                                     cursor: startPan ? "grabbing" : "grab",
-                                  }}
-                                  
+                                    scrollbarWidth: "none",          // 🔵 Firefox
+                                    msOverflowStyle: "none",         // 🔵 IE/Edge
+                                }}
+
+
                             >
                                 <div
                                     style={{
