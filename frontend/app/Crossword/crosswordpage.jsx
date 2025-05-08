@@ -12,9 +12,17 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
     const [hoveredClueNumber, setHoveredClueNumber] = useState(null);
     const [hoveredDirection, setHoveredDirection] = useState(null);
     const [cellStatus, setCellStatus] = useState({});
-    const [scale, setScale] = useState(1);
+    const [scale, setScale] = useState(screenWidth <= 480 ? 1.33 : 1);
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const [startPan, setStartPan] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [grid, setGrid] = useState([]);
+    const [placedWords, setPlacedWords] = useState([]);
+    const containerRef = React.useRef(null);
+    const [userGrid, setUserGrid] = useState([]);
+    const inputRefs = React.useRef({});
+    const [activeClueText, setActiveClueText] = useState(null);
+    const [activeClueCell, setActiveClueCell] = useState(null); // { row, col }
 
     // Get clue number for a specific grid cell
     const getClueNumber = (row, col) => {
@@ -72,11 +80,6 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
     };
 
 
-    const [grid, setGrid] = useState([]);
-    const [placedWords, setPlacedWords] = useState([]);
-    const containerRef = React.useRef(null);
-    const [userGrid, setUserGrid] = useState([]);
-    const inputRefs = React.useRef({});
     useEffect(() => {
         if (!puzzleSet) return;
 
@@ -86,7 +89,9 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
         }));
         setQnaList(qnaList); // ✅ THIS LINE IS MISSING
         setPuzzleTitle(puzzleSet.title || "My Puzzle");
+
         const generate = async () => {
+            setIsLoading(true);
             const res = await fetch("/api/generate-puzzle", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -101,6 +106,12 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                 row.map((cell) => (cell ? "" : null))
             );
             setUserGrid(emptyGrid);
+            setIsLoading(false);
+
+            if (screenWidth <= 480) {
+                setScale(1.33); // ensure puzzle scale is good for mobile input
+            }
+
             // 📦 Auto scroll to center
             if (containerRef.current) {
                 const container = containerRef.current;
@@ -175,6 +186,11 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
 
             <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 770 ? "w-full px-4" : "w-[60%]"}`}>
                 {/* ✅ highlight is now scoped inside the render and updates correctly */}
+                {isLoading && (
+                    <div className="flex justify-center items-center h-[200px]">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#00e0ff]" />
+                    </div>
+                )}
                 {(() => {
                     if (!grid.length || !placedWords.length) return null;
 
@@ -310,18 +326,28 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                                                             });
 
                                                             let matchedWord = null;
-                                                            let closestDistance = Infinity;
-
                                                             for (let word of matches) {
-                                                                const dist = Math.abs(row - word.start.row) + Math.abs(col - word.start.col);
-                                                                if (dist < closestDistance) {
-                                                                    matchedWord = word;
-                                                                    closestDistance = dist;
+                                                                if (word.start.row === row && word.start.col === col) {
+                                                                    matchedWord = word; // ✅ Prefer clue box
+                                                                    break;
                                                                 }
+                                                            }
+
+                                                            if (!matchedWord && matches.length > 0) {
+                                                                matchedWord = matches[0]; // fallback to first match
                                                             }
 
                                                             setHoveredClueNumber(matchedWord?.clueNumber || null); // ✅ set hovered clue number
                                                             setHoveredDirection(matchedWord?.direction || null);
+                                                            if (matchedWord) {
+                                                                setHoveredClueNumber(matchedWord.clueNumber);
+                                                                setHoveredDirection(matchedWord.direction);
+                                                                setActiveClueText(qnaList[matchedWord.index]?.question || null);
+                                                                setActiveClueCell({
+                                                                    row: matchedWord.start.row,
+                                                                    col: matchedWord.start.col,
+                                                                });
+                                                            }
                                                         }}
 
                                                         onMouseLeave={() => {
@@ -384,13 +410,27 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                                                                     }
                                                                 }
                                                             }}
-                                                            className="w-full h-full text-center bg-transparent outline-none z-10"
+                                                            className={`w-full h-full text-center bg-transparent outline-none z-10 ${screenWidth <= 480 ? "text-[16px]" : "text-xs"}`}
                                                         />
 
                                                         {clueNum && (
-                                                            <span className="absolute top-[1px] left-[1px] text-[8px] text-yellow font-bold z-20 leading-none">
-                                                                {clueNum}
-                                                            </span>
+                                                            <>
+                                                                <span className="absolute top-[1px] left-[1px] text-[8px] text-yellow font-bold z-20 leading-none">
+                                                                    {clueNum}
+                                                                </span>
+
+                                                                {activeClueCell &&
+                                                                    activeClueCell.row === row &&
+                                                                    activeClueCell.col === col &&
+                                                                    activeClueText && (
+                                                                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max max-w-[300px] px-2 py-2 bg-black border border-[#00e0ff] rounded text-sm text-white z-30 shadow-lg leading-snug whitespace-pre-wrap text-center">
+
+                                                                            {activeClueText}
+                                                                        </div>
+                                                                    )}
+
+
+                                                            </>
                                                         )}
                                                     </div>
 
@@ -411,61 +451,75 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                 <hr className="border-[#00e0ff] shadow-[0_0_20px_#00e0ff]" />
 
                 {/* Bottom: Across & Down */}
-                <div className="flex gap-2">
-                    <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]  text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
-                        <span className={`font-semibold block mb-2 text-lg transition duration-200
+                {!isLoading && (
+                    <div className="flex flex-col md:flex-row gap-2">
+                        <div className="bg-black border-2 border-[#00e0ff] text-[#00e0ff] p-4 rounded-2xl w-full md:w-1/2 min-h-[150px]">
+                            <span className={`font-semibold block mb-2 text-lg transition duration-200
                             ${hoveredDirection === "across" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-white drop-shadow-[0_0_10px_white]"}`}>
-                            {t.across}
-                        </span>
+                                {t.across}
+                            </span>
 
-                        {placedWords
-                            .filter((entry) => entry.direction === "across")
-                            .sort((a, b) => a.clueNumber - b.clueNumber)
-                            .map((entry, idx) => {
-                                const qna = qnaList[entry.index];
-                                if (!qna) return null;
-                                return (
-                                    <div
-                                        key={idx}
-                                        className={`mb-2 text-sm transition duration-200 
-                                             ${hoveredClueNumber === entry.clueNumber && hoveredDirection === entry.direction
-                                                ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-bold"
-                                                : ""}`}
-                                    >
-                                        <strong>{entry.clueNumber}.</strong> {qna.question}
-                                    </div>
+                            {placedWords
+                                .filter((entry) => entry.direction === "across")
+                                .sort((a, b) => a.clueNumber - b.clueNumber)
+                                .map((entry, idx) => {
+                                    const qna = qnaList[entry.index];
+                                    if (!qna) return null;
+                                    return (
+                                        <div
+                                            key={idx}
+                                            onClick={() => {
+                                                setHoveredClueNumber(entry.clueNumber);
+                                                setHoveredDirection(entry.direction);
+                                                setHoverRow(entry.start.row);
+                                                setHoverCol(entry.start.col);
+                                            }}
+                                            className={`mb-2 text-lg transition duration-200 cursor-pointer
+                                                    ${hoveredClueNumber === entry.clueNumber && hoveredDirection === "across"
+                                                    ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-bold"
+                                                    : ""}`}
+                                        >
+                                            <strong>{entry.clueNumber}.</strong> {qna.question}
+                                        </div>
+                                    );
+                                })}
 
-                                );
-                            })}
-                    </div>
+                        </div>
 
-                    <div className="bg-black border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff] text-[#00e0ff] p-4 rounded-md w-1/2 min-h-[150px]">
-                        <span className={`font-semibold block mb-2 text-lg transition duration-200
+                        <div className="bg-black border-2 border-[#00e0ff] text-[#00e0ff] p-4 rounded-2xl w-full md:w-1/2 min-h-[150px]">
+                            <span className={`font-semibold block mb-2 text-lg transition duration-200
                             ${hoveredDirection === "down" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-white drop-shadow-[0_0_10px_white]"}`}>
-                            {t.down}
-                        </span>
+                                {t.down}
+                            </span>
 
-                        {placedWords
-                            .filter((entry) => entry.direction === "down")
-                            .sort((a, b) => a.clueNumber - b.clueNumber)
-                            .map((entry, idx) => {
-                                const qna = qnaList[entry.index];
-                                if (!qna) return null;
-                                return (
-                                    <div
-                                        key={idx}
-                                        className={`mb-2 text-sm transition duration-200 
-                                              ${hoveredClueNumber === entry.clueNumber && hoveredDirection === entry.direction
-                                                ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-bold"
-                                                : ""}`}
-                                    >
-                                        <strong>{entry.clueNumber}.</strong> {qna.question}
-                                    </div>
+                            {placedWords
+                                .filter((entry) => entry.direction === "down")
+                                .sort((a, b) => a.clueNumber - b.clueNumber)
+                                .map((entry, idx) => {
+                                    const qna = qnaList[entry.index];
+                                    if (!qna) return null;
+                                    return (
+                                        <div
+                                            key={idx}
+                                            onClick={() => {
+                                                setHoveredClueNumber(entry.clueNumber);
+                                                setHoveredDirection(entry.direction);
+                                                setHoverRow(entry.start.row);
+                                                setHoverCol(entry.start.col);
+                                            }}
+                                            className={`mb-2 text-lg transition duration-200 cursor-pointer
+                                                      ${hoveredClueNumber === entry.clueNumber && hoveredDirection === "down"
+                                                    ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-bold"
+                                                    : ""}`}
+                                        >
+                                            <strong>{entry.clueNumber}.</strong> {qna.question}
+                                        </div>
+                                    );
+                                })}
 
-                                );
-                            })}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
             <button
                 onClick={() => checkAnswers()}

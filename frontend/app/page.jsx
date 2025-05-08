@@ -470,9 +470,9 @@ export default function Home() {
 
           {/* Main Container with Sidebar & Content */}
           <div className="flex flex-1 relative"
-          style={{
-            paddingBottom: screenWidth <= 480 ? "63px" : undefined,
-          }}>
+            style={{
+              paddingBottom: screenWidth <= 480 ? "63px" : undefined,
+            }}>
 
             {/* Side Navigation */}
             <aside
@@ -543,7 +543,7 @@ export default function Home() {
               className="flex-1 p-3  overflow-x-hidden overflow-y-visible relative max-w-[1500px] border border-[#00e0ff] rounded-3xl"
               style={{
                 marginRight: screenWidth > 770 && isHome ? "220px" : "0",
-                
+
               }}
             >
 
@@ -989,27 +989,31 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
                   setIsHome(false);
                 }
               }}
-              className="relative flex items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex items-center w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
-              {/* ❤️ Heart inside Folder */}
-              <div
-                className="absolute top-1/2 right-2 flex items-center gap-1 text-xl transform -translate-y-1/2"
-              >
+              {/* Column 1: Folder Icon */}
+              <i className="bi bi-folder2 text-xl mr-2" />
+
+              {/* Column 2: Full Title & Term Count */}
+              <span className="text-sm">
+                {studySet.title} ({studySet.terms.length}{" "}
+                {studySet.terms.length === 1 ? t.termsg : t.termmul})
+              </span>
+
+              {/* Column 3: Heart aligned right */}
+              <div className="flex items-center gap-1 ml-auto text-xl">
                 <i
-                  className={`bi ${studySet.likes && studySet.likes.length > 0
+                  className={`bi ${studySet.likes?.length > 0
                     ? "bi-heart-fill text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
                     : "bi-heart text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
                     }`}
                   style={{ paddingTop: "2px" }}
                 ></i>
                 <span className="text-xs text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">
-                  {studySet.likes ? studySet.likes.length : 0}
+                  {studySet.likes?.length || 0}
                 </span>
               </div>
-              {/* 📂 Title and Terms */}
-              <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
             </div>
-
 
             {/* Manage Buttons */}
             {isManaging && (
@@ -1062,25 +1066,32 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
                   setIsHome(false);
                 }
               }}
-              className="relative flex items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex items-center w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
-              {/* ❤️ Heart inside Folder */}
-              <div
-                className="absolute top-1/2 right-2 flex items-center gap-1 text-xl transform -translate-y-1/2"
-              >
+              {/* Column 1: Folder Icon */}
+              <i className="bi bi-folder2 text-xl mr-2" />
+
+              {/* Column 2: Full Title & Term Count */}
+              <span className="text-sm">
+                {puzzleSet.title} ({puzzleSet.terms.length}{" "}
+                {puzzleSet.terms.length === 1 ? t.termsg : t.termmul})
+              </span>
+
+              {/* Column 3: Heart aligned right */}
+              <div className="flex items-center gap-1 ml-auto text-xl">
                 <i
-                  className={`bi ${puzzleSet.likes && puzzleSet.likes.length > 0
+                  className={`bi ${puzzleSet.likes?.length > 0
                     ? "bi-heart-fill text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
                     : "bi-heart text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
                     }`}
                   style={{ paddingTop: "2px" }}
                 ></i>
                 <span className="text-xs text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">
-                  {puzzleSet.likes ? puzzleSet.likes.length : 0}
+                  {puzzleSet.likes?.length || 0}
                 </span>
               </div>
-              <i className="bi bi-folder2"></i> {puzzleSet.title} ({puzzleSet.terms.length} {puzzleSet.terms.length === 1 ? t.termsg : t.termmul})
             </div>
+
 
             {isManaging && (
               <div className="flex gap-2">
@@ -1102,7 +1113,7 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
                   </div>
                 ) : (
                   <button
-                    onClick={() => togglePrivatePublic(index)}
+                    onClick={() => togglePrivatePublicPuzzleSet(index)}
                     className={`flex items-center justify-center w-20 h-10 rounded-3xl border transition duration-300 hover:scale-110 font-bold
                        ${puzzleSet.isPrivate === "Private"
                         ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
