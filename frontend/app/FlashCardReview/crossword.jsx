@@ -248,13 +248,16 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
                                 style={{
                                     overflow: "auto",
                                     WebkitOverflowScrolling: "touch",
+                                    touchAction: "pinch-zoom",
                                     width: "100%",
                                     height: "420px",
                                     border: "1px solid #00e0ff",
                                     position: "relative",
-                                    touchAction: "manipulation", // let browser handle pinch-zoom
                                     cursor: startPan ? "grabbing" : "grab",
-                                }}
+                                    scrollbarWidth: "none",          // 🔵 Firefox
+                                    msOverflowStyle: "none",         // 🔵 IE/Edge
+                                  }}
+                                  
 
                             >
                                 <div

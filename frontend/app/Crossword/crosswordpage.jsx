@@ -246,14 +246,16 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                                 onTouchMove={handlePanMove}
                                 onTouchEnd={handlePanEnd}
                                 style={{
-                                    overflow: "hidden",
-                                    touchAction: "none", // disable pinch-zoom on phones if you're handling it
+                                    overflow: "auto",
+                                    WebkitOverflowScrolling: "touch",
+                                    touchAction: "pinch-zoom", // ✅ this restores native zoom only here
                                     width: "100%",
                                     height: "420px",
                                     border: "1px solid #00e0ff",
                                     position: "relative",
                                     cursor: startPan ? "grabbing" : "grab",
-                                }}
+                                  }}
+                                  
                             >
                                 <div
                                     style={{
