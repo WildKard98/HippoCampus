@@ -57,7 +57,7 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth, t }) 
                 </button>
             </div>
 
-            <div className={`flex flex-col gap-2 mb-2 ${screenWidth <= 770 ? "w-full px-4" : "w-[60%]"}`}>
+            <div className={`flex flex-col gap-2 mb-2 ${screenWidth <= 770 ? "w-full " : "w-[60%]"}`}>
                 {studySet.terms.map((item, index) => (
                     <div
                         key={index}

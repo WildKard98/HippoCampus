@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
+import { generatePuzzle } from "../api";
+
 
 export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t }) {
     const [puzzleTitle, setPuzzleTitle] = React.useState("");
@@ -92,13 +94,8 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
 
         const generate = async () => {
             setIsLoading(true);
-            const res = await fetch("/api/generate-puzzle", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ qnaList }),
-            });
+            const data = await generatePuzzle(qnaList);
 
-            const data = await res.json();
             setGrid(data.grid);
             setPlacedWords(data.placedWords);
 
@@ -184,7 +181,7 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
 
             {/* Puzzle look */}
 
-            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 770 ? "w-full px-4" : "w-[60%]"}`}>
+            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 770 ? "w-full" : "w-[60%]"}`}>
                 {/* ✅ highlight is now scoped inside the render and updates correctly */}
                 {isLoading && (
                     <div className="flex justify-center items-center h-[200px]">

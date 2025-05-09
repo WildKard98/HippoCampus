@@ -2,6 +2,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { createPuzzleSet } from "../api";
+import { generatePuzzle } from "../api";
 
 export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t }) {
     const [puzzleTitle, setPuzzleTitle] = React.useState("");
@@ -88,39 +89,32 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
 
     useEffect(() => {
         const generate = async () => {
-            const res = await fetch("/api/generate-puzzle", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    qnaList: qnaList.map(qna => ({
+            try {
+                const data = await generatePuzzle(
+                    qnaList.map(qna => ({
                         question: qna.question,
-                        answer: qna.answer.replace(/\s+/g, "").toUpperCase()  // ✅ strip spaces + uppercase
+                        answer: qna.answer.replace(/\s+/g, "").toUpperCase()
                     }))
-                })
-
-            });
-
-            if (!res.ok) {
-                console.warn("Puzzle generation failed:", res.status);
-                return;
-            }
-
-            const data = await res.json();
-            setGrid(data.grid);
-            setPlacedWords(data.placedWords);
-
-            // 📦 Auto scroll to center
-            if (containerRef.current) {
-                const container = containerRef.current;
-                setTimeout(() => {
-                    container.scrollLeft = container.scrollWidth / 2 - container.clientWidth / 2;
-                    container.scrollTop = container.scrollHeight / 2 - container.clientHeight / 2;
-                }, 50);
+                );
+                setGrid(data.grid);
+                setPlacedWords(data.placedWords);
+    
+                // 📦 Auto scroll to center
+                if (containerRef.current) {
+                    const container = containerRef.current;
+                    setTimeout(() => {
+                        container.scrollLeft = container.scrollWidth / 2 - container.clientWidth / 2;
+                        container.scrollTop = container.scrollHeight / 2 - container.clientHeight / 2;
+                    }, 50);
+                }
+            } catch (error) {
+                console.error("Failed to generate puzzle:", error);
             }
         };
-
+    
         generate();
     }, [qnaList]);
+    
 
 
     return (

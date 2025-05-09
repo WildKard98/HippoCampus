@@ -33,6 +33,9 @@ export const translations = {
         servererror: "❌ Server error during availability check.",
         loginsuccess: "Login Successful!",
         registersuccess: "Registered successfully!",
+        language: "Language",
+        selectlanguage: "Select Language",
+
 
         //need login
         needlogin: "Login required!",
@@ -62,7 +65,7 @@ export const translations = {
         deflanguage: "Definition language",
         anslanguage: "Answer language",
         queslanguage: "Question language",
-        
+
 
         // search bar 1
         searchbar: "Study set, puzzle, news",
@@ -195,6 +198,9 @@ export const translations = {
         needlogin: "Đăng nhập để sử dụng!",
         needloginlog: "Bạn cần phải đăng nhập trước!",
         cancelbtn: "Huỷ",
+        language: "Ngôn ngữ",
+        selectlanguage: "Chọn ngôn ngữ",
+
 
         // search bar 1
         searchbar: "Tệp học, ô chữ, tin tức",

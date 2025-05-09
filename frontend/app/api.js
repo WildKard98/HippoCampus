@@ -122,6 +122,16 @@ export const toggleLikePuzzleSet = async (id, username) => {
     return res.data;
 };
 
+// Generate a crossword puzzle using backend
+export const generatePuzzle = async (qnaList) => {
+    try {
+        const res = await api.post('/generate-puzzle', { qnaList });
+        return res.data;
+    } catch (error) {
+        console.error('Error generating puzzle:', error);
+        throw error;
+    }
+};
 
 
 export default api;

@@ -246,6 +246,22 @@ export default function Home() {
     return true;
   }
 
+  useEffect(() => {
+    const storedLang = localStorage.getItem("lang");
+    if (storedLang) {
+      setLang(storedLang); // ✅ Use stored language
+    } else {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const defaultLang =
+        timezone.startsWith("Asia/Ho_Chi_Minh") || timezone.startsWith("Asia/Bangkok")
+          ? "vi"
+          : "en";
+      setLang(defaultLang);
+      localStorage.setItem("lang", defaultLang); // ✅ Save to localStorage
+    }
+  }, []);
+  
+
   return (
     <DndProvider backend={HTML5Backend}>
       {showLogin ? (
@@ -391,7 +407,7 @@ export default function Home() {
                             localStorage.removeItem("token");
                             localStorage.removeItem("username");
                           }}
-                          className="block w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition"
+                          className="block w-full px-4 py-2 text-left text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition rounded-3xl"
                         >
                           {t.logout}
                         </button>
@@ -435,13 +451,13 @@ export default function Home() {
 
             {/* Search bar adjusts when screen width < 620px */}
             {screenWidth < 660 && (
-              <div className="w-full flex justify-center px-3 pb-2">
+              <div className="w-full flex justify-center px-3 pb-3">
                 <div className="relative w-full max-w-none">
                   <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
                   <input
                     type="text"
                     placeholder={t.searchbar}
-                    className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-3xl w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                    className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-2xl w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                   />
                 </div>
               </div>
@@ -491,7 +507,7 @@ export default function Home() {
             className="flex flex-1 relative pt-[88px]"
             style={{
               paddingBottom: screenWidth <= 480 ? "64px" : undefined,
-              paddingTop: screenWidth <= 660 ? "130px" : undefined,
+              paddingTop: screenWidth <= 660 ? "145px" : undefined,
               paddingLeft: screenWidth > 770 ? (isMenuCollapsed ? "84px" : "203px") : undefined,
             }}
           >
@@ -1485,13 +1501,13 @@ function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showG
 
 function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelectedSet, setIsEditingSet, isHome, isCreatingSet, isCreatePuzzle, needLogin, setShowGenerator }) {
   const navBtnBase = "flex flex-col items-center justify-center flex-1 text-xs transition rounded-3xl py-1";
-  const activeColor = "text-black bg-[#ff7700] drop-shadow-[0_0_8px_#ff7700]";
-  const inactiveColor = "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]";
+  const activeColor = "text-black bg-[#ff7700] ";
+  const inactiveColor = "text-[#00e0ff]  hover:text-black hover:bg-[#00e0ff]";
   const [showPrompt, setShowPrompt] = useState(false);
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 w-full h-16 z-50 border border-white rounded-3xl backdrop-blur-md bg-black/50">
+      <div className="fixed bottom-0 left-0 w-full h-16 z-50 border-3 border-[#00e0ff] rounded-3xl backdrop-blur-md bg-black/50">
         {/* Navigation Buttons */}
         <div className="flex items-end justify-between h-full px-1 pb-2 ">
 
@@ -1506,8 +1522,8 @@ function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelec
               setShowGenerator(false);
             }}
             className={`${navBtnBase} ${isHome
-              ? "text-black bg-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-              : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]"
+              ? "text-[#ff7700] "
+              : "text-[#00e0ff] hover:text-black hover:bg-[#00e0ff] "
               }`}
           >
             <i className="bi bi-house-door text-3xl" />
@@ -1525,8 +1541,8 @@ function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelec
               setShowGenerator(false);
             }}
             className={`${navBtnBase} ${isCreatingSet === "library"
-              ? "text-black bg-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-              : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]"
+             ? "text-[#ff7700] "
+              : "text-[#00e0ff] hover:text-black hover:bg-[#00e0ff] "
               }`}
           >
             <i className="bi bi-book text-3xl" />
@@ -1534,10 +1550,10 @@ function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelec
 
 
           {/* Center Plus Button */}
-          <div className="relative -top-0 w-20 h-20 rounded-full border-4 border-[#ff7700] bg-black mx-1 flex items-center justify-center drop-shadow-[0_0_12px_#ff7700]">
+          <div className="relative -top-0 w-20 h-20 rounded-full border-4 border-[#00e0ff] bg-black mx-1 flex items-center justify-center drop-shadow-[0_0_12px_#00e0ff]">
             <button
               onClick={() => setShowPrompt(true)}
-              className="text-[#ff7700] text-3xl hover:text-black hover:bg-[#ff7700] w-full h-full flex items-center justify-center transition rounded-full"
+              className="text-[#00e0ff] text-3xl hover:text-black hover:bg-[#00e0ff] w-full h-full flex items-center justify-center transition rounded-full"
             >
               <i className="bi bi-plus-lg" />
             </button>
@@ -1555,8 +1571,8 @@ function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelec
               setShowGenerator(false);
             }}
             className={`${navBtnBase} ${isCreatingSet === "folder"
-              ? "text-black bg-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-              : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]"
+              ? "text-[#ff7700] "
+              : "text-[#00e0ff] hover:text-black hover:bg-[#00e0ff] "
               }`}
           >
             <i className="bi bi-folder2 text-3xl" />
@@ -1573,8 +1589,8 @@ function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelec
               setSelectedSet(null);
             }}
             className={`${navBtnBase} ${isCreatePuzzle
-                ? "text-black bg-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-                : "text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] hover:text-black hover:bg-[#00e0ff] hover:drop-shadow-[0_0_12px_#00e0ff]"
+                ? "text-[#ff7700] "
+              : "text-[#00e0ff] hover:text-black hover:bg-[#00e0ff] "
               }`}
           >
             <i className="bi bi-puzzle text-3xl" />

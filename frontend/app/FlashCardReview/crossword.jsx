@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
+import { generatePuzzle } from "../api";
 
 export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
     const [puzzleTitle, setPuzzleTitle] = React.useState("");
@@ -81,37 +82,35 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
 
     useEffect(() => {
         if (!studySet) return;
-
+    
         const qnaList = studySet.terms.map((termObj) => ({
             question: termObj.definition,
-            answer: termObj.term.toUpperCase().replace(/\s+/g, ""), // ✅ Strip all spaces
+            answer: termObj.term.toUpperCase().replace(/\s+/g, ""), // ✅ Strip spaces
         }));
-        setQnaList(qnaList); // ✅ THIS LINE IS MISSING
+        setQnaList(qnaList); // ✅ Set QnA list
         setPuzzleTitle(studySet.title || "My Puzzle");
-
+    
         const generate = async () => {
             setIsLoading(true);
-            const res = await fetch("/api/generate-puzzle", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ qnaList }),
-            });
-
-            const data = await res.json();
-            setGrid(data.grid);
-            setPlacedWords(data.placedWords);
-
-            const emptyGrid = data.grid.map((row) =>
-                row.map((cell) => (cell ? "" : null))
-            );
-            setUserGrid(emptyGrid);
-            setIsLoading(false);
-
-            if (screenWidth <= 480) {
-                setScale(1.33); // ensure puzzle scale is good for mobile input
+            try {
+                const data = await generatePuzzle(qnaList);
+                setGrid(data.grid);
+                setPlacedWords(data.placedWords);
+    
+                const emptyGrid = data.grid.map((row) =>
+                    row.map((cell) => (cell ? "" : null))
+                );
+                setUserGrid(emptyGrid);
+            } catch (err) {
+                console.error("Failed to generate puzzle:", err);
+            } finally {
+                setIsLoading(false);
             }
-
-            // 📦 Auto scroll to center
+    
+            if (screenWidth <= 480) {
+                setScale(1.33);
+            }
+    
             if (containerRef.current) {
                 const container = containerRef.current;
                 setTimeout(() => {
@@ -120,9 +119,10 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
                 }, 50);
             }
         };
-
+    
         generate();
     }, [studySet]);
+    
 
     const handleWheel = (e) => {
         if (containerRef.current?.contains(e.target)) {
@@ -182,7 +182,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
             </div>
             {/* Puzzle look */}
 
-            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 770 ? "w-full px-4" : "w-[60%]"}`}>
+            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 770 ? "w-full" : "w-[60%]"}`}>
                 {/* ✅ highlight is now scoped inside the render and updates correctly */}
                 {isLoading && (
                     <div className="flex justify-center items-center h-[200px]">

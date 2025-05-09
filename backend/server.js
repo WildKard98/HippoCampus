@@ -7,7 +7,7 @@ const generateSet = require('./routes/generateSet'); // (old spawn version ✅ k
 const aiRoute = require('./routes/ai'); // ⭐ New AI route
 const puzzleSetRoutes = require('./routes/puzzlesets');
 const app = express();
-
+const generatePuzzleRoute = require('./routes/generatePuzzle');
 require('dotenv').config();
 
 // Middleware
@@ -20,6 +20,7 @@ app.use('/api/studysets', studysetsRoute);
 app.use('/api/generateSet', generateSet); // (optional backup route)
 app.use('/api/ai', aiRoute);          // ⭐ new clean AI API here
 app.use('/api/puzzlesets', puzzleSetRoutes);
+app.use('/api/generate-puzzle', generatePuzzleRoute);
 
 // Home Route
 app.get('/', (req, res) => {
