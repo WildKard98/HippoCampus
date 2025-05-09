@@ -54,7 +54,9 @@ export default function Home() {
   const dropdownRef = useRef();
   const [hasMounted, setHasMounted] = useState(false);
   const [isLoadingSets, setIsLoadingSets] = useState(true);
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
   const toggleStar = async (term, setId) => {
     const username = localStorage.getItem("username");
     if (!username || !setId) return;
@@ -166,6 +168,7 @@ export default function Home() {
     fetchPublicPuzzleSets();
   }, []);
 
+  const lowerSearch = searchTerm.toLowerCase();
 
   useEffect(() => {
     const tip = studyTips[Math.floor(Math.random() * studyTips.length)];
@@ -260,7 +263,7 @@ export default function Home() {
       localStorage.setItem("lang", defaultLang); // ✅ Save to localStorage
     }
   }, []);
-  
+
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -318,10 +321,64 @@ export default function Home() {
                 <div className="relative w-full">
                   <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
                   <input
+
                     type="text"
+                    value={searchTerm}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSearchTerm(value);
+
+                      if (value.trim() === "") {
+                        setSearchResults([]);
+                        return;
+                      }
+
+                      const lower = value.toLowerCase();
+
+                      const results = [
+                        ...studySets.filter(s => s.title.toLowerCase().includes(lower)).map(s => ({ ...s, type: "study", isPublic: false })),
+                        ...puzzleSets.filter(s => s.title.toLowerCase().includes(lower)).map(s => ({ ...s, type: "puzzle", isPublic: false })),
+                        ...publicSets.filter(s => s.title.toLowerCase().includes(lower)).map(s => ({ ...s, type: "study", isPublic: true })),
+                        ...publicPuzzleSets.filter(s => s.title.toLowerCase().includes(lower)).map(s => ({ ...s, type: "puzzle", isPublic: true }))
+                      ];
+
+                      setSearchResults(results.slice(0, 10)); // limit max 10 results
+                    }}
                     placeholder={t.searchbar}
                     className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-3xl w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] transition"
                   />
+                  {searchResults.length > 0 && (
+                    <div className="absolute top-full mt-1 bg-black border border-[#00e0ff] rounded-2xl w-full z-50 shadow-lg">
+                      {searchResults.map((item, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => {
+                            setSearchTerm("");
+                            setSearchResults([]);
+
+                            if (item.type === "study") {
+                              setIsCreatingSet("library");
+                              setSelectedSet(item);
+                              setIsHome(false);
+                            } else {
+                              setIsCreatePuzzle(true);          // ✅ Ensure puzzle mode is active
+                              setSelectedSet(null);            // ✅ Clear study set
+                              setSelectedPuzzle(item);         // ✅ Set current puzzle
+                              setShowGenerator("play");        // ✅ Required if you want puzzle viewer
+                            }
+                          }}
+                          className="px-4 py-2 hover:bg-[#00e0ff] hover:text-black cursor-pointer flex justify-between items-center"
+                        >
+                          <span className="font-bold">{item.title}</span>
+                          <span className="flex items-center gap-2 text-sm text-[#ffaa33]">
+                            <i className={`bi ${item.type === "puzzle" ? "bi-puzzle" : "bi-journal"}`}></i>
+                            {item.isPublic ? "(Public)" : "(Yours)"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                 </div>
               </div>
             )}
@@ -457,8 +514,11 @@ export default function Home() {
                   <input
                     type="text"
                     placeholder={t.searchbar}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-2xl w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
                   />
+
                 </div>
               </div>
             )}
@@ -487,18 +547,18 @@ export default function Home() {
           {/*MobileNav trigger when width <= 480px */}
           {screenWidth <= 480 && (
             <MobileNav
-            t={t}
-            setIsHome={setIsHome}
-            setIsCreatingSet={setIsCreatingSet}
-            setIsCreatePuzzle={setIsCreatePuzzle}
-            setSelectedSet={setSelectedSet}
-            setIsEditingSet={setIsEditingSet}
-            needLogin={needLogin}
-            setShowGenerator={setShowGenerator}
-            isHome={isHome}
-            isCreatingSet={isCreatingSet}
-            isCreatePuzzle={isCreatePuzzle}
-          />
+              t={t}
+              setIsHome={setIsHome}
+              setIsCreatingSet={setIsCreatingSet}
+              setIsCreatePuzzle={setIsCreatePuzzle}
+              setSelectedSet={setSelectedSet}
+              setIsEditingSet={setIsEditingSet}
+              needLogin={needLogin}
+              setShowGenerator={setShowGenerator}
+              isHome={isHome}
+              isCreatingSet={isCreatingSet}
+              isCreatePuzzle={isCreatePuzzle}
+            />
           )}
 
 
@@ -652,6 +712,17 @@ export default function Home() {
                     onSave={(newSet) => {
                       setStudySets([...studySets, newSet]);
                       setIsCreatingSet(false);
+                    }}
+                  />
+                ) : showGenerator === "play" && selectedPuzzle ? (
+                  <CrosswordPuzzlePage
+                    t={t}
+                    screenWidth={screenWidth}
+                    puzzleSet={selectedPuzzle}
+                    onBack={() => {
+                      setSelectedPuzzle(null);
+                      setIsCreatePuzzle(false);
+                      setIsHome(true);
                     }}
                   />
                 ) : showGenerator ? (
@@ -1022,7 +1093,7 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
   if (selectedSet) {
     // Check if it's a puzzle set (you can use a flag or fallback to .terms + title structure)
     const isPuzzle = puzzleSets.some(p => p._id === selectedSet._id);
-  
+
     if (isPuzzle) {
       return (
         <GeneratePuzzle
@@ -1565,7 +1636,7 @@ function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelec
               setShowGenerator(false);
             }}
             className={`${navBtnBase} ${isCreatingSet === "library"
-             ? "text-[#ff7700] "
+              ? "text-[#ff7700] "
               : "text-[#00e0ff] hover:text-black hover:bg-[#00e0ff] "
               }`}
           >
@@ -1613,7 +1684,7 @@ function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelec
               setSelectedSet(null);
             }}
             className={`${navBtnBase} ${isCreatePuzzle
-                ? "text-[#ff7700] "
+              ? "text-[#ff7700] "
               : "text-[#00e0ff] hover:text-black hover:bg-[#00e0ff] "
               }`}
           >
