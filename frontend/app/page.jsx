@@ -391,10 +391,10 @@ export default function Home() {
                               setShowGenerator("play");        // ✅ Required if you want puzzle viewer
                             }
                           }}
-                          className="px-4 py-2 hover:bg-[#00e0ff] hover:text-black cursor-pointer flex rounded-2xl justify-between items-center"
+                          className="px-4 py-2 hover:bg-[#00e0ff] text-white hover:text-black cursor-pointer flex rounded-2xl justify-between items-center"
                         >
-                          <span className="font-bold text-white">{item.title}</span>
-                          <span className="flex items-center gap-2 text-sm text-[#ffaa33]">
+                          <span className="font-bold">{item.title}</span>
+                          <span className="flex items-center gap-2 text-sm text-[#ff7700]">
                             <i className={`bi ${item.type === "puzzle" ? "bi-puzzle" : "bi-journal"}`}></i>
                             {item.isPublic ? "(Public)" : "(Yours)"}
                           </span>
@@ -595,10 +595,10 @@ export default function Home() {
                               setShowGenerator("play");
                             }
                           }}
-                          className="px-4 py-2 hover:bg-[#00e0ff] rounded-2xl hover:text-black cursor-pointer flex justify-between items-center"
+                          className="px-4 py-2 hover:bg-[#00e0ff] text-white rounded-2xl hover:text-black cursor-pointer flex justify-between items-center"
                         >
-                          <span className="font-bold text-white">{item.title}</span>
-                          <span className="flex items-center gap-2 text-sm text-[#ffaa33]">
+                          <span className="font-bold">{item.title}</span>
+                          <span className="flex items-center gap-2 text-sm text-[#ff7700]">
                             <i className={`bi ${item.type === "puzzle" ? "bi-puzzle" : "bi-journal"}`}></i>
                             {item.isPublic ? "(Public)" : "(Yours)"}
                           </span>
