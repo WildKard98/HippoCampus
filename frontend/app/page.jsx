@@ -57,6 +57,10 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRef = useRef();
+
+
   const toggleStar = async (term, setId) => {
     const username = localStorage.getItem("username");
     if (!username || !setId) return;
@@ -264,6 +268,20 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setSearchResults([]); // Hide dropdown
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -317,9 +335,9 @@ export default function Home() {
 
             {/* Middle: Search Bar */}
             {screenWidth >= 660 && (
-              <div className="flex-1 max-w-[400px] p-4">
+              <div className="flex-1 max-w-[800px] p-4" ref={searchRef}>
                 <div className="relative w-full">
-                  <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
+                  <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white pt-1/2"></i>
                   <input
 
                     type="text"
@@ -330,8 +348,11 @@ export default function Home() {
 
                       if (value.trim() === "") {
                         setSearchResults([]);
+                        setIsSearching(false);
                         return;
                       }
+
+                      setIsSearching(true); // ⏳ Start loading
 
                       const lower = value.toLowerCase();
 
@@ -342,13 +363,16 @@ export default function Home() {
                         ...publicPuzzleSets.filter(s => s.title.toLowerCase().includes(lower)).map(s => ({ ...s, type: "puzzle", isPublic: true }))
                       ];
 
-                      setSearchResults(results.slice(0, 10)); // limit max 10 results
+                      setTimeout(() => { // fake delay for UX smoothing (optional)
+                        setSearchResults(results.slice(0, 10));
+                        setIsSearching(false); // ✅ Done loading
+                      }, 300);
                     }}
                     placeholder={t.searchbar}
-                    className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-3xl w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff] transition"
+                    className="bg-black text-white placeholder-white px-10 py-2 rounded-2xl w-full border border-white focus:outline-none focus:ring-2 focus:ring-white transition"
                   />
                   {searchResults.length > 0 && (
-                    <div className="absolute top-full mt-1 bg-black border border-[#00e0ff] rounded-2xl w-full z-50 shadow-lg">
+                    <div className="absolute top-full mt-1 bg-black border border-white rounded-2xl w-full z-50 shadow-lg">
                       {searchResults.map((item, idx) => (
                         <div
                           key={idx}
@@ -367,9 +391,9 @@ export default function Home() {
                               setShowGenerator("play");        // ✅ Required if you want puzzle viewer
                             }
                           }}
-                          className="px-4 py-2 hover:bg-[#00e0ff] hover:text-black cursor-pointer flex justify-between items-center"
+                          className="px-4 py-2 hover:bg-[#00e0ff] hover:text-black cursor-pointer flex rounded-2xl justify-between items-center"
                         >
-                          <span className="font-bold">{item.title}</span>
+                          <span className="font-bold text-white">{item.title}</span>
                           <span className="flex items-center gap-2 text-sm text-[#ffaa33]">
                             <i className={`bi ${item.type === "puzzle" ? "bi-puzzle" : "bi-journal"}`}></i>
                             {item.isPublic ? "(Public)" : "(Yours)"}
@@ -507,21 +531,86 @@ export default function Home() {
             </div>
 
             {/* Search bar adjusts when screen width < 620px */}
-            {screenWidth < 660 && (
-              <div className="w-full flex justify-center px-3 pb-3">
+            {screenWidth <= 660 && (
+              <div className="w-full flex justify-center px-3 pb-3" ref={searchRef}>
                 <div className="relative w-full max-w-none">
-                  <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00e0ff]"></i>
+                  <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white pt-1/2"></i>
                   <input
                     type="text"
                     placeholder={t.searchbar}
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-black text-[#00e0ff] placeholder-[#00e0ff] px-10 py-2 rounded-2xl w-full border border-[#00e0ff] focus:outline-none focus:ring-2 focus:ring-[#00e0ff]"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSearchTerm(value);
+
+                      if (value.trim() === "") {
+                        setSearchResults([]);
+                        setIsSearching(false);
+                        return;
+                      }
+
+                      setIsSearching(true);
+
+                      const lower = value.toLowerCase();
+                      const results = [
+                        ...studySets.filter(s => s.title.toLowerCase().includes(lower)).map(s => ({ ...s, type: "study", isPublic: false })),
+                        ...puzzleSets.filter(s => s.title.toLowerCase().includes(lower)).map(s => ({ ...s, type: "puzzle", isPublic: false })),
+                        ...publicSets.filter(s => s.title.toLowerCase().includes(lower)).map(s => ({ ...s, type: "study", isPublic: true })),
+                        ...publicPuzzleSets.filter(s => s.title.toLowerCase().includes(lower)).map(s => ({ ...s, type: "puzzle", isPublic: true }))
+                      ];
+
+                      setTimeout(() => {
+                        setSearchResults(results.slice(0, 10));
+                        setIsSearching(false);
+                      }, 300);
+                    }}
+                    className="bg-black text-white placeholder-white px-10 py-2 rounded-2xl w-full border border-white focus:outline-none focus:ring-2 focus:ring-white"
                   />
 
+                  {/* 🔄 Spinner */}
+                  {isSearching && (
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                      <i className="bi bi-arrow-repeat animate-spin text-[#00e0ff] text-xl"></i>
+                    </div>
+                  )}
+
+                  {/* 🔽 Results Dropdown */}
+                  {searchResults.length > 0 && (
+                    <div className="absolute top-full mt-1 w-full z-50 border border-white rounded-2xl shadow-lg
+                   bg-black/90 backdrop-blur-md">
+                      {searchResults.map((item, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => {
+                            setSearchTerm("");
+                            setSearchResults([]);
+                            if (item.type === "study") {
+                              setIsCreatingSet("library");
+                              setSelectedSet(item);
+                              setIsHome(false);
+                            } else {
+                              setIsCreatePuzzle(true);
+                              setSelectedSet(null);
+                              setSelectedPuzzle(item);
+                              setShowGenerator("play");
+                            }
+                          }}
+                          className="px-4 py-2 hover:bg-[#00e0ff] rounded-2xl hover:text-black cursor-pointer flex justify-between items-center"
+                        >
+                          <span className="font-bold text-white">{item.title}</span>
+                          <span className="flex items-center gap-2 text-sm text-[#ffaa33]">
+                            <i className={`bi ${item.type === "puzzle" ? "bi-puzzle" : "bi-journal"}`}></i>
+                            {item.isPublic ? "(Public)" : "(Yours)"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
+
+
           </header>
 
 
@@ -896,8 +985,8 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
     <section>
       <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.recentfile}</h2>
       {isLoadingSets ? (
-        <div className="text-center py-10 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] animate-pulse">
-          {t.loadingsets || "Loading study sets..."}
+        <div className="flex justify-center items-center py-10">
+          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
         </div>
       ) : studySets.length > 0 ? (
         <div className="flex flex-col gap-4"> {/* 🔥 Add this flex column with gap */}
@@ -931,8 +1020,8 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
       {/* 🟡 Public Sets Section */}
       <h2 className="text-lg font-semibold mt-10 mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.otherpeopleset}</h2>
       {isLoadingSets ? (
-        <div className="text-center py-10 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] animate-pulse">
-          {t.loadingsets || "Loading study sets..."}
+        <div className="flex justify-center items-center py-10">
+          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
         </div>
       ) : publicSets.length > 0 ? (
         <div className="flex flex-col gap-4">

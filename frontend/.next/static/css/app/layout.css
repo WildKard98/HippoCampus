@@ -726,6 +726,9 @@
   .max-w-\[750px\] {
     max-width: 750px;
   }
+  .max-w-\[800px\] {
+    max-width: 800px;
+  }
   .max-w-\[1500px\] {
     max-width: 1500px;
   }
@@ -1009,8 +1012,20 @@
   .bg-black {
     background-color: var(--color-black);
   }
+  .bg-black\/30 {
+    background-color: color-mix(in oklab, var(--color-black) 30%, transparent);
+  }
   .bg-black\/50 {
     background-color: color-mix(in oklab, var(--color-black) 50%, transparent);
+  }
+  .bg-black\/70 {
+    background-color: color-mix(in oklab, var(--color-black) 70%, transparent);
+  }
+  .bg-black\/80 {
+    background-color: color-mix(in oklab, var(--color-black) 80%, transparent);
+  }
+  .bg-black\/90 {
+    background-color: color-mix(in oklab, var(--color-black) 90%, transparent);
   }
   .bg-green-600 {
     background-color: var(--color-green-600);
@@ -1100,6 +1115,9 @@
   }
   .py-10 {
     padding-block: calc(var(--spacing) * 10);
+  }
+  .pt-1 {
+    padding-top: calc(var(--spacing) * 1);
   }
   .pt-\[88px\] {
     padding-top: 88px;
@@ -1741,6 +1759,11 @@
   .focus\:ring-\[\#00e0ff\] {
     &:focus {
       --tw-ring-color: #00e0ff;
+    }
+  }
+  .focus\:ring-white {
+    &:focus {
+      --tw-ring-color: var(--color-white);
     }
   }
   .focus\:outline-\[\#00e0ff\] {
