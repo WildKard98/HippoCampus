@@ -1020,6 +1020,30 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
 
   // If a set is selected, show flashcard review instead of library
   if (selectedSet) {
+    // Check if it's a puzzle set (you can use a flag or fallback to .terms + title structure)
+    const isPuzzle = puzzleSets.some(p => p._id === selectedSet._id);
+  
+    if (isPuzzle) {
+      return (
+        <GeneratePuzzle
+          t={t}
+          screenWidth={screenWidth}
+          onBack={() => {
+            setSelectedSet(null);
+            setIsHome(true);
+          }}
+          existingSet={selectedSet} // ⬅️ Pass the puzzle to pre-fill fields
+          onSaveStudySet={(updatedSet) => {
+            const updated = puzzleSets.map(p =>
+              p._id === updatedSet._id ? updatedSet : p
+            );
+            setPuzzleSets(updated);
+            setSelectedSet(null);
+            setIsHome(true);
+          }}
+        />
+      );
+    }
     return (
       <FlashcardReview
         t={t}
@@ -1156,10 +1180,10 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
               <div className="flex items-center gap-1 ml-auto text-xl">
                 <i
                   className={`bi ${puzzleSet.likes?.length > 0
-                    ? "bi-heart-fill text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
-                    : "bi-heart text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
+                    ? "bi-puzzle-fill text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
+                    : "bi-puzzle text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
                     }`}
-                  style={{ paddingTop: "2px" }}
+                  style={{ paddingTop: "1px" }}
                 ></i>
                 <span className="text-xs text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">
                   {puzzleSet.likes?.length || 0}
@@ -1440,7 +1464,7 @@ function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showG
               >
                 <div
                   className={`flex items-center justify-center rounded-full p-2 border-2 ${publicPuzzleSet.likes && publicPuzzleSet.likes.includes(username)
-                    ? "border-red-500"
+                    ? "border-green-500"
                     : "border-[#ff7700]"
                     } ${clickedHeartId === publicPuzzleSet._id ? "scale-125" : "scale-100"} 
     transition-transform duration-200`}
@@ -1451,17 +1475,17 @@ function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showG
                 >
                   <i
                     className={`bi ${publicPuzzleSet.likes && publicPuzzleSet.likes.includes(username)
-                      ? "bi-heart-fill text-red-500 drop-shadow-[0_0_8px_red]"
-                      : "bi-heart text-[#ff7700]"
+                      ? "bi-puzzle-fill text-green-500 drop-shadow-[0_0_8px_green]"
+                      : "bi-puzzle text-[#ff7700]"
                       }`}
                     style={{
-                      paddingTop: "3px",
+                      paddingTop: "2px",
                     }}
                   ></i>
                 </div>
                 <span
                   className={`text-sm ${publicPuzzleSet.likes && publicPuzzleSet.likes.includes(username)
-                    ? "text-red-500"
+                    ? "text-green-500"
                     : "text-[#ff7700]"
                     }`}
                 >

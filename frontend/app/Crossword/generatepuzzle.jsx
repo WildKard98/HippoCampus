@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createPuzzleSet } from "../api";
 import { generatePuzzle } from "../api";
 
-export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t }) {
+export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t, existingSet }) {
     const [puzzleTitle, setPuzzleTitle] = React.useState("");
     const [question, setQuestion] = React.useState("");
     const [answer, setAnswer] = React.useState("");
@@ -13,8 +13,8 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
     const [editQuestion, setEditQuestion] = useState("");
     const [editingIndex, setEditingIndex] = useState(null); // Index of the QnA being edited
     const [isEditing, setIsEditing] = useState(false);
-    const MAX_WORDS = 20; // or any number you feel is good
-    const MAX_LETTERS = 15; // or whatever max you want
+    const MAX_WORDS = 30; // or any number you feel is good
+    const MAX_LETTERS = 30; // or whatever max you want
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001"; // add this at top if not exist
     const [showAiModal, setShowAiModal] = useState(false);
     const [aiPrompt, setAiPrompt] = useState(""); // user input
@@ -22,6 +22,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
     const [isGenerating, setIsGenerating] = useState(false);
     const [termLanguage, setTermLanguage] = useState("English");
     const [definitionLanguage, setDefinitionLanguage] = useState("English");
+    const [errorMsg, setErrorMsg] = useState("");
 
 
     // Open the edit modal
@@ -93,12 +94,18 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                 const data = await generatePuzzle(
                     qnaList.map(qna => ({
                         question: qna.question,
-                        answer: qna.answer.replace(/\s+/g, "").toUpperCase()
+                        answer: qna.answer
+                            .normalize("NFD")                // Break letters into base + accents
+                            .replace(/[\u0300-\u036f]/g, "") // Remove accents
+                            .replace(/đ/g, "d")              // Lowercase đ → d
+                            .replace(/Đ/g, "D")              // Uppercase Đ → D
+                            .replace(/[^a-zA-Z0-9]/g, "")    // Remove everything except letters & numbers
+                            .toUpperCase()
                     }))
                 );
                 setGrid(data.grid);
                 setPlacedWords(data.placedWords);
-    
+
                 // 📦 Auto scroll to center
                 if (containerRef.current) {
                     const container = containerRef.current;
@@ -111,10 +118,22 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                 console.error("Failed to generate puzzle:", error);
             }
         };
-    
+
         generate();
     }, [qnaList]);
-    
+
+    useEffect(() => {
+        if (existingSet) {
+            setPuzzleTitle(existingSet.title || "");
+            setQnaList(
+                (existingSet.terms || []).map(item => ({
+                    question: item.definition,
+                    answer: item.term.toUpperCase()
+                }))
+            );
+        }
+    }, [existingSet]);
+
 
 
     return (
@@ -200,13 +219,15 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                             <button
                                 onClick={async () => {
                                     if (!puzzleTitle.trim()) {
-                                        alert("Please enter a title before saving.");
+                                        setErrorMsg("Please enter a title before saving.");
                                         return;
                                     }
                                     if (qnaList.length === 0) {
-                                        alert("Add at least one question & answer.");
+                                        setErrorMsg("Add at least one question & answer.");
                                         return;
                                     }
+                                    setErrorMsg(""); // clear on success
+
 
                                     const newPuzzleSet = {
                                         username: localStorage.getItem('username'),
@@ -227,7 +248,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                                         if (onBack) onBack();
                                     } catch (error) {
                                         console.error(error);
-                                        alert("Error saving puzzle set. Try again later.");
+                                        setErrorMsg("Error saving puzzle set. Try again later.");
                                     }
                                 }}
 
@@ -236,6 +257,10 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                             >
                                 {t.createbtn}
                             </button>
+                            {errorMsg && (
+                                <p className="text-red-500 text-sm mt-2 text-center">{errorMsg}</p>
+                            )}
+
 
                         </div>
 
@@ -488,7 +513,7 @@ export default function GeneratePuzzle({ screenWidth, onBack, onSaveStudySet, t 
                             </button>
 
                             {/* Title */}
-                            <h2 className="text-2xl font-bold mb-4 text-white drop-shadow-[0_0_8px_white]">{t.aicreate}</h2>
+                            <h2 className="text-2xl font-bold mb-4 text-white drop-shadow-[0_0_8px_white]">{t.aipuzzlecreate}</h2>
 
                             {/* Topic Input */}
                             <label className="block mb-2 text-[#00e0ff]">{t.topic}</label>

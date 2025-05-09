@@ -55,7 +55,8 @@ export const translations = {
 
         // AI feature
         askai: "Ask AI",
-        aicreate: "Create a set by AI",
+        aicreate: "Create your study set",
+        aipuzzlecreate: "Create your puzzle",
         topic: "Topic",
         topiceg: "e.g., brands, famous singers, planets",
         numterm: "Number of Terms",
@@ -183,7 +184,8 @@ export const translations = {
 
         // AI feature
         askai: "Hỏi AI",
-        aicreate: "Tạo danh sách bằng AI",
+        aicreate: "Tạo danh sách ",
+        aipuzzlecreate: "Tạo câu đố ",
         topic: "Chủ đề",
         topiceg: "ví dụ: thương hiệu, ca sĩ nổi tiếng, hành tinh",
         numterm: "Số lượng thuật ngữ",

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const StudySet = require('../models/StudySet');
+const User = require('../models/User')
 
 // GET all public study sets
 router.get('/public', async (req, res) => {
@@ -95,13 +96,24 @@ router.put('/:id', async (req, res) => {
 
 
 
-// DELETE a study set
+// DELETE a study set and clean up starred terms
 router.delete('/:id', async (req, res) => {
     try {
-        await StudySet.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Study set deleted' });
+        const setId = req.params.id;
+
+        // 1. Delete the set
+        await StudySet.findByIdAndDelete(setId);
+
+        // 2. Remove all starred terms pointing to this set
+        await User.updateMany(
+            {},
+            { $pull: { starredTerms: { setId } } }
+        );
+
+        res.json({ message: "Study set and related starred terms removed." });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to delete study set' });
+        console.error("❌ Failed to delete study set:", error);
+        res.status(500).json({ error: "Failed to delete study set." });
     }
 });
 
