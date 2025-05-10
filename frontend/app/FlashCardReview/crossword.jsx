@@ -24,6 +24,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
     const inputRefs = React.useRef({});
     const [activeClueText, setActiveClueText] = useState(null);
     const [activeClueCell, setActiveClueCell] = useState(null); // { row, col }
+    const [hasCenteredOnce, setHasCenteredOnce] = useState(false);
 
     // Get clue number for a specific grid cell
     const getClueNumber = (row, col) => {
@@ -111,18 +112,23 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
                 setScale(1.33);
             }
     
-            if (containerRef.current) {
-                const container = containerRef.current;
-                setTimeout(() => {
-                    container.scrollLeft = container.scrollWidth / 2 - container.clientWidth / 2;
-                    container.scrollTop = container.scrollHeight / 2 - container.clientHeight / 2;
-                }, 50);
-            }
         };
     
         generate();
     }, [studySet]);
     
+    useEffect(() => {
+        if (!containerRef.current || grid.length === 0 || hasCenteredOnce) return;
+      
+        // Wait until DOM finishes rendering the grid
+        requestAnimationFrame(() => {
+          const container = containerRef.current;
+          container.scrollLeft = container.scrollWidth / 2 - container.clientWidth / 2;
+          container.scrollTop = container.scrollHeight / 2 - container.clientHeight / 2;
+          setHasCenteredOnce(true); // prevent it from running again
+        });
+      }, [grid, hasCenteredOnce]);
+      
 
     const handleWheel = (e) => {
         if (containerRef.current?.contains(e.target)) {

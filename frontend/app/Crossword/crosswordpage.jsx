@@ -25,6 +25,7 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
     const inputRefs = React.useRef({});
     const [activeClueText, setActiveClueText] = useState(null);
     const [activeClueCell, setActiveClueCell] = useState(null); // { row, col }
+    const [hasCenteredOnce, setHasCenteredOnce] = useState(false);
 
     // Get clue number for a specific grid cell
     const getClueNumber = (row, col) => {
@@ -109,18 +110,23 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                 setScale(1.33); // ensure puzzle scale is good for mobile input
             }
 
-            // 📦 Auto scroll to center
-            if (containerRef.current) {
-                const container = containerRef.current;
-                setTimeout(() => {
-                    container.scrollLeft = container.scrollWidth / 2 - container.clientWidth / 2;
-                    container.scrollTop = container.scrollHeight / 2 - container.clientHeight / 2;
-                }, 50);
-            }
         };
 
         generate();
     }, [puzzleSet]);
+
+    // 👇 Center scroll only once after puzzle is ready
+    useEffect(() => {
+        if (!containerRef.current || grid.length === 0 || hasCenteredOnce) return;
+
+        requestAnimationFrame(() => {
+            const container = containerRef.current;
+            container.scrollLeft = container.scrollWidth / 2 - container.clientWidth / 2;
+            container.scrollTop = container.scrollHeight / 2 - container.clientHeight / 2;
+            setHasCenteredOnce(true);
+        });
+    }, [grid, hasCenteredOnce]);
+
 
     const handleWheel = (e) => {
         if (containerRef.current?.contains(e.target)) {
