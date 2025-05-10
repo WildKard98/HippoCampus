@@ -167,14 +167,14 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
     return (
         <div className="text-white font-[Itim]">
             {/* Matching Test Title & Back Button */}
-            <div className={`flex justify-between items-center py-5 ${screenWidth <= 1000 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h2 className="text-xl text-[#00e0ff] font-bold">
+            <div className={`flex justify-between items-center py-5 ${screenWidth <= 1000 ? "w-full" : "w-[70%] ml-0"}`}>
+                <h3 className="text-xl text-[#00e0ff] font-bold">
                     {t.puzzle}
-                </h2>
+                </h3>
 
                 <button
-                    className="w-[120px] px-4 py-2 text-sm rounded-3xl border border-white text-white transition duration-300 
-                         hover:bg-white hover:text-black "
+                    className="w-[120px] px-4 py-2 text-sm rounded-3xl border-2 border-[#ff7700] text-[#ff7700] transition duration-300 
+                         hover:bg-[#ff7700] hover:text-black "
                     onClick={onBack}
                 >
                     {t.backbtn}
@@ -182,7 +182,7 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
             </div>
             {/* Puzzle look */}
 
-            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 1000 ? "w-full" : "w-[60%]"}`}>
+            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 1000 ? "w-full" : "w-[70%]"}`}>
                 {/* ✅ highlight is now scoped inside the render and updates correctly */}
                 {isLoading && (
                     <div className="flex justify-center items-center h-[200px]">
@@ -522,8 +522,8 @@ export default function CrosswordPuzzle({ screenWidth, onBack, studySet, t }) {
             </div>
             <button
                 onClick={() => checkAnswers()}
-                className="mt-4 px-6 py-2 rounded-3xl border border-white text-white transition duration-300 
-             hover:bg-white hover:text-black"
+                className="mt-4 px-6 py-2 rounded-3xl border-2 border-[#ff7700] text-[#ff7700] transition duration-300 
+             hover:bg-[#ff7700] hover:text-black"
             >
                 {t.checkanswer}
             </button>

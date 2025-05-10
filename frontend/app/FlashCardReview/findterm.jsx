@@ -44,28 +44,28 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth, t }) 
     return (
         <div className="flex flex-col text-white">
             {/* Title & Back Button */}
-            <div className={`flex justify-between items-center py-5 ${screenWidth <= 1000 ? "w-full" : "w-[60%] ml-0"}`}>
+            <div className={`flex justify-between items-center py-5 ${screenWidth <= 1000 ? "w-full" : "w-[70%] ml-0"}`}>
                 <h3 className="text-xl text-[#00e0ff]">
                     {t.fillIn}
                 </h3>
 
                 <button
-                    className="w-[120px] px-4 py-2 text-sm rounded-3xl border border-white text-white hover:bg-white hover:text-black transition duration-300"
+                    className="w-[120px] px-4 py-2 text-sm rounded-3xl border-2 border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black transition duration-300"
                     onClick={() => setShowFillTest(false)}
                 >
                     {t.backbtn}
                 </button>
             </div>
 
-            <div className={`flex flex-col gap-2 mb-2 ${screenWidth <= 1000 ? "w-full " : "w-[60%]"}`}>
+            <div className={`flex flex-col gap-2 mb-2 ${screenWidth <= 1000 ? "w-full " : "w-[70%]"}`}>
                 {studySet.terms.map((item, index) => (
                     <div
                         key={index}
                         ref={(el) => (hintRefs.current[index] = el)}
                         className={`p-4 rounded-3xl flex items-center justify-between mb-2 transition duration-300
                         ${answers[`correct-${index}`]
-                                ? "bg-black p-4 rounded-3xl flex items-center justify-between border border-[#00ff88] mb-2"
-                                : "bg-black p-4 rounded-3xl flex items-center justify-between border border-[#00e0ff] mb-2"
+                                ? "bg-black p-4 rounded-3xl flex items-center justify-between border-2 border-[#00ff88] mb-2"
+                                : "bg-black p-4 rounded-3xl flex items-center justify-between border-2 border-[#00e0ff] mb-2"
                             }`}
                     >
 
@@ -144,8 +144,8 @@ export default function Findterm({ studySet, setShowFillTest, screenWidth, t }) 
                 <button
                     className={`mt-6 px-6 py-2 rounded-3xl transition duration-300 font-semibold
                               ${allCorrect
-                            ? "bg-[#105422] text-[#00ff88] border border-[#00ff88] hover:bg-[#0D3B1E]"
-                            : "bg-black text-white border border-white hover:bg-white hover:text-black"}
+                            ? "bg-[#105422] text-[#00ff88] border-2 border-[#00ff88] hover:bg-[#0D3B1E]"
+                            : "bg-black text-[#ff7700] border-2 border-[#ff7700] hover:bg-[#ff7700] hover:text-black"}
                              `}
                     onClick={() => setAnswers({})} // ✅ Reset all inputs
                 >

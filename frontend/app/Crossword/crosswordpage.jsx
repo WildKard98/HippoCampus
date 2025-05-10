@@ -165,7 +165,7 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
     return (
         <div className="text-white font-[Itim]">
             {/*Title & Back Button */}
-            <div className={`flex justify-between items-center py-5 ${screenWidth <= 1000 ? "w-full" : "w-[60%] ml-0"}`}>
+            <div className={`flex justify-between items-center py-5 ${screenWidth <= 1000 ? "w-full" : "w-[80%] ml-0"}`}>
                 <h2 className="text-3xl font-semibold text-left text-[#ff7700] ">
                     {puzzleSet.title}
                 </h2>
@@ -181,7 +181,7 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
 
             {/* Puzzle look */}
 
-            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 1000 ? "w-full" : "w-[60%]"}`}>
+            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 1000 ? "w-full" : "w-[80%]"}`}>
                 {/* ✅ highlight is now scoped inside the render and updates correctly */}
                 {isLoading && (
                     <div className="flex justify-center items-center h-[200px]">

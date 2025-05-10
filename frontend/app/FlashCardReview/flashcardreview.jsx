@@ -5,7 +5,7 @@ import MatchingCard from "./matchingcard";
 import Findterm from "./findterm";
 import CrosswordPuzzle from "./crossword";
 
-export default function FlashcardReview({ setShowNeedLogin, setStudySets, studySets, studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setSelectedSet, t }) {
+export default function FlashcardReview({ needLogin, setStudySets, studySets, studySet, onExit, screenWidth, starredTerms, toggleStar, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, setSelectedSet, t }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [flipped, setFlipped] = useState(false);
     const [editTerm, setEditTerm] = useState("");
@@ -69,37 +69,35 @@ export default function FlashcardReview({ setShowNeedLogin, setStudySets, studyS
     };
 
     const handleCopySet = async () => {
-        try {
-            const username = localStorage.getItem("username");
-            if (!username) {
-                setShowNeedLogin(true);
-                return;
+        needLogin(async () => {
+            try {
+                const username = localStorage.getItem("username");
+
+                const copiedSet = {
+                    username,
+                    title: studySet.title + " (Copy)",
+                    description: studySet.description,
+                    terms: studySet.terms.map(term => ({
+                        term: term.term,
+                        definition: term.definition
+                    })),
+                    isPrivate: "Copy"
+                };
+
+                const response = await createStudySet(copiedSet);
+                console.log("✅ Copied set:", response);
+
+                const updatedSets = await getStudySets(username);
+                setStudySets(updatedSets);
+
+                setCopySuccess(true);
+            } catch (error) {
+                console.error("❌ Failed to copy set:", error);
+                setCopyError(true);
             }
-
-            const copiedSet = {
-                username,
-                title: studySet.title + " (Copy)",
-                description: studySet.description,
-                terms: studySet.terms.map(term => ({
-                    term: term.term,
-                    definition: term.definition
-                })),
-                isPrivate: "Copy"
-            };
-
-            const response = await createStudySet(copiedSet);
-            console.log("✅ Copied set:", response);
-
-            // 🛠️ After copying, refresh your library
-            const updatedSets = await getStudySets(username);
-            setStudySets(updatedSets); // 🔥 update instantly!
-
-            setCopySuccess(true); // show popup
-        } catch (error) {
-            console.error("❌ Failed to copy set:", error);
-            setCopyError(true);
-        }
+        });
     };
+
 
     return (
         <div className="flex flex-1">
@@ -146,7 +144,7 @@ export default function FlashcardReview({ setShowNeedLogin, setStudySets, studyS
                     </div>
                 )}
 
-                <div className={`flex items-center justify-between mb-6 ${screenWidth > 1000 ? "w-[60%]" : "w-full"}`}>
+                <div className={`flex items-center justify-between mb-6 ${screenWidth > 1000 ? "w-[80%]" : "w-full"}`}>
                     <h2 className="text-3xl px-2 font-semibold text-left text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">
                         {studySet.title}
                     </h2>
@@ -191,7 +189,7 @@ export default function FlashcardReview({ setShowNeedLogin, setStudySets, studyS
                     <div className={`flex flex-col ${screenWidth > 1000 ? "items-start" : "items-center"} w-full`}>
 
                         {/* Mode Selection Buttons - Now Inside the Flashcard Layout */}
-                        <div className={`flex gap-4 mb-4 ${screenWidth > 1000 ? "w-[60%]" : "w-full"} `}>
+                        <div className={`flex gap-4 mb-4 ${screenWidth > 1000 ? "w-[80%]" : "w-full"} `}>
                             <button
                                 onClick={() => setShowMatchingTest(true)}
                                 className="flex-1 px-4 py-2 bg-[#1a2e30] text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]  rounded-3xl transition duration-300 hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
@@ -214,7 +212,7 @@ export default function FlashcardReview({ setShowNeedLogin, setStudySets, studyS
 
 
                         {/* Loop Test Button - Also Inside for Consistent Alignment */}
-                        <div className={`mb-4 ${screenWidth > 1000 ? "w-[60%]" : "w-full"}`}>
+                        <div className={`mb-4 ${screenWidth > 1000 ? "w-[80%]" : "w-full"}`}>
                             <button className="w-full px-4 py-2 bg-[#1a2e30] text-[#00e0ff] border border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]  rounded-3xl hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] flex items-center justify-center gap-2 transition duration-300">
                                 <i className="bi bi-arrow-repeat"></i> {t.loopTest}
                             </button>
@@ -238,7 +236,7 @@ export default function FlashcardReview({ setShowNeedLogin, setStudySets, studyS
                       ${starredTerms[studySet.terms[currentIndex].term]
                                             ? "bg-[#45311f] border-2 border-[#ff7700] "
                                             : "bg-[#474747] border-2 border-white "}
-                      ${screenWidth <= 1000 ? "w-full mx-auto" : "w-[60%] ml-0"}`}
+                      ${screenWidth <= 1000 ? "w-full mx-auto" : "w-[80%] ml-0"}`}
 
                                     onClick={() => setFlipped(!flipped)}
                                     initial={{ rotateX: 0 }}
@@ -332,7 +330,7 @@ export default function FlashcardReview({ setShowNeedLogin, setStudySets, studyS
                         </AnimatePresence>
 
                         {/* Smooth Scroll Slider to Flip Cards Like Chapters */}
-                        <div className="flex w-[60%]">
+                        <div className="flex w-[80%]">
                             <div className={`flex items-center gap-4 mt-6 ${screenWidth > 1000 ? "w-[240px] mx-auto justify-center" : "w-[240px] mx-auto justify-center"}`}>
                                 <input
                                     type="range"
@@ -362,7 +360,7 @@ export default function FlashcardReview({ setShowNeedLogin, setStudySets, studyS
 
                         {/* Navigation Buttons - Centered Under Flashcard */}
                         <div className="flex w-full mt-4">
-                            <div className={`flex items-center gap-4 ${screenWidth > 1000 ? "flex justify-center w-[60%]" : "w-full justify-center"}`}>
+                            <div className={`flex items-center gap-4 ${screenWidth > 1000 ? "flex justify-center w-[80%]" : "w-full justify-center"}`}>
                                 <button
                                     onClick={prevCard}
                                     className="w-[85px] h-[45px] bg-black text-white border-2 border-white rounded-[35px] text-4xl flex items-center justify-center transition duration-300 hover:bg-white hover:text-black shadow-[0_0_12px_white]"
@@ -384,10 +382,10 @@ export default function FlashcardReview({ setShowNeedLogin, setStudySets, studyS
                         </div>
 
                         {/* Neon Blue Line */}
-                        <div className={`mt-6 h-[2px] bg-[#00e0ff] ${screenWidth <= 1000 ? "w-full" : "w-[60%] ml-0"}`}></div>
+                        <div className={`mt-6 h-[2px] bg-[#00e0ff] ${screenWidth <= 1000 ? "w-full" : "w-[80%] ml-0"}`}></div>
 
                         {/* Term List Below Flashcard */}
-                        <div className={`mt-4 ${screenWidth > 1000 ? "w-[60%]" : "w-full"}`}>
+                        <div className={`mt-4 ${screenWidth > 1000 ? "w-[80%]" : "w-full"}`}>
                             <h3 className="text-lg text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold mb-2">{t.terminset} ({studySet.terms.length})</h3>
 
                             <div className="flex flex-col gap-2">

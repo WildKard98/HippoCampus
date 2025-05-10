@@ -64,14 +64,14 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
         <div className="flex flex-col text-white">
 
             {/* Matching Test Title & Back Button */}
-            <div className={`flex justify-between items-center py-2 ${screenWidth <= 1000 ? "w-full" : "w-[60%] ml-0"}`}>
+            <div className={`flex justify-between items-center py-2 ${screenWidth <= 1000 ? "w-full" : "w-[70%] ml-0"}`}>
                 <h3 className="text-xl text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff] font-bold">
                     {t.matchingcard}
                 </h3>
 
                 <button
-                    className="w-[120px] px-4 py-2 text-sm rounded-3xl border border-2 border-white shadow-[0_0_20px_white] text-white transition duration-300 
-                     hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
+                    className="w-[120px] px-4 py-2 text-sm rounded-3xl border border-2 border-[#ff7700] text-[#ff7700] transition duration-300 
+                     hover:bg-[#ff7700] hover:text-black "
                     onClick={() => setShowMatchingTest(false)}
                 >
                     {t.backbtn}
@@ -79,7 +79,7 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
             </div>
 
             {/* Section for displaying matched pairs below the title */}
-            <div className={`flex flex-col gap-2 mb-3 ${screenWidth <= 1000 ? "w-full " : "w-[60%]"}`}>
+            <div className={`flex flex-col gap-2 mb-3 ${screenWidth <= 1000 ? "w-full " : "w-[70%]"}`}>
                 {matchedPairs.map((pair, index) => (
                     <div
                         key={index}
@@ -114,7 +114,7 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
 
 
             {/* Matching Test Layout */}
-            <div className={`grid ${screenWidth <= 1000 ? "grid-cols-[30%_70%] w-full" : "grid-cols-[35%_65%] w-[60%]"} gap-3 pr-3`}>
+            <div className={`grid ${screenWidth <= 1000 ? "grid-cols-[30%_70%] w-full" : "grid-cols-[35%_65%] w-[70%]"} gap-3 pr-3`}>
                 {studySet.terms
                     .filter(item => !matchedPairs.some(pair => pair.term === item.term))
                     .map((item, index) => {

@@ -59,6 +59,8 @@ export default function Home() {
   const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const searchRef = useRef();
+  const [refreshStudyFlag, setRefreshStudyFlag] = useState(false);
+  const [refreshPuzzleFlag, setRefreshPuzzleFlag] = useState(false);
 
 
   const toggleStar = async (term, setId) => {
@@ -280,6 +282,15 @@ export default function Home() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const username = localStorage.getItem("username");
+    if (username) {
+      getPuzzleSets(username)
+        .then((sets) => setPuzzleSets(sets))
+        .catch((err) => console.error('❌ Failed to refresh puzzle sets:', err));
+    }
+  }, [refreshPuzzleFlag]);
 
 
 
@@ -776,7 +787,13 @@ export default function Home() {
                     toggleStar={toggleStar}
                     puzzleSets={puzzleSets}
                     setPuzzleSets={setPuzzleSets}
-                    setShowNeedLogin={setShowNeedLogin}
+                    needLogin={needLogin}
+                    isLoadingSets={isLoadingSets}
+                    refreshPuzzleFlag={refreshPuzzleFlag}
+                    setRefreshPuzzleFlag={setRefreshPuzzleFlag}
+                    setPublicPuzzleSets={setPublicPuzzleSets}
+                    setPublicSets={setPublicSets}
+
                   />
                 ) : isEditingSet ? (
                   <EditSet
@@ -847,6 +864,8 @@ export default function Home() {
                       puzzleSets={puzzleSets}
                       setPuzzleSets={setPuzzleSets}
                       setIsHome={setIsHome}
+                      isLoadingSets={isLoadingSets}
+                      refreshPuzzleFlag={refreshPuzzleFlag}
                     />
                   ) : (
                     <PuzzlePage
@@ -863,6 +882,8 @@ export default function Home() {
                       puzzleSets={puzzleSets}
                       setPuzzleSets={setPuzzleSets}
                       setIsHome={setIsHome}
+                      isLoadingSets={isLoadingSets}
+                      refreshPuzzleFlag={refreshPuzzleFlag}
                     />
 
                   )
@@ -962,7 +983,21 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
   const [clickedHeartId, setClickedHeartId] = useState(null);
 
-  // Toggle star for terms, syncing with flashcard & list
+  useEffect(() => {
+    async function refreshSets() {
+      try {
+        const username = localStorage.getItem("username");
+        if (username) {
+          const updated = await getStudySets(username);
+          setStudySets(updated);
+        }
+      } catch (err) {
+        console.error("❌ Failed to refresh study sets:", err);
+      }
+    }
+    refreshSets();
+  }, []); // run once when HomeContent mounts
+
 
   // If a set is selected, show flashcard review instead of library
   if (selectedSet) {
@@ -980,6 +1015,7 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
         setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
         setIsCreatingSet={setIsCreatingSet}
         setStudySets={setStudySets}
+        needLogin={needLogin}
       />
     );
   }
@@ -1111,68 +1147,85 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
 
 
 
-function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets, setPuzzleSets, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, setStudySets, t }) {
+function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag, setRefreshPuzzleFlag, isLoadingSets, needLogin, starredTerms, toggleStar, puzzleSets, setPuzzleSets, studySets, screenWidth, isEditing, setIsEditing, setIsEditingSet, setIsCreatingSet, selectedSet, setSelectedSet, setIsHome, setStudySets, t }) {
   const [isManaging, setIsManaging] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
   const togglePrivatePublic = async (index) => {
     try {
       const updatedSets = [...studySets];
-
-      // Switch between "Private" and "Public"
       updatedSets[index].isPrivate = updatedSets[index].isPrivate === "Private" ? "Public" : "Private";
-      setStudySets(updatedSets); // 🔥 Instant frontend update
-      const studySet = updatedSets[index];
-      const payload = {
-        isPrivate: studySet.isPrivate,
-      };
-      const response = await updateStudySet(studySet._id, payload);
+      setStudySets(updatedSets);
 
+      const studySet = updatedSets[index];
+      const payload = { isPrivate: studySet.isPrivate };
+      await updateStudySet(studySet._id, payload);
+
+      // ✅ Re-fetch public sets
+      const updatedPublicSets = await getPublicSets();
+      setPublicSets(updatedPublicSets);
     } catch (error) {
       console.error("❌ Failed to update isPrivate:", error);
     }
   };
 
+
+
   const handleDeleteStudySet = async (index) => {
-    const studySetId = studySets[index]._id;  // You have _id in each studySet
+    const studySetId = studySets[index]._id;
     try {
       await deleteStudySet(studySetId);
-      // After successful delete, update local studySets
+
+      // Update local state
       const updatedSets = [...studySets];
       updatedSets.splice(index, 1);
       setStudySets(updatedSets);
+
+      // ✅ Re-fetch public sets
+      const updatedPublicSets = await getPublicSets();
+      setPublicSets(updatedPublicSets);
     } catch (error) {
       console.error('Failed to delete study set:', error);
     }
   };
+
 
   // --- Functions for PuzzleSets ---
   const handleDeletePuzzleSet = async (index) => {
     const puzzleSetId = puzzleSets[index]._id;
     try {
       await deletePuzzleSet(puzzleSetId);
+      setRefreshPuzzleFlag(prev => !prev);
       const updatedSets = [...puzzleSets];
       updatedSets.splice(index, 1);
       setPuzzleSets(updatedSets);
+
+      // ✅ Move this here
+      const updatedPublic = await getPublicPuzzleSets();
+      setPublicPuzzleSets(updatedPublic);
     } catch (error) {
       console.error('Failed to delete puzzle set:', error);
     }
+
   };
 
   const togglePrivatePublicPuzzleSet = async (index) => {
     try {
       const updatedSets = [...puzzleSets];
-
       updatedSets[index].isPrivate = updatedSets[index].isPrivate === "Private" ? "Public" : "Private";
       setPuzzleSets(updatedSets);
       const puzzleSet = updatedSets[index];
-      const payload = {
-        isPrivate: puzzleSet.isPrivate,
-      };
-      const response = await updatePuzzleSet(puzzleSet._id, payload);
+      const payload = { isPrivate: puzzleSet.isPrivate };
+      await updatePuzzleSet(puzzleSet._id, payload);
+      setRefreshPuzzleFlag(prev => !prev);
+
+      // ✅ Move this here
+      const updatedPublic = await getPublicPuzzleSets();
+      setPublicPuzzleSets(updatedPublic);
     } catch (error) {
       console.error("Failed to update puzzle set privacy:", error);
     }
+
   };
 
   // If a set is selected, show flashcard review instead of library
@@ -1215,7 +1268,7 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
         setIsEditingSet={setIsEditingSet} // 🔹 Pass the function as a prop
         setIsCreatingSet={setIsCreatingSet}
         setStudySets={setStudySets}
-        setShowNeedLogin={setShowNeedLogin}
+        needLogin={needLogin}
       />
     );
   }
@@ -1234,7 +1287,11 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
         </button>
 
       </div>
-      {studySets.length > 0 ? (
+      {isLoadingSets ? (
+        <div className="flex justify-center items-center py-10">
+          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
+        </div>
+      ) : studySets.length > 0 ? (
         studySets.map((studySet, index) => (
           <div key={index} className="flex items-center justify-start gap-2 w-full max-w-[600px] mb-4">
             {/* Folder Box */}
@@ -1311,7 +1368,11 @@ function LibraryContent({ setShowNeedLogin, starredTerms, toggleStar, puzzleSets
         <p className="text-[#ff7700] ">{t.noFolders}</p>
       )}
       <h2 className="text-lg font-bold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] mt-8 mb-2">{t.puzzlesets}</h2>
-      {puzzleSets.length > 0 ? (
+      {isLoadingSets ? (
+        <div className="flex justify-center items-center py-10">
+          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
+        </div>
+      ) : puzzleSets.length > 0 ? (
         puzzleSets.map((puzzleSet, index) => (
           <div key={index} className="flex items-center justify-start gap-2 w-full max-w-[600px] mb-4">
             {/* PuzzleSet card */}
@@ -1504,11 +1565,23 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
 
 
 
-function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showGenerator, setSelectedPuzzle, puzzleSets, setPuzzleSets, publicPuzzleSets, setPublicPuzzleSets, username, t }) {
+function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, setIsHome, setShowGenerator, showGenerator, setSelectedPuzzle, puzzleSets, setPuzzleSets, publicPuzzleSets, setPublicPuzzleSets, username, t }) {
   const [showCrosswordPuzzle, setShowCrosswordPuzzle] = useState(false);
   const [selectedSet, setSelectedSet] = useState(null);
   const [clickedHeartId, setClickedHeartId] = useState(null);
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+
+  useEffect(() => {
+    async function refreshPuzzles() {
+      const username = localStorage.getItem("username");
+      if (username) {
+        const updated = await getPuzzleSets(username);
+        setPuzzleSets(updated);
+      }
+    }
+    refreshPuzzles();
+  }, [refreshPuzzleFlag]);
+
 
   if (showGenerator) {
     return (
@@ -1560,7 +1633,11 @@ function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showG
       {/* Your Created Puzzle Sets */}
       {puzzleSets.length > 0 ? (
         <div className="flex flex-col gap-4">
-          {puzzleSets.map((puzzleSet, index) => (
+          {isLoadingSets ? (
+            <div className="flex justify-center items-center py-10">
+              <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
+            </div>
+          ) : puzzleSets.map((puzzleSet, index) => (
             <div
               key={index}
               onClick={() => {
@@ -1593,13 +1670,19 @@ function PuzzlePage({ needLogin, screenWidth, setIsHome, setShowGenerator, showG
 
       {publicPuzzleSets.length > 0 ? (
         <div className="flex flex-col gap-4">
-          {publicPuzzleSets.map((publicPuzzleSet, index) => (
+          {isLoadingSets ? (
+            <div className="flex justify-center items-center py-10">
+              <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
+            </div>
+          ) : publicPuzzleSets.map((publicPuzzleSet, index) => (
             <div
               key={index}
               onClick={() => {
                 setSelectedSet(publicPuzzleSet);
+                setShowCrosswordPuzzle(true);
                 setIsHome(false);
               }}
+
               className="relative flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
               {/* ❤️ Heart Absolute */}
