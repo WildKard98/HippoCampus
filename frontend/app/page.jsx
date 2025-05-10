@@ -310,7 +310,7 @@ export default function Home() {
         <div className="min-h-screen bg-black text-white flex flex-col">
 
           {/* Unified Header */}
-          <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center bg-black/50 text-[#00e0ff] flex-wrap shadow-md rounded-3xl border border-[#00e0ff] backdrop-blur-md ">
+          <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center bg-black/50 text-[#00e0ff] flex-wrap rounded-3xl border border-[#00e0ff] backdrop-blur-md ">
 
 
             {/* Left: Hamburger & App Name */}
@@ -385,7 +385,7 @@ export default function Home() {
                     className="bg-black text-white placeholder-white px-10 py-2 rounded-2xl w-full border border-white focus:outline-none focus:ring-2 focus:ring-white transition"
                   />
                   {searchResults.length > 0 && (
-                    <div className="absolute top-full mt-1 bg-black border border-white rounded-2xl w-full z-50 shadow-lg">
+                    <div className="absolute top-full mt-1 bg-black border border-white rounded-2xl w-full z-50   ">
                       {searchResults.map((item, idx) => (
                         <div
                           key={idx}
@@ -428,14 +428,14 @@ export default function Home() {
                 <div className="relative inline-block text-left" ref={dropdownRef}>
                   <button
                     onClick={() => setShowSetOption((prev) => !prev)}
-                    className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-3xl transition duration-300 hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]"
+                    className="bg-black border-2 border-[#ff7700] text-[#ff7700] px-4 py-2 rounded-3xl transition duration-300 hover:bg-[#ff7700] hover:text-black    "
                   >
                     +
                   </button>
 
                   {showSetOption && (
-                    <div className="absolute right-0 mt-2 w-[140px] rounded-md shadow-lg bg-black ring-1 ring-[#ff7700] ring-opacity-50 z-50">
-                      <div className="py-1 text-[#ff7700] drop-shadow-[0_0_4px_#ff7700]">
+                    <div className="absolute right-0 mt-2 w-[140px] rounded-md   bg-black ring-1 ring-[#ff7700] ring-opacity-50 z-50">
+                      <div className="py-1 text-[#ff7700] ">
                         <button
                           onClick={() => {
                             setShowSetOption(false);
@@ -492,7 +492,7 @@ export default function Home() {
                       {username}
                     </button>
                     {showDropdown && (
-                      <div className="absolute right-0 mt-2 w-[150px] bg-black border border-[#00e0ff] rounded-3xl shadow-[0_0_12px_#00e0ff] z-50">
+                      <div className="absolute right-0 mt-2 w-[150px] bg-black border border-[#00e0ff] rounded-3xl z-50">
                         <button
                           onClick={() => {
                             setIsAuth(false);
@@ -519,14 +519,14 @@ export default function Home() {
                   onClick={() => setShowLangMenu((prev) => !prev)}
                 >
                   <div className="min-w-[80px] max-w-[80px] px-2 py-1 bg-black border border-[#00e0ff] rounded-3xl flex items-center justify-center">
-                    <span className="text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-semibold text-sm whitespace-nowrap">
+                    <span className="text-[#00e0ff] font-semibold text-sm whitespace-nowrap">
                       {lang === "vi" ? "Tiếng Việt" : "English"}
                     </span>
                   </div>
                 </div>
 
                 {showLangMenu && (
-                  <div className="absolute right-0 mt-2 w-32 bg-black border border-[#00e0ff] rounded-3xl shadow-[0_0_12px_#00e0ff] z-50">
+                  <div className="absolute right-0 mt-2 w-32 bg-black border border-[#00e0ff] rounded-3xl z-50">
                     <button
                       onClick={() => { setLang("en"); setShowLangMenu(false); }}
                       className="w-full px-4 py-2 text-left text-[#00e0ff] rounded-3xl hover:bg-[#00e0ff] hover:text-black transition"
@@ -590,7 +590,7 @@ export default function Home() {
 
                   {/* 🔽 Results Dropdown */}
                   {searchResults.length > 0 && (
-                    <div className="absolute top-full mt-1 w-full z-50 border border-white rounded-2xl shadow-lg
+                    <div className="absolute top-full mt-1 w-full z-50 border border-white rounded-2xl  
                    bg-black/90 backdrop-blur-md">
                       {searchResults.map((item, idx) => (
                         <div
@@ -677,7 +677,7 @@ export default function Home() {
           >
             {/* Side Navigation */}
             <aside
-              className={`fixed top-[88px] left-0 z-40 bg-black/50 backdrop-blur-md p-4 border border-[#00e0ff] rounded-3xl shadow-lg
+              className={`fixed top-[88px] left-0 z-40 bg-black/50 backdrop-blur-md p-4 border border-[#00e0ff] rounded-3xl  
                 ${screenWidth <= 770 ? "hidden" : isMenuCollapsed ? "w-[68px]" : "w-[190px]"}`}
               style={{ height: "calc(100vh - 88px)" }} // 88px top + 8px bottom margin
             >
@@ -696,8 +696,8 @@ export default function Home() {
                   }}
                   className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300
                     ${isHome
-                      ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                      ? "text-black bg-[#ff7700] border border-[#ff7700]"
+                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black    "
                     }`}
 
                 >
@@ -715,8 +715,8 @@ export default function Home() {
                   }}
                   className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300
                     ${isCreatingSet === "library"
-                      ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                      ? "text-black bg-[#ff7700] border border-[#ff7700]"
+                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black    "
                     }`}
 
                 >
@@ -724,7 +724,7 @@ export default function Home() {
                 </button>
 
                 <hr className="border-[#00e0ff]" />
-                <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>{t.yourFolders}</p>
+                <p className={`text-sm  text-[#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>{t.yourFolders}</p>
                 <button
                   onClick={() => {
                     setIsCreatingSet(false);
@@ -735,14 +735,14 @@ export default function Home() {
                   }}
                   className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300
                     ${isCreatingSet === "folder"
-                      ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                      ? "text-black bg-[#ff7700] border border-[#ff7700]"
+                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black    "
                     }`}
                 >
                   <i className="bi bi-plus"></i> {!isMenuCollapsed && t.createfolder}
                 </button>
                 <hr className="border-[#00e0ff]" />
-                <p className={`text-sm  text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>{t.explore}</p>
+                <p className={`text-sm  text-[#00e0ff] ${isMenuCollapsed ? "hidden" : "block"}`}>{t.explore}</p>
                 <button
                   onClick={() => {
 
@@ -753,8 +753,8 @@ export default function Home() {
                   }}
                   className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300
                     ${isCreatePuzzle
-                      ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                      ? "text-black bg-[#ff7700] border border-[#ff7700]"
+                      : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black    "
                     }`}
 
                 >
@@ -918,16 +918,16 @@ export default function Home() {
             {/* Right Panel (Hidden on small screens OR when creating a set) */}
             {screenWidth > 1000 && isHome && (
               <aside
-                className="fixed top-[88px] right-0 z-40 w-[240px] h-[calc(100vh-88px)] bg-black/50 backdrop-blur-md p-4 border border-[#00e0ff] rounded-3xl shadow-lg"
+                className="fixed top-[88px] right-0 z-40 w-[240px] h-[calc(100vh-88px)] bg-black/50 backdrop-blur-md p-4 border border-[#00e0ff] rounded-3xl  "
               >
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-[#00e0ff]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-lightbulb" viewBox="0 0 16 16">
                     <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1" />
                   </svg>
                   {t.flashcardTip}
                 </h3>
 
-                <p className="text-sm mt-2 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] opacity-80">
+                <p className="text-sm mt-2 text-[#00e0ff] opacity-80">
                   {randomTip}
                 </p>
               </aside>
@@ -940,8 +940,8 @@ export default function Home() {
       {
         showNeedLogin && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-            <div className="bg-black p-6 rounded-3xl text-white border border-[#00e0ff] shadow-[0_0_16px_#00e0ff] w-[350px]">
-              <h2 className="text-2xl font-bold mb-4 text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] text-center">
+            <div className="bg-black p-6 rounded-3xl text-white border border-[#00e0ff] w-[350px]">
+              <h2 className="text-2xl font-bold mb-4 text-[#ff7700]  text-center">
                 {t.needlogin}
               </h2>
               <p className="text-center text-[#00e0ff] mb-6">
@@ -950,7 +950,7 @@ export default function Home() {
 
               <div className="flex justify-center gap-4">
                 <button
-                  className="px-6 py-2 rounded-3xl border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  className="px-6 py-2 rounded-3xl border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300    "
                   onClick={() => {
                     setShowNeedLogin(false);
                   }}
@@ -958,7 +958,7 @@ export default function Home() {
                   {t.cancelbtn}
                 </button>
                 <button
-                  className="px-6 py-2 rounded-3xl border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+                  className="px-6 py-2 rounded-3xl border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black transition duration-300    "
                   onClick={() => {
                     setShowNeedLogin(false);
                     setShowLogin(true);
@@ -1024,10 +1024,10 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
 
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.recentfile}</h2>
+      <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] ">{t.recentfile}</h2>
       {isLoadingSets ? (
         <div className="flex justify-center items-center py-10">
-          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
+          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] "></i>
         </div>
       ) : studySets.length > 0 ? (
         <div className="flex flex-col gap-4"> {/* 🔥 Add this flex column with gap */}
@@ -1038,7 +1038,7 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
                 setSelectedSet(studySet);
                 setIsHome(false);
               }}
-              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black     cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <i className="bi bi-folder2"></i> {studySet.title} ({studySet.terms.length}{studySet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
@@ -1047,7 +1047,7 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
               {/* 🔥 Glow white text + orange username */}
               <div className="text-sm pl-6">
                 <span className="text-white  font-semibold">{t.createby}</span>{" "}
-                <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
+                <span className="text-[#ff7700] font-semibold">
                   {studySet.username}
                 </span>
               </div>
@@ -1055,14 +1055,14 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
           ))}
         </div>
       ) : (
-        <p className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.noFolders}</p>
+        <p className="text-[#ff7700] ">{t.noFolders}</p>
       )}
 
       {/* 🟡 Public Sets Section */}
-      <h2 className="text-lg font-semibold mt-10 mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.otherpeopleset}</h2>
+      <h2 className="text-lg font-semibold mt-10 mb-4 text-[#00e0ff] ">{t.otherpeopleset}</h2>
       {isLoadingSets ? (
         <div className="flex justify-center items-center py-10">
-          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
+          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] "></i>
         </div>
       ) : publicSets.length > 0 ? (
         <div className="flex flex-col gap-4">
@@ -1073,7 +1073,7 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
                 setSelectedSet(publicSet);
                 setIsHome(false);
               }}
-              className="flex justify-between items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex justify-between items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black  cursor-pointer"
             >
               {/* 📂 Folder Info Column */}
               <div className="flex flex-col gap-1 max-w-[80%]">
@@ -1083,7 +1083,7 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
                 </div>
                 <div className="text-sm pl-6">
                   <span className="text-white font-semibold">{t.createby}</span>{" "}
-                  <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
+                  <span className="text-[#ff7700] font-semibold">
                     {publicSet.username}
                   </span>
                 </div>
@@ -1117,7 +1117,7 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
                 >
                   <i
                     className={`bi ${publicSet.likes && publicSet.likes.includes(username)
-                      ? "bi-heart-fill text-red-500 drop-shadow-[0_0_8px_red]"
+                      ? "bi-heart-fill text-red-500 "
                       : "bi-heart text-[#ff7700]"
                       }`}
                     style={{ paddingTop: "3px" }}
@@ -1137,7 +1137,7 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
           ))}
         </div>
       ) : (
-        <p className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.nopublicsets}</p>
+        <p className="text-[#ff7700] ">{t.nopublicsets}</p>
       )
       }
       {/* Display All Study Sets */}
@@ -1277,7 +1277,7 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
   return (
     <section>
       <div className="flex items-center gap-4 mb-4">
-        <h2 className="text-lg font-semibold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">
+        <h2 className="text-lg font-semibold text-[#00e0ff]">
           {t.yourlibrary}
         </h2>
 
@@ -1293,7 +1293,7 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
       </div>
       {isLoadingSets ? (
         <div className="flex justify-center items-center py-10">
-          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
+          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] "></i>
         </div>
       ) : studySets.length > 0 ? (
         studySets.map((studySet, index) => (
@@ -1306,7 +1306,7 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
                   setIsHome(false);
                 }
               }}
-              className="flex items-center w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex items-center w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black cursor-pointer"
             >
               {/* Column 1: Folder Icon */}
               <i className="bi bi-folder2 text-xl mr-2" />
@@ -1321,12 +1321,12 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
               <div className="flex items-center gap-1 ml-auto text-xl">
                 <i
                   className={`bi ${studySet.likes?.length > 0
-                    ? "bi-heart-fill text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
-                    : "bi-heart text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
+                    ? "bi-heart-fill text-[#00e0ff] "
+                    : "bi-heart text-[#00e0ff] "
                     }`}
                   style={{ paddingTop: "2px" }}
                 ></i>
-                <span className="text-xs text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">
+                <span className="text-xs text-[#00e0ff] ">
                   {studySet.likes?.length || 0}
                 </span>
               </div>
@@ -1338,7 +1338,7 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
                 {/* Trash Box */}
                 <button
                   onClick={() => handleDeleteStudySet(index)}
-                  className="flex items-center justify-center w-10 h-10 rounded-3xl border border-red-500 text-red-500 drop-shadow-[0_0_8px_red] transition duration-300 hover:scale-110"
+                  className="flex items-center justify-center w-10 h-10 rounded-3xl border border-red-500 text-red-500 transition duration-300 hover:scale-110"
                 >
                   <i className="bi bi-trash"></i>
                 </button>
@@ -1346,7 +1346,7 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
                 {/* Lock/Unlock Box */}
                 {studySet.isPrivate === "Copy" ? (
                   <div
-                    className="flex items-center justify-center w-20 h-10 rounded-3xl border-2 border-[#00e0ff] text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-bold cursor-default"
+                    className="flex items-center justify-center w-20 h-10 rounded-3xl border-2 border-[#00e0ff] text-[#00e0ff] font-bold cursor-default"
                   >
                     Copied
                   </div>
@@ -1355,8 +1355,8 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
                     onClick={() => togglePrivatePublic(index)}
                     className={`flex items-center justify-center w-20 h-10 rounded-3xl border transition duration-300 hover:scale-110 font-bold
                        ${studySet.isPrivate === "Private"
-                        ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
-                        : "border-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_yellow]"
+                        ? "border-green-400 text-green-400"
+                        : "border-yellow-400 text-yellow-400 "
                       }
                     `}
                   >
@@ -1371,10 +1371,10 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
       ) : (
         <p className="text-[#ff7700] ">{t.noFolders}</p>
       )}
-      <h2 className="text-lg font-bold text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] mt-8 mb-2">{t.puzzlesets}</h2>
+      <h2 className="text-lg font-bold text-[#00e0ff] mt-8 mb-2">{t.puzzlesets}</h2>
       {isLoadingSets ? (
         <div className="flex justify-center items-center py-10">
-          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
+          <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] "></i>
         </div>
       ) : puzzleSets.length > 0 ? (
         puzzleSets.map((puzzleSet, index) => (
@@ -1387,7 +1387,7 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
                   setIsHome(false);
                 }
               }}
-              className="flex items-center w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex items-center w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black     cursor-pointer"
             >
               {/* Column 1: Folder Icon */}
               <i className="bi bi-folder2 text-xl mr-2" />
@@ -1402,12 +1402,12 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
               <div className="flex items-center gap-1 ml-auto text-xl">
                 <i
                   className={`bi ${puzzleSet.likes?.length > 0
-                    ? "bi-puzzle-fill text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
-                    : "bi-puzzle text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]"
+                    ? "bi-puzzle-fill text-[#00e0ff]"
+                    : "bi-puzzle text-[#00e0ff] "
                     }`}
                   style={{ paddingTop: "1px" }}
                 ></i>
-                <span className="text-xs text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff]">
+                <span className="text-xs text-[#00e0ff] ">
                   {puzzleSet.likes?.length || 0}
                 </span>
               </div>
@@ -1419,7 +1419,7 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
                 {/* Delete Puzzle */}
                 <button
                   onClick={() => handleDeletePuzzleSet(index)}
-                  className="flex items-center justify-center w-10 h-10 rounded-3xl border border-red-500 text-red-500 drop-shadow-[0_0_8px_red] transition duration-300 hover:scale-110"
+                  className="flex items-center justify-center w-10 h-10 rounded-3xl border border-red-500 text-red-500  transition duration-300 hover:scale-110"
                 >
                   <i className="bi bi-trash"></i>
                 </button>
@@ -1428,7 +1428,7 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
                 {/* Lock/Unlock Box */}
                 {puzzleSet.isPrivate === "Copy" ? (
                   <div
-                    className="flex items-center justify-center w-20 h-10 rounded-3xl border-2 border-[#00e0ff] text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff] font-bold cursor-default"
+                    className="flex items-center justify-center w-20 h-10 rounded-3xl border-2 border-[#00e0ff] text-[#00e0ff] font-bold cursor-default"
                   >
                     Copied
                   </div>
@@ -1437,8 +1437,8 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
                     onClick={() => togglePrivatePublicPuzzleSet(index)}
                     className={`flex items-center justify-center w-20 h-10 rounded-3xl border transition duration-300 hover:scale-110 font-bold
                        ${puzzleSet.isPrivate === "Private"
-                        ? "border-green-400 text-green-400 drop-shadow-[0_0_8px_#00ff00]"
-                        : "border-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_yellow]"
+                        ? "border-green-400 text-green-400 "
+                        : "border-yellow-400 text-yellow-400 "
                       }
                     `}
                   >
@@ -1463,7 +1463,7 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
 function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIsCreatingSet, setIsHome, setIsEditingSet, isHome, isCreatingSet, isCreatePuzzle, t, setShowGenerator }) {
   return (
     <motion.aside
-      className="fixed top-0 left-0 h-full w-48 bg-black/50 backdrop-blur-md p-4 z-50 border border-[#00e0ff] rounded-3xl shadow-lg"
+      className="fixed top-0 left-0 h-full w-48 bg-black/50 backdrop-blur-md p-4 z-50 border border-[#00e0ff] rounded-3xl  "
       initial={{ x: -200 }}
       animate={{ x: isOpen ? 0 : -200 }}
       transition={{ duration: 0.3 }}
@@ -1471,7 +1471,7 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
       {/* BigMac Button & Logo */}
       <div className="flex items-center gap-1">
         <button
-          className="text-[#00e0ff] text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:border hover:border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+          className="text-[#00e0ff] text-2xl focus:outline-none w-9 h-9 flex items-center justify-center rounded-full transition duration-300 hover:border hover:border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black   "
           onClick={() => setIsOpen(false)}
         >
           ☰
@@ -1497,8 +1497,8 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setShowGenerator(false);
           }}
           className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 ${isHome
-            ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+            ? "text-black bg-[#ff7700] border border-[#ff7700]"
+            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black    "
             }`}
         >
           <i className="bi bi-house-door"></i> {t.home}
@@ -1515,15 +1515,15 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setShowGenerator(false);
           }}
           className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 ${isCreatingSet === "library"
-            ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+            ? "text-black bg-[#ff7700] border border-[#ff7700]"
+            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black    "
             }`}
         >
           <i className="bi bi-folder2"></i> {t.library}
         </button>
 
         <hr className="border-[#00e0ff]" />
-        <p className="text-sm text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.yourFolders}</p>
+        <p className="text-sm text-[#00e0ff] ">{t.yourFolders}</p>
 
         {/* Create Folder (if you use a "folder" flag) */}
         <button
@@ -1536,15 +1536,15 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setShowGenerator(false);
           }}
           className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 ${isCreatingSet === "folder"
-            ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+            ? "text-black bg-[#ff7700] border border-[#ff7700]"
+            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black    "
             }`}
         >
           <i className="bi bi-plus"></i> {t.createfolder}
         </button>
 
         <hr className="border-[#00e0ff]" />
-        <p className="text-sm text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.explore}</p>
+        <p className="text-sm text-[#00e0ff] ">{t.explore}</p>
 
         {/* Play Crossword */}
         <button
@@ -1556,8 +1556,8 @@ function WingPanel({ isOpen, setIsOpen, setIsCreatePuzzle, setSelectedSet, setIs
             setIsOpen(false);
           }}
           className={`flex items-center gap-2 px-2 py-1 rounded-3xl transition duration-300 ${isCreatePuzzle
-            ? "text-black bg-[#ff7700] border border-[#ff7700] drop-shadow-[0_0_8px_#ff7700]"
-            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]"
+            ? "text-black bg-[#ff7700] border border-[#ff7700]"
+            : "text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black    "
             }`}
         >
           <i className="bi bi-puzzle"></i> {t.playcrossword}
@@ -1620,14 +1620,14 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
     <section>
       {/* Your Puzzle Section */}
       <div className="flex items-center gap-5 mb-4">
-        <h2 className="text-lg font-semibold mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.playpuzzle}</h2>
+        <h2 className="text-lg font-semibold mb-4 text-[#00e0ff]">{t.playpuzzle}</h2>
         <button
           onClick={() => {
             needLogin(() => {
               setShowGenerator(true);
             });
           }}
-          className="px-4 py-2 rounded-3xl border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black transition duration-300 shadow-md hover:shadow-[0_0_12px_#ff7700]"
+          className="px-4 py-2 rounded-3xl border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black transition duration-300    "
         >
           {t.createyourpuzzle}
         </button>
@@ -1639,7 +1639,7 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
         <div className="flex flex-col gap-4">
           {isLoadingSets ? (
             <div className="flex justify-center items-center py-10">
-              <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
+              <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff]"></i>
             </div>
           ) : puzzleSets.map((puzzleSet, index) => (
             <div
@@ -1649,7 +1649,7 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
                 setShowCrosswordPuzzle(true);
                 setIsHome(false);
               }}
-              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black     cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <i className="bi bi-folder2"></i> {puzzleSet.title} ({puzzleSet.terms.length}{puzzleSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
@@ -1658,7 +1658,7 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
               {/* 🔥 Glow white text + orange username */}
               <div className="text-sm pl-6">
                 <span className="text-white font-semibold">{t.createby}</span>{" "}
-                <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
+                <span className="text-[#ff7700] font-semibold">
                   {puzzleSet.username}
                 </span>
               </div>
@@ -1666,7 +1666,7 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
           ))}
         </div>
       ) : (
-        <p className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.nopuzzle}</p>
+        <p className="text-[#ff7700] ">{t.nopuzzle}</p>
       )}
 
       {/* Other People's Puzzle Section */}
@@ -1687,7 +1687,7 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
                 setIsHome(false);
               }}
 
-              className="flex justify-between items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex justify-between items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black cursor-pointer"
             >
               {/* 📂 Folder Title */}
               <div className="flex flex-col gap-1 max-w-[80%]">
@@ -1698,7 +1698,7 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
                 {/* 👤 Username */}
                 <div className="text-sm pl-6">
                   <span className="text-white font-semibold">{t.createby}</span>{" "}
-                  <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
+                  <span className="text-[#ff7700] font-semibold">
                     {publicPuzzleSet.username}
                   </span>
                 </div>
@@ -1734,7 +1734,7 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
                 >
                   <i
                     className={`bi ${publicPuzzleSet.likes && publicPuzzleSet.likes.includes(username)
-                      ? "bi-puzzle-fill text-green-500 drop-shadow-[0_0_8px_green]"
+                      ? "bi-puzzle-fill text-green-500 "
                       : "bi-puzzle text-[#ff7700]"
                       }`}
                     style={{
@@ -1756,7 +1756,7 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
           ))}
         </div>
       ) : (
-        <p className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">{t.nootherpuzzle}</p>
+        <p className="text-[#ff7700]">{t.nootherpuzzle}</p>
       )
       }
       {/* Display All Study Sets */}
@@ -1819,7 +1819,7 @@ function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelec
 
 
           {/* Center Plus Button */}
-          <div className="relative -top-0 w-20 h-20 rounded-full border-4 border-[#00e0ff] bg-black mx-1 flex items-center justify-center drop-shadow-[0_0_12px_#00e0ff]">
+          <div className="relative -top-0 w-20 h-20 rounded-full border-4 border-[#00e0ff] bg-black mx-1 flex items-center justify-center">
             <button
               onClick={() => setShowPrompt(true)}
               className="text-[#00e0ff] text-3xl hover:text-black hover:bg-[#00e0ff] w-full h-full flex items-center justify-center transition rounded-full"
@@ -1869,10 +1869,10 @@ function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelec
       </div>
       {showPrompt && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center">
-          <div className="bg-black border border-[#ff7700] rounded-3xl p-6 text-center shadow-[0_0_16px_#ff7700] w-[300px]">
+          <div className="bg-black border border-[#ff7700] rounded-3xl p-6 text-center w-[300px]">
             <div className="flex flex-col gap-4">
               <button
-                className="px-4 py-2 border border-[#00e0ff] text-[#00e0ff] rounded-3xl hover:bg-[#00e0ff] hover:text-black transition shadow-md"
+                className="px-4 py-2 border border-[#00e0ff] text-[#00e0ff] rounded-3xl hover:bg-[#00e0ff] hover:text-black transition  "
                 onClick={() => {
                   setShowPrompt(false);
                   needLogin(() => {
@@ -1888,7 +1888,7 @@ function MobileNav({ t, setIsHome, setIsCreatingSet, setIsCreatePuzzle, setSelec
                 {t.createset}
               </button>
               <button
-                className="px-4 py-2 border border-[#00e0ff] text-[#00e0ff] rounded-3xl hover:bg-[#00e0ff] hover:text-black transition shadow-md"
+                className="px-4 py-2 border border-[#00e0ff] text-[#00e0ff] rounded-3xl hover:bg-[#00e0ff] hover:text-black transition  "
                 onClick={() => {
                   setShowPrompt(false);
                   needLogin(() => {
