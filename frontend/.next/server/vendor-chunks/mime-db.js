@@ -10,10 +10,10 @@ exports.id = "vendor-chunks/mime-db";
 exports.ids = ["vendor-chunks/mime-db"];
 exports.modules = {
 
-/***/ "(ssr)/../node_modules/mime-db/db.json":
-/*!***************************************!*\
-  !*** ../node_modules/mime-db/db.json ***!
-  \***************************************/
+/***/ "(ssr)/./node_modules/mime-db/db.json":
+/*!**************************************!*\
+  !*** ./node_modules/mime-db/db.json ***!
+  \**************************************/
 /***/ ((module) => {
 
 "use strict";
@@ -21,13 +21,13 @@ module.exports = /*#__PURE__*/JSON.parse('{"application/1d-interleaved-parityfec
 
 /***/ }),
 
-/***/ "(ssr)/../node_modules/mime-db/index.js":
-/*!****************************************!*\
-  !*** ../node_modules/mime-db/index.js ***!
-  \****************************************/
+/***/ "(ssr)/./node_modules/mime-db/index.js":
+/*!***************************************!*\
+  !*** ./node_modules/mime-db/index.js ***!
+  \***************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-eval("/*!\r\n * mime-db\r\n * Copyright(c) 2014 Jonathan Ong\r\n * Copyright(c) 2015-2022 Douglas Christopher Wilson\r\n * MIT Licensed\r\n */\r\n\r\n/**\r\n * Module exports.\r\n */\r\n\r\nmodule.exports = __webpack_require__(/*! ./db.json */ \"(ssr)/../node_modules/mime-db/db.json\")\r\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiKHNzcikvLi4vbm9kZV9tb2R1bGVzL21pbWUtZGIvaW5kZXguanMiLCJtYXBwaW5ncyI6IkFBQUE7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBLDhGQUFxQyIsInNvdXJjZXMiOlsiQzpcXFVzZXJzXFxhbmh2b1xcRGVza3RvcFxcSGlwcG9DYW1wdXNcXG5vZGVfbW9kdWxlc1xcbWltZS1kYlxcaW5kZXguanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyohXHJcbiAqIG1pbWUtZGJcclxuICogQ29weXJpZ2h0KGMpIDIwMTQgSm9uYXRoYW4gT25nXHJcbiAqIENvcHlyaWdodChjKSAyMDE1LTIwMjIgRG91Z2xhcyBDaHJpc3RvcGhlciBXaWxzb25cclxuICogTUlUIExpY2Vuc2VkXHJcbiAqL1xyXG5cclxuLyoqXHJcbiAqIE1vZHVsZSBleHBvcnRzLlxyXG4gKi9cclxuXHJcbm1vZHVsZS5leHBvcnRzID0gcmVxdWlyZSgnLi9kYi5qc29uJylcclxuIl0sIm5hbWVzIjpbXSwiaWdub3JlTGlzdCI6WzBdLCJzb3VyY2VSb290IjoiIn0=\n//# sourceURL=webpack-internal:///(ssr)/../node_modules/mime-db/index.js\n");
+eval("/*!\n * mime-db\n * Copyright(c) 2014 Jonathan Ong\n * Copyright(c) 2015-2022 Douglas Christopher Wilson\n * MIT Licensed\n */\n\n/**\n * Module exports.\n */\n\nmodule.exports = __webpack_require__(/*! ./db.json */ \"(ssr)/./node_modules/mime-db/db.json\")\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiKHNzcikvLi9ub2RlX21vZHVsZXMvbWltZS1kYi9pbmRleC5qcyIsIm1hcHBpbmdzIjoiQUFBQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7O0FBRUE7QUFDQTtBQUNBOztBQUVBLDZGQUFxQyIsInNvdXJjZXMiOlsiL1VzZXJzL2FuaHZvL0Rlc2t0b3AvSGlwcG9DYW1wdXMvZnJvbnRlbmQvbm9kZV9tb2R1bGVzL21pbWUtZGIvaW5kZXguanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyohXG4gKiBtaW1lLWRiXG4gKiBDb3B5cmlnaHQoYykgMjAxNCBKb25hdGhhbiBPbmdcbiAqIENvcHlyaWdodChjKSAyMDE1LTIwMjIgRG91Z2xhcyBDaHJpc3RvcGhlciBXaWxzb25cbiAqIE1JVCBMaWNlbnNlZFxuICovXG5cbi8qKlxuICogTW9kdWxlIGV4cG9ydHMuXG4gKi9cblxubW9kdWxlLmV4cG9ydHMgPSByZXF1aXJlKCcuL2RiLmpzb24nKVxuIl0sIm5hbWVzIjpbXSwiaWdub3JlTGlzdCI6WzBdLCJzb3VyY2VSb290IjoiIn0=\n//# sourceURL=webpack-internal:///(ssr)/./node_modules/mime-db/index.js\n");
 
 /***/ })
 

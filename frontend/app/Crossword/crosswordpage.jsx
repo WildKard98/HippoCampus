@@ -165,14 +165,14 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
     return (
         <div className="text-white font-[Itim]">
             {/*Title & Back Button */}
-            <div className={`flex justify-between items-center py-5 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
-                <h2 className="text-3xl font-semibold text-left text-[#ff7700] drop-shadow-[0_0_8px_#ff7700]">
+            <div className={`flex justify-between items-center py-5 ${screenWidth <= 1000 ? "w-full" : "w-[60%] ml-0"}`}>
+                <h2 className="text-3xl font-semibold text-left text-[#ff7700] ">
                     {puzzleSet.title}
                 </h2>
 
                 <button
-                    className="mb-4 px-4 py-2 justify-end rounded border border-white text-white transition duration-300 
-             hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
+                    className="mb-4 px-4 py-2 justify-end rounded-3xl border border-white text-white transition duration-300 
+             hover:bg-white hover:text-black "
                     onClick={onBack}
                 >
                     {t.backbtn}
@@ -181,7 +181,7 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
 
             {/* Puzzle look */}
 
-            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 770 ? "w-full" : "w-[60%]"}`}>
+            <div className={`flex flex-col gap-2 mb-2 border-2 border-[#00e0ff] p-2 rounded-3xl ${screenWidth <= 1000 ? "w-full" : "w-[60%]"}`}>
                 {/* ✅ highlight is now scoped inside the render and updates correctly */}
                 {isLoading && (
                     <div className="flex justify-center items-center h-[200px]">
@@ -357,12 +357,12 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
 
                                                         className={`relative z-20 w-6 h-6 rounded-sm flex items-center justify-center text-xs transition-all duration-100
                                                             ${highlighted.includes(`${row}-${col}`)
-                                                                ? 'bg-black text-[#ff7700] border-2 border-[#ff7700] shadow-[0_0_20px_#ff7700]'
+                                                                ? 'bg-black text-[#ff7700] border-2 border-[#ff7700] '
                                                                 : cellStatus[`${row}-${col}`] === "correct"
-                                                                    ? 'bg-[#052d1b] text-[#00ff88] border-2 border-[#00ff88] shadow-[0_0_10px_#00ff88]'
+                                                                    ? 'bg-[#052d1b] text-[#00ff88] border-2 border-[#00ff88] '
                                                                     : cellStatus[`${row}-${col}`] === "incorrect"
-                                                                        ? 'bg-[#330a0a] text-[#ff0033] border-2 border-[#ff0033] shadow-[0_0_10px_#ff0033]'
-                                                                        : 'bg-black text-[#00e0ff] border-2 border-[#00e0ff] shadow-[0_0_20px_#00e0ff]'
+                                                                        ? 'bg-[#330a0a] text-[#ff0033] border-2 border-[#ff0033] '
+                                                                        : 'bg-black text-[#00e0ff] border-2 border-[#00e0ff]'
                                                             }`}
 
                                                     >
@@ -420,7 +420,7 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                                                                     activeClueCell.row === row &&
                                                                     activeClueCell.col === col &&
                                                                     activeClueText && (
-                                                                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max max-w-[300px] px-2 py-2 bg-black border border-white rounded text-sm text-white z-30 shadow-lg leading-snug whitespace-pre-wrap text-center">
+                                                                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max max-w-[300px] px-2 py-2 bg-black border border-white rounded text-sm text-white z-30 leading-snug whitespace-pre-wrap text-center">
 
                                                                             {activeClueText}
                                                                         </div>
@@ -450,7 +450,7 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                     <div className="flex flex-col md:flex-row gap-2">
                         <div className="bg-black border-2 border-[#00e0ff] text-[#00e0ff] p-4 rounded-2xl w-full md:w-1/2 min-h-[150px]">
                             <span className={`font-semibold block mb-2 text-lg transition duration-200
-                            ${hoveredDirection === "across" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-white drop-shadow-[0_0_10px_white]"}`}>
+                            ${hoveredDirection === "across" ? "text-[#ffaa33] " : "text-[#00e0ff]"}`}>
                                 {t.across}
                             </span>
 
@@ -471,8 +471,8 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                                             }}
                                             className={`mb-2 text-lg transition duration-200 cursor-pointer
                                                     ${hoveredClueNumber === entry.clueNumber && hoveredDirection === "across"
-                                                    ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-bold"
-                                                    : ""}`}
+                                                    ? "text-[#ff7700] font-bold"
+                                                    : "text-white"}`}
                                         >
                                             <strong>{entry.clueNumber}.</strong> {qna.question}
                                         </div>
@@ -483,7 +483,7 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
 
                         <div className="bg-black border-2 border-[#00e0ff] text-[#00e0ff] p-4 rounded-2xl w-full md:w-1/2 min-h-[150px]">
                             <span className={`font-semibold block mb-2 text-lg transition duration-200
-                            ${hoveredDirection === "down" ? "text-[#ffaa33] drop-shadow-[0_0_10px_#ffaa33]" : "text-white drop-shadow-[0_0_10px_white]"}`}>
+                            ${hoveredDirection === "down" ? "text-[#ffaa33] " : "text-[#00e0ff]"}`}>
                                 {t.down}
                             </span>
 
@@ -504,8 +504,8 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
                                             }}
                                             className={`mb-2 text-lg transition duration-200 cursor-pointer
                                                       ${hoveredClueNumber === entry.clueNumber && hoveredDirection === "down"
-                                                    ? "text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-bold"
-                                                    : ""}`}
+                                                    ? "text-[#ff7700] font-bold"
+                                                    : "text-white"}`}
                                         >
                                             <strong>{entry.clueNumber}.</strong> {qna.question}
                                         </div>
@@ -518,8 +518,8 @@ export default function CrosswordPuzzlePage({ screenWidth, onBack, puzzleSet, t 
             </div>
             <button
                 onClick={() => checkAnswers()}
-                className="mt-4 px-6 py-2 rounded border border-white text-white transition duration-300 
-             hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
+                className="mt-4 px-6 py-2 rounded-3xl border border-white text-white transition duration-300 
+             hover:bg-white hover:text-black "
             >
                 {t.checkanswer}
             </button>

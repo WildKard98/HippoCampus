@@ -389,6 +389,7 @@ export default function Home() {
                               setSelectedSet(null);            // ✅ Clear study set
                               setSelectedPuzzle(item);         // ✅ Set current puzzle
                               setShowGenerator("play");        // ✅ Required if you want puzzle viewer
+                              setIsHome(false);
                             }
                           }}
                           className="px-4 py-2 hover:bg-[#00e0ff] text-white hover:text-black cursor-pointer flex rounded-2xl justify-between items-center"
@@ -593,6 +594,7 @@ export default function Home() {
                               setSelectedSet(null);
                               setSelectedPuzzle(item);
                               setShowGenerator("play");
+                              setIsHome(false);
                             }
                           }}
                           className="px-4 py-2 hover:bg-[#00e0ff] text-white rounded-2xl hover:text-black cursor-pointer flex justify-between items-center"
@@ -751,12 +753,12 @@ export default function Home() {
 
             {/* Main Content Area */}
             <main
-              className="flex-1 p-3 overflow-hidden relative max-w-[1500px] border border-[#00e0ff] rounded-3xl"
+              className="flex-1 p-3 overflow-hidden relative border border-[#00e0ff] rounded-3xl"
               style={{
-                marginRight: screenWidth > 770 && isHome ? "250px" : "0",
+                marginRight: screenWidth > 1000 && isHome ? "250px" : "0",
               }}
             >
-              <div className="h-full overflow-y-auto pr-2">
+              <div className="h-full overflow-y-auto">
                 {isCreatingSet === "library" ? (
                   <LibraryContent
                     studySets={studySets}
@@ -812,6 +814,7 @@ export default function Home() {
                       setSelectedPuzzle(null);
                       setIsCreatePuzzle(false);
                       setIsHome(true);
+                      setShowGenerator(false);
                     }}
                   />
                 ) : showGenerator ? (
@@ -890,7 +893,7 @@ export default function Home() {
             </main>
 
             {/* Right Panel (Hidden on small screens OR when creating a set) */}
-            {screenWidth > 770 && isHome && (
+            {screenWidth > 1000 && isHome && (
               <aside
                 className="fixed top-[88px] right-0 z-40 w-[240px] h-[calc(100vh-88px)] bg-black/50 backdrop-blur-md p-4 border border-[#00e0ff] rounded-3xl shadow-lg"
               >
@@ -1032,11 +1035,25 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
                 setSelectedSet(publicSet);
                 setIsHome(false);
               }}
-              className="relative flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex justify-between items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
-              {/* ❤️ Heart Absolute */}
+              {/* 📂 Folder Info Column */}
+              <div className="flex flex-col gap-1 max-w-[80%]">
+                <div className="flex items-center gap-2">
+                  <i className="bi bi-folder2"></i>
+                  {publicSet.title} ({publicSet.terms.length} {publicSet.terms.length === 1 ? t.termsg : t.termmul})
+                </div>
+                <div className="text-sm pl-6">
+                  <span className="text-white font-semibold">Created by:</span>{" "}
+                  <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
+                    {publicSet.username}
+                  </span>
+                </div>
+              </div>
+
+              {/* ❤️ Heart Column */}
               <div
-                className="absolute top-1/2 right-2 flex items-center gap-2 text-2xl cursor-pointer transition-all duration-300 transform -translate-y-1/2"
+                className="flex items-center gap-2 text-2xl cursor-pointer transition-all duration-300"
                 onClick={(e) => {
                   e.stopPropagation();
                   needLogin(async () => {
@@ -1051,27 +1068,21 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
                     }
                   });
                 }}
-
               >
                 <div
                   className={`flex items-center justify-center rounded-full p-2 border-2 ${publicSet.likes && publicSet.likes.includes(username)
                     ? "border-red-500"
                     : "border-[#ff7700]"
                     } ${clickedHeartId === publicSet._id ? "scale-125" : "scale-100"} 
-    transition-transform duration-200`}
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                  }}
+                 transition-transform duration-200`}
+                  style={{ width: "40px", height: "40px" }}
                 >
                   <i
                     className={`bi ${publicSet.likes && publicSet.likes.includes(username)
                       ? "bi-heart-fill text-red-500 drop-shadow-[0_0_8px_red]"
                       : "bi-heart text-[#ff7700]"
                       }`}
-                    style={{
-                      paddingTop: "3px",
-                    }}
+                    style={{ paddingTop: "3px" }}
                   ></i>
                 </div>
                 <span
@@ -1083,22 +1094,8 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
                   {publicSet.likes ? publicSet.likes.length : 0}
                 </span>
               </div>
-
-
-              {/* 📂 Folder Title */}
-              <div className="flex items-center gap-2">
-                <i className="bi bi-folder2"></i>
-                {publicSet.title} ({publicSet.terms.length}{publicSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
-              </div>
-
-              {/* 👤 Username */}
-              <div className="text-sm pl-6">
-                <span className="text-white font-semibold">Created by:</span>{" "}
-                <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
-                  {publicSet.username}
-                </span>
-              </div>
             </div>
+
           ))}
         </div>
       ) : (

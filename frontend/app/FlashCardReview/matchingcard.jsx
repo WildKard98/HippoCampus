@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import React from "react";
 
 export default function MatchingCard({ studySet, setShowMatchingTest, screenWidth, setSelectedSet, t }) {
     const [selectedItem, setSelectedItem] = useState(null); // Stores first selection (term/definition)
@@ -63,14 +64,14 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
         <div className="flex flex-col text-white">
 
             {/* Matching Test Title & Back Button */}
-            <div className={`flex justify-between items-center py-2 ${screenWidth <= 770 ? "w-full" : "w-[60%] ml-0"}`}>
+            <div className={`flex justify-between items-center py-2 ${screenWidth <= 1000 ? "w-full" : "w-[60%] ml-0"}`}>
                 <h3 className="text-xl text-[#00e0ff] drop-shadow-[0_0_6px_#00e0ff] font-bold">
                     {t.matchingcard}
                 </h3>
 
                 <button
                     className="w-[120px] px-4 py-2 text-sm rounded-3xl border border-2 border-white shadow-[0_0_20px_white] text-white transition duration-300 
-    hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
+                     hover:bg-white hover:text-black shadow-md hover:shadow-[0_0_12px_white]"
                     onClick={() => setShowMatchingTest(false)}
                 >
                     {t.backbtn}
@@ -78,17 +79,17 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
             </div>
 
             {/* Section for displaying matched pairs below the title */}
-            <div className={`flex flex-col gap-2 mb-2 ${screenWidth <= 770 ? "w-full " : "w-[60%]"}`}>
+            <div className={`flex flex-col gap-2 mb-3 ${screenWidth <= 1000 ? "w-full " : "w-[60%]"}`}>
                 {matchedPairs.map((pair, index) => (
                     <div
                         key={index}
                         className="bg-black p-4  rounded-3xl flex items-center justify-between w-full 
-                 border border-[#00ff88] shadow-[0_0_12px_#00ff88]"
+                 border border-[#00ff88] "
                     >
                         <span className="font-semibold w-1/3 text-[#00ff88] ">
                             {pair.term}
                         </span>
-                        <span className="text-[#00ff88] text-5xl px-1 font-light drop-shadow-[0_0_6px_#00e0ff]">
+                        <span className="text-[#00ff88] text-5xl px-1 font-light ">
                             |
                         </span>
                         <span className="w-2/3 text-[#00ff88] ">
@@ -113,49 +114,46 @@ export default function MatchingCard({ studySet, setShowMatchingTest, screenWidt
 
 
             {/* Matching Test Layout */}
-            <div className={`grid ${screenWidth <= 770 ? "grid-cols-[30%_70%] w-full" : "grid-cols-[45%_55%] w-[60%]"}`}>
-                {/* Left Column - Terms */}
-                <div className={`flex flex-col ${screenWidth <= 770 ? "gap-2 w-full px-1" : "gap-4"}`}>
-                    {studySet.terms
-                        .filter(item => !matchedPairs.some(pair => pair.term === item.term))
-                        .map((item, index) => (
-                            <button
-                                key={index}
-                                className={`text-[#ff7700] px-3 py-5  rounded-3xl text-left 
-                        ${screenWidth <= 770 ? "w-full" : "w-[120px]"} 
-                        ${selectedItem?.term === item.term && selectedItem?.type === "term" ? "bg-yellow-500 text-black" : ""}
-                        ${matchedPairs.some(pair => pair.term === item.term) ? "bg-green-600 pointer-events-none" : ""}
-                        ${incorrectPair?.term === item.term && incorrectPair?.definition ? "bg-red-600 border border-red-600 text-black shadow-[0_0_12px_red-600]" : ""}
-                        ${!disableHover ? " rounded-3xl bg-[#45311f] border border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700] transition duration-200" : "bg-[#45311f] border border-[#ff7700]"}
-                    `}
-                                onClick={() => handleSelection("term", item)}
-                            >
-                                {item.term}  {/* 🔹 Removed the numbering */}
-                            </button>
-                        ))}
-                </div>
+            <div className={`grid ${screenWidth <= 1000 ? "grid-cols-[30%_70%] w-full" : "grid-cols-[35%_65%] w-[60%]"} gap-3 pr-3`}>
+                {studySet.terms
+                    .filter(item => !matchedPairs.some(pair => pair.term === item.term))
+                    .map((item, index) => {
+                        const def = shuffledDefinitions.find(d => d.term === item.term);
+                        return (
+                            <React.Fragment key={`pair-${index}`}>
+                                {/* Left: Term */}
+                                <button
+                                    className={`w-full text-[#ff7700] px-4 py-3 rounded-3xl text-left 
+                                ${selectedItem?.term === item.term && selectedItem?.type === "term" ? "bg-yellow-500 text-black" : ""}
+                                ${incorrectPair?.term === item.term ? "bg-red-600 border border-red-600 text-black shadow-[0_0_12px_red-600]" : ""}
+                                ${!disableHover ? "bg-[#45311f] border border-[#ff7700] hover:bg-[#ff7700] hover:text-black shadow-md hover:shadow-[0_0_12px_#ff7700]" : "bg-[#45311f] border border-[#ff7700]"}
+                                transition duration-200`}
+                                    onClick={() => handleSelection("term", item)}
+                                >
+                                    {item.term}
+                                </button>
 
-                {/* Right Column - Definitions */}
-                <div className={`flex flex-col gap-3 ${screenWidth <= 770 ? "w-full px-1" : "w-full"}`}>
-                    {shuffledDefinitions
-                        .filter(item => !matchedPairs.some(pair => pair.definition === item.definition))
-                        .map((item, index) => (
-                            <button
-                                key={index}
-                                className={`text-[#00e0ff] px-4 py-3  rounded-3xl text-left 
-                        ${screenWidth <= 770 ? "w-full" : "w-auto"} 
-                        ${selectedItem?.definition === item.definition && selectedItem?.type === "definition" ? "bg-[#38b8c9] text-black" : ""}
-                        ${matchedPairs.some(pair => pair.definition === item.definition) ? "bg-green-600 pointer-events-none" : ""} 
-                        ${incorrectPair?.definition === item.definition && incorrectPair?.term ? "bg-red-600 border border-red-600 text-black shadow-[0_0_12px_red-600]" : ""}
-                        ${!disableHover ? "ounded-lg bg-[#1a2e30] border border-[#00e0ff] text-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] transition duration-200" : "bg-[#1a2e30] border border-[#00e0ff]"}
-                    `}
-                                onClick={() => handleSelection("definition", item)}
-                            >
-                                {item.definition}
-                            </button>
-                        ))}
-                </div>
+                                {/* Right: Definition */}
+                                {def ? (
+                                    <button
+                                        className={`w-full text-[#00e0ff] px-4 py-3 rounded-3xl text-left 
+                                  ${selectedItem?.definition === def.definition && selectedItem?.type === "definition" ? "bg-[#38b8c9] text-black" : ""}
+                                  ${incorrectPair?.definition === def.definition ? "bg-red-600 border border-red-600 text-black shadow-[0_0_12px_red-600]" : ""}
+                                  ${!disableHover ? "bg-[#1a2e30] border border-[#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff]" : "bg-[#1a2e30] border border-[#00e0ff]"}
+                                  transition duration-200`}
+                                        onClick={() => handleSelection("definition", def)}
+                                    >
+                                        {def.definition}
+                                    </button>
+                                ) : (
+                                    <div className="w-full" />
+                                )}
+                            </React.Fragment>
+                        );
+                    })}
+
             </div>
+
         </div>
     );
 }
