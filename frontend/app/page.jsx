@@ -61,6 +61,7 @@ export default function Home() {
   const searchRef = useRef();
   const [refreshStudyFlag, setRefreshStudyFlag] = useState(false);
   const [refreshPuzzleFlag, setRefreshPuzzleFlag] = useState(false);
+  const [isLoadingPuzzles, setIsLoadingPuzzles] = useState(true);
 
 
   const toggleStar = async (term, setId) => {
@@ -162,17 +163,18 @@ export default function Home() {
   useEffect(() => {
     async function fetchPublicPuzzleSets() {
       try {
-        const response = await getPublicPuzzleSets();  // Fetch public sets from the backend
-        console.log("Public Puzzle Sets: ", response);
+        setIsLoadingPuzzles(true); // ✅ START loading
+        const response = await getPublicPuzzleSets();
         setPublicPuzzleSets(response);
       } catch (err) {
         console.error("Failed to fetch public Puzzle sets:", err);
       } finally {
-        setIsLoadingSets(false); // ✅ Add this here too
+        setIsLoadingPuzzles(false); // ✅ END loading
       }
     }
     fetchPublicPuzzleSets();
   }, []);
+  
 
   const lowerSearch = searchTerm.toLowerCase();
 
@@ -864,7 +866,7 @@ export default function Home() {
                       puzzleSets={puzzleSets}
                       setPuzzleSets={setPuzzleSets}
                       setIsHome={setIsHome}
-                      isLoadingSets={isLoadingSets}
+                      isLoadingSets={isLoadingPuzzles}
                       refreshPuzzleFlag={refreshPuzzleFlag}
                     />
                   ) : (
@@ -882,7 +884,7 @@ export default function Home() {
                       puzzleSets={puzzleSets}
                       setPuzzleSets={setPuzzleSets}
                       setIsHome={setIsHome}
-                      isLoadingSets={isLoadingSets}
+                      isLoadingSets={isLoadingPuzzles}
                       refreshPuzzleFlag={refreshPuzzleFlag}
                     />
 
@@ -1044,7 +1046,7 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
 
               {/* 🔥 Glow white text + orange username */}
               <div className="text-sm pl-6">
-                <span className="text-white  font-semibold">Created by:</span>{" "}
+                <span className="text-white  font-semibold">{t.createby}</span>{" "}
                 <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
                   {studySet.username}
                 </span>
@@ -1080,7 +1082,7 @@ function HomeContent({ isLoadingSets, starredTerms, toggleStar, setStudySets, ne
                   {publicSet.title} ({publicSet.terms.length} {publicSet.terms.length === 1 ? t.termsg : t.termmul})
                 </div>
                 <div className="text-sm pl-6">
-                  <span className="text-white font-semibold">Created by:</span>{" "}
+                  <span className="text-white font-semibold">{t.createby}</span>{" "}
                   <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
                     {publicSet.username}
                   </span>
@@ -1653,7 +1655,7 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
 
               {/* 🔥 Glow white text + orange username */}
               <div className="text-sm pl-6">
-                <span className="text-white  font-semibold">Created by:</span>{" "}
+                <span className="text-white font-semibold">{t.createby}</span>{" "}
                 <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
                   {puzzleSet.username}
                 </span>
@@ -1666,13 +1668,13 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
       )}
 
       {/* Other People's Puzzle Section */}
-      <h2 className="text-lg font-semibold mt-10 mb-4 text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]">{t.otherpuzzle}</h2>
+      <h2 className="text-lg font-semibold mt-10 mb-4 text-[#00e0ff] ">{t.otherpuzzle}</h2>
 
       {publicPuzzleSets.length > 0 ? (
         <div className="flex flex-col gap-4">
           {isLoadingSets ? (
             <div className="flex justify-center items-center py-10">
-              <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] drop-shadow-[0_0_8px_#00e0ff]"></i>
+              <i className="bi bi-arrow-repeat animate-spin text-3xl text-[#00e0ff] "></i>
             </div>
           ) : publicPuzzleSets.map((publicPuzzleSet, index) => (
             <div
@@ -1683,11 +1685,26 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
                 setIsHome(false);
               }}
 
-              className="relative flex flex-col gap-1 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
+              className="flex justify-between items-center gap-2 w-3/4 max-w-[400px] px-4 py-2 rounded-3xl transition duration-300 text-[#00e0ff] border border-[#00e0ff] shadow-[0_0_20px_#00e0ff] hover:bg-[#00e0ff] hover:text-black shadow-md hover:shadow-[0_0_12px_#00e0ff] cursor-pointer"
             >
+              {/* 📂 Folder Title */}
+              <div className="flex flex-col gap-1 max-w-[80%]">
+                <div className="flex items-center gap-2">
+                  <i className="bi bi-folder2"></i>
+                  {publicPuzzleSet.title} ({publicPuzzleSet.terms.length}{publicPuzzleSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
+                </div>
+                {/* 👤 Username */}
+                <div className="text-sm pl-6">
+                  <span className="text-white font-semibold">{t.createby}</span>{" "}
+                  <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
+                    {publicPuzzleSet.username}
+                  </span>
+                </div>
+              </div>
+
               {/* ❤️ Heart Absolute */}
               <div
-                className="absolute top-1/2 right-2 flex items-center gap-2 text-2xl cursor-pointer transition-all duration-300 transform -translate-y-1/2"
+                className="flex items-center gap-2 text-2xl cursor-pointer transition-all duration-300"
                 onClick={async (e) => {
                   e.stopPropagation();
                   setClickedHeartId(publicPuzzleSet._id);
@@ -1733,20 +1750,6 @@ function PuzzlePage({ refreshPuzzleFlag, isLoadingSets, needLogin, screenWidth, 
                 </span>
               </div>
 
-
-              {/* 📂 Folder Title */}
-              <div className="flex items-center gap-2">
-                <i className="bi bi-folder2"></i>
-                {publicPuzzleSet.title} ({publicPuzzleSet.terms.length}{publicPuzzleSet.terms.length === 1 ? " " + t.termsg : " " + t.termmul})
-              </div>
-
-              {/* 👤 Username */}
-              <div className="text-sm pl-6">
-                <span className="text-white font-semibold">Created by:</span>{" "}
-                <span className="text-[#ff7700] drop-shadow-[0_0_8px_#ff7700] font-semibold">
-                  {publicPuzzleSet.username}
-                </span>
-              </div>
             </div>
           ))}
         </div>

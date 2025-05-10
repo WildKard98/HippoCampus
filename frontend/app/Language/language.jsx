@@ -173,7 +173,7 @@ export const translations = {
 
         // homepage more feature
         otherpeopleset: "Bộ thẻ của người khác",
-        createby: "Được tạo bởi:",
+        createby: "Tạo bởi: ",
         nopublicsets: "Chưa có bộ thẻ công khai nào.",
 
         // yourlibrary more feature

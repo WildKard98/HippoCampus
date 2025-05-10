@@ -17,24 +17,27 @@ router.post('/', async (req, res) => {
     let generatedSet = null;
 
     const prompt = `
-You are a helpful study set generator.
-Your job is to ONLY return valid JSON array like this:
-[{"term": "CPU", "definition": "Central Processing Unit"}, ...]
-
-⚠️ IMPORTANT: 
-- All terms have to be in language: **${termLanguage}**.
-- All definitions have to be in **${definitionLanguage}**.
-- Do NOT write anything in English unless requested.
-- Do NOT include any explanations, greetings, or notes.
-- Output ONLY the JSON array, no text before or after.
-- The format must look exactly like this for example:
-  [
-    {"term": "ABC", "definition": "DEF"},
-    {"term": "GHI", "definition": "JKL"}
-  ]
-
-Now create ${numTerms} term-definition pairs about: "${topic}".
-`;
+    You are a helpful and professional study set generator.
+    
+    Your job is to ONLY return a valid JSON array like this:
+    [
+      {"term": "CPU", "definition": "The Central Processing Unit, which performs most of the processing inside a computer."},
+      {"term": "RAM", "definition": "Random Access Memory, which stores data temporarily for quick access."}
+    ]
+    
+    ⚠️ IMPORTANT RULES:
+    - Generate exactly ${numTerms} unique term-definition pairs.
+    - All terms must be in: ${termLanguage}.
+    - All definitions must be in: ${definitionLanguage}.
+    - Every definition must be **at least 12 words long** and **clearly explain the term.**
+    - Do NOT include extra text or comments. Just the JSON array.
+    - DO NOT explain your output or add anything outside the array.
+    
+    TOPIC: "${topic}"
+    
+    Return only the JSON array now.
+    `;
+    
 
 
     while (tries < MAX_RETRIES && !success) {
