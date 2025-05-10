@@ -174,7 +174,7 @@ export default function Home() {
     }
     fetchPublicPuzzleSets();
   }, []);
-  
+
 
   const lowerSearch = searchTerm.toLowerCase();
 
@@ -1283,10 +1283,12 @@ function LibraryContent({ setPublicSets, setPublicPuzzleSets, refreshPuzzleFlag,
 
         <button
           onClick={() => setIsManaging(!isManaging)}
-          className="px-4 py-2 border-2 border-[#ff7700] text-[#ff7700] rounded-3xl hover:bg-[#ff7700] hover:text-black shadow-[0_0_8px_#ff7700] hover:shadow-[0_0_12px#ff7700] transition duration-300 font-bold"
+          className="w-10 h-10 border-2 border-[#ff7700] text-[#ff7700] rounded-full flex items-center justify-center
+             hover:bg-[#ff7700] hover:text-black transition duration-300"
         >
-          {isManaging ? t.doneManaging : t.manageLibrary}
+          <i className="bi bi-gear-fill text-lg"></i>
         </button>
+
 
       </div>
       {isLoadingSets ? (
