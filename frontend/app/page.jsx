@@ -331,18 +331,24 @@ export default function Home() {
               )}
 
               {/* Web Title (Changes based on screen size) */}
-              <img
-                src="/logo5.png"
-                alt="Hippocampus Logo"
-                className={`h-10 w-15 object-contain ml-1 ${screenWidth <= 770 ? "block" : "hidden"}`}
-              />
-              <div className="fle ">
-                <img
-                  src="/logo6.png"
-                  alt="Hippocampus Logo"
-                  className={`h-11 w-40 object-contain ml-2 ${screenWidth > 770 ? "block" : "hidden"}`}
-                />
+              {/* Web Title (Compact) */}
+              <div className="ml-2">
+                <div
+                  className={`leading-tight font-bold text-[#00e0ff] ${screenWidth <= 770 ? "text-sm block" : "text-base hidden"
+                    }`}
+                >
+                  <div>Hippo</div>
+                  <div>Campus</div>
+                </div>
+                <div
+                  className={`leading-tight font-bold text-[#00e0ff] ${screenWidth > 770 ? "text-lg block" : "hidden"
+                    }`}
+                >
+                  <div>Hippocampus</div>
+                </div>
               </div>
+
+
             </div>
 
 
